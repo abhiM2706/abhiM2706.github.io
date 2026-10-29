@@ -1794,10 +1794,11 @@ body.reeling { overflow: hidden; }
     svg.setAttribute("viewBox", "0 0 120 " + vbH);
     fullEl.innerHTML = full ? figureSVG(false) : "";
 
-    figure.innerHTML = figureSVG(true, { stub: action === "bench" });
-    figure.parentNode.setAttribute("viewBox", action ? "-44 -34 208 326" : "0 0 120 290");
+    var act = action && ACTS[action];
+    figure.innerHTML = act && act.side ? "" : figureSVG(true);
+    figure.parentNode.setAttribute("viewBox", act && act.side ? "-6 72 184 222" : action ? "-44 -34 208 326" : "0 0 120 290");
     look.classList.toggle("act", !!action);
-    if (action && ACTS[action]) ACTS[action].setup();
+    if (act) act.setup();
 
     var rows = [["top", fit.shirt.name], ["bottom", fit.pants.name], ["feet", fit.shoes.name]];
     if (fit.hat) rows.push(["head", fit.hat.name]);
@@ -2075,57 +2076,171 @@ body.reeling { overflow: hidden; }
     })(t0);
   }
 
-  var PLATES = function (y, h) {   // a loaded bar, plates at both ends
-    return '<rect x="-30" y="' + (y + 10) + '" width="180" height="6" rx="3" fill="#4A4A55"/>' +
-      '<rect x="-34" y="' + y + '" width="12" height="' + h + '" rx="2" fill="#23232B"/><rect x="-21" y="' + (y + 4) + '" width="7" height="' + (h - 8) + '" rx="2" fill="#2E2E38"/>' +
-      '<rect x="142" y="' + y + '" width="12" height="' + h + '" rx="2" fill="#23232B"/><rect x="134" y="' + (y + 4) + '" width="7" height="' + (h - 8) + '" rx="2" fill="#2E2E38"/>';
-  };
+  // ---------------------------------------------------------------------
+  // The lifts are drawn from the side, at a slight diagonal: he faces right,
+  // the bar comes toward you end-on, near plates big and in front, far
+  // plates small and behind. The figure is a stick skeleton with thick
+  // rounded limbs in the fit's colours and a profile head, and each frame
+  // redraws it from joint positions, so the motion is all in the maths.
+  // ---------------------------------------------------------------------
+  var R = Math.PI / 180;
+  function pt(o, deg, len) { return { x: o.x + Math.sin(deg * R) * len, y: o.y - Math.cos(deg * R) * len }; }   // 0 = straight up, + = forward
+  function limb(a, b, w, col) {
+    return '<path d="M' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) + ' L' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) +
+      '" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
+  }
+  function plates(c, label) {   // a loaded bar seen end-on, coming toward you
+    var o = '<circle cx="' + (c.x - 11).toFixed(1) + '" cy="' + (c.y - 9).toFixed(1) + '" r="17" fill="#2E2E38"/>' +
+      '<path d="M' + (c.x - 11).toFixed(1) + ' ' + (c.y - 9).toFixed(1) + ' L' + (c.x + 7).toFixed(1) + ' ' + (c.y + 6).toFixed(1) + '" stroke="#55555F" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="21" fill="#23232B"/>' +
+      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="13" fill="none" stroke="#3A3A46" stroke-width="2"/>' +
+      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="3.5" fill="#55555F"/>';
+    if (label) o += '<text x="' + (c.x + 7).toFixed(1) + '" y="' + (c.y + 36).toFixed(1) + '" text-anchor="middle" class="na">' + label + '</text>';
+    return o;
+  }
+  // Head in profile, facing right. expr: calm, strain or nope.
+  function profile(c, rot, expr) {
+    var g = '<g transform="translate(' + c.x.toFixed(1) + ' ' + c.y.toFixed(1) + ') rotate(' + rot.toFixed(1) + ')">' +
+      '<path d="M-17 -2 q0 -18 16 -18 q18 0 18 16 q0 12 -5 18 q-5 5 -12 5 q-17 0 -17 -14 Z" fill="var(--skin)"/>';
+    var hat = fit.hat && fit.hat.kind;
+    if (hat === "cap") {
+      g += '<path d="M-19 -6 q1 -18 19 -18 q15 0 17 11 Z" fill="' + fit.hat.col + '"/>' +
+           '<path d="M12 -7 h17 q3 1 0 3.5 h-17 Z" fill="' + fit.hat.col + '"/><path d="M12 -7 h17 q3 1 0 3.5 h-17 Z" fill="#000" opacity=".18"/>';
+    } else if (hat === "beanie") {
+      g += '<path d="M-20 -4 q2 -22 19 -22 q17 0 18 16 Z" fill="' + fit.hat.col + '"/><path d="M-20 -8 q18 -5 37 -2 l0 5 q-19 -3 -37 2 Z" fill="' + fit.hat.band + '"/>';
+    } else {
+      g += '<path d="M-18 -3 q-1 -20 17 -20 q14 0 17 9 q-9 -4 -17 1 q-9 -4 -13 7 Z" fill="var(--hair)"/>';
+    }
+    g += '<ellipse cx="-10" cy="3" rx="3.5" ry="5" fill="var(--skin-dk)"/>' +
+         '<path d="M15 1 q3 3 0 5.5" stroke="var(--skin-dk)" stroke-width="2" stroke-linecap="round" fill="none"/>';
+    if (expr === "strain") {
+      g += '<path d="M4 -1 q3 2.5 7 0" stroke="var(--hair)" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+           '<path d="M3 -7 l8 2" stroke="var(--brow)" stroke-width="2.4" stroke-linecap="round"/>' +
+           '<ellipse cx="11" cy="9" rx="2.6" ry="3.6" fill="var(--hair)"/>' +
+           '<ellipse cx="8" cy="5" rx="4" ry="2.5" fill="var(--warm)" opacity=".4"/>';
+    } else {
+      g += '<circle cx="8" cy="-1" r="3.2" fill="#fff"/><circle cx="9.2" cy="-1" r="1.8" fill="var(--hair)"/>' +
+           '<path d="M4 -7 l8 -1" stroke="var(--brow)" stroke-width="2.4" stroke-linecap="round"/>' +
+           (expr === "nope" ? '<path d="M8 10 q3 -2 6 0" stroke="var(--hair)" stroke-width="1.8" stroke-linecap="round" fill="none"/>'
+                            : '<path d="M8 9 h6" stroke="var(--hair)" stroke-width="1.8" stroke-linecap="round"/>');
+    }
+    if (fit.glasses) {
+      g += '<circle cx="8" cy="-1" r="5.5" fill="' + (fit.glasses.lens || "none") + '" fill-opacity="' + (fit.glasses.tint || 0) + '" stroke="' + fit.glasses.col + '" stroke-width="1.6"/>' +
+           '<path d="M2.5 -2 L-9 0" stroke="' + fit.glasses.col + '" stroke-width="1.4"/>';
+    }
+    return g + '</g>';
+  }
+  // One leg, side on: thigh, shin, shoe. Shorts show the leg, with the quad
+  // and calf drawn in.
+  function sideLeg(hip, knee, ankle, far) {
+    var p = fit.pants, shorts = p.kind === "shorts", o = "";
+    o += limb(hip, knee, shorts ? 17 : 19, p.col);
+    o += limb(knee, ankle, shorts ? 14 : 17, shorts ? "var(--skin)" : p.col);
+    if (shorts) {
+      var m = { x: (hip.x + knee.x) / 2, y: (hip.y + knee.y) / 2 };
+      o += '<path d="M' + (m.x + 4).toFixed(1) + ' ' + (m.y - 8).toFixed(1) + ' q3 8 -1 16" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".55"/>' +
+           '<path d="M' + (hip.x + 2).toFixed(1) + ' ' + (hip.y + 6).toFixed(1) + ' q10 4 12 18" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>';
+      var cm = { x: (knee.x + ankle.x) / 2, y: (knee.y + ankle.y) / 2 };
+      o += '<path d="M' + (cm.x - 6).toFixed(1) + ' ' + (cm.y - 10).toFixed(1) + ' q-4 8 0 16" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>';
+    }
+    o += '<path d="M' + (ankle.x - 9).toFixed(1) + ' ' + (ankle.y + 2).toFixed(1) + ' h26 q8 0 8 6 v3 q0 3 -3 3 h-31 Z" fill="' + fit.shoes.col + '"/>' +
+         '<path d="M' + (ankle.x - 9).toFixed(1) + ' ' + (ankle.y + 10).toFixed(1) + ' h34 v2 q0 2 -3 2 h-31 Z" fill="' + fit.shoes.sole + '"/>';
+    if (far) o += limb(hip, knee, 19, "rgba(0,0,0,.22)") + limb(knee, ankle, 17, "rgba(0,0,0,.22)");
+    return o;
+  }
+  function sideArm(sh, elb, hand, far) {
+    var c = fit.col, shortS = fit.shirt.sleeves === "short";
+    var o = limb(sh, elb, 11, c) + limb(elb, hand, 9, shortS ? "var(--skin)" : c) +
+      '<circle cx="' + hand.x.toFixed(1) + '" cy="' + hand.y.toFixed(1) + '" r="5.5" fill="var(--skin)"/>';
+    if (far) o += limb(sh, elb, 11, "rgba(0,0,0,.22)") + limb(elb, hand, 9, "rgba(0,0,0,.22)");
+    return o;
+  }
+  function torso(hip, sh) { return limb(hip, sh, 26, fit.col) + limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 26, fit.pants.col); }
 
   var ACTS = {
-    // ---- the lifts ----
-    squat: { dur: 2600, mood: "strain",
-      setup: function () {
-        // bar across the back of the shoulders, so it rides with the top half
-        el("fHead").insertAdjacentHTML("beforebegin", PLATES(86, 42) + '<text x="60" y="140" text-anchor="middle" class="na">375</text>');
-        setArm("L", -8, 106, 1); setArm("R", 128, 106, -1);
-      },
+    // ---- squat: bar on the back, hips back, knees forward, depth ----
+    squat: { dur: 2600, mood: "strain", side: true,
+      setup: function () { this.tick(0); },
       tick: function (t) {
         var d = t < .45 ? ease(seg(t, 0, .45)) : t < .56 ? 1 : 1 - ease(seg(t, .56, 1));
-        tf("fUpper", "translate(0 " + (38 * d).toFixed(2) + ")");
-        tf("fLegs", "translate(60 276) scale(" + (1 + .24 * d).toFixed(3) + " " + (1 - .3 * d).toFixed(3) + ") translate(-60 -276)");
+        var ankle = { x: 84, y: 268 };
+        var knee = pt(ankle, 34 * d, 50);
+        var hip = pt(knee, -(84 * d), 50);
+        var sh = pt(hip, 42 * d, 52);
+        var head = pt(sh, 26 * d, 23);
+        var elb = { x: sh.x - 11, y: sh.y + 12 }, hand = { x: sh.x + 9, y: sh.y - 3 };
+        var bar = { x: sh.x + 1, y: sh.y - 3 };
+        var far = { x: 6, y: -4 };
+        figure.innerHTML =
+          '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
+          sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
+          sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
+          torso(hip, sh) +
+          sideLeg(hip, knee, ankle) +
+          profile(head, 12 * d, "strain") +
+          sideArm(sh, elb, hand) +
+          plates(bar, "375");
       } },
-    bench: { dur: 3400, mood: "strain",
-      setup: function () {
-        // seen from above: bench under him, rack at the head end, the bar
-        // across the chest with his hands on it
-        el("fBack").innerHTML = '<rect x="36" y="14" width="48" height="268" rx="7" fill="#3A3A46"/>' +
-          '<rect x="-16" y="26" width="7" height="46" rx="2" fill="#55555F"/><rect x="129" y="26" width="7" height="46" rx="2" fill="#55555F"/>';
-        el("fFront").innerHTML = '<g id="fBar">' + PLATES(110, 42) +
-          '<circle cx="27" cy="131" r="7" fill="var(--skin)"/><circle cx="93" cy="131" r="7" fill="var(--skin)"/>' +
-          '<text x="60" y="156" text-anchor="middle" class="na">245</text></g>';
-      },
+
+    // ---- bench: on his back, the bar pressed up toward you ----
+    bench: { dur: 3400, mood: "strain", side: true,
+      setup: function () { this.tick(0); },
       tick: function (t) {
-        // up a little, stall and shake at the sticking point, grind through,
-        // lock out, then back down for the next one
         var d, shake = 0;
         if (t < .28)      d = .35 * out(seg(t, 0, .28));
         else if (t < .6)  { d = .35 + .12 * seg(t, .28, .6); shake = Math.sin(t * 160) * 1.3 * bump(seg(t, .28, .6)); }
         else if (t < .78) d = .47 + .53 * ease(seg(t, .6, .78));
         else if (t < .88) d = 1;
         else              d = 1 - ease(seg(t, .88, 1));
-        tf("fBar", "translate(" + shake.toFixed(2) + " " + (-7 * d).toFixed(2) + ") translate(60 131) scale(" + (1 + .14 * d).toFixed(3) + ") translate(-60 -131)");
+        var sh = { x: 60, y: 194 }, hip = { x: 112, y: 196 };
+        var knee = { x: 138, y: 232 }, ankle = { x: 128, y: 268 };
+        var hand = { x: 64 + shake, y: 186 - 42 * d };
+        var elb = { x: 48 - 10 * (1 - d), y: 182 - 16 * d };
+        var head = { x: 36, y: 186 };
+        var far = { x: 6, y: -5 };
+        figure.innerHTML =
+          '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
+          '<rect x="14" y="110" width="8" height="98" rx="2" fill="#55555F"/><path d="M22 150 h10 v6 h-10" fill="none" stroke="#55555F" stroke-width="3"/>' +
+          '<rect x="22" y="206" width="124" height="11" rx="4" fill="#3A3A46"/>' +
+          '<rect x="34" y="217" width="8" height="64" fill="#2A2A36"/><rect x="118" y="217" width="8" height="64" fill="#2A2A36"/>' +
+          sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
+          sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
+          torso(hip, sh) +
+          sideLeg(hip, knee, ankle) +
+          profile(head, -90, "strain") +
+          sideArm(sh, elb, hand) +
+          plates({ x: hand.x, y: hand.y - 2 }, "245");
       } },
-    dead: { dur: 2800, mood: "think",
-      setup: function () {
-        // the bar stays on the floor. He looks at it. He shakes his head.
-        el("fFront").innerHTML = PLATES(232, 50).replace('y="242"', 'y="266"') +
-          '<text x="60" y="226" text-anchor="middle" class="na">nope.</text>';
-      },
+
+    // ---- deadlift: hinge down, grip, pull, nothing happens, stand up, nope ----
+    dead: { dur: 4200, mood: "think", side: true,
+      setup: function () { this.tick(0); },
       tick: function (t) {
-        var lean = 3 * bump(seg(t, .05, .4));
-        var sh = Math.sin(seg(t, .4, .8) * Math.PI * 3) * 8 * bump(seg(t, .4, .8));
-        tf("fUpper", "translate(0 " + lean.toFixed(2) + ")");
-        tf("fHead", "rotate(" + sh.toFixed(2) + " 60 70)");
+        var down = t < .3 ? ease(seg(t, 0, .3)) : t < .6 ? 1 : 1 - ease(seg(t, .6, .8));
+        var pull = bump(seg(t, .3, .6));
+        var tremble = Math.sin(t * 150) * 1.2 * pull;
+        var ankle = { x: 60, y: 268 };
+        var knee = pt(ankle, 16 * down, 50);
+        var hip = pt(knee, -(28 * down), 50);
+        var sh = pt(hip, (82 - 10 * pull) * down, 52);
+        var head = pt(sh, (34 - 6 * pull) * down, 23);
+        var bar = { x: 88, y: 246 };
+        var hang = { x: sh.x + 2, y: sh.y + 58 };
+        var grip = { x: bar.x + 1, y: bar.y - 22 + tremble * .3 };
+        var hand = { x: mix(hang.x, grip.x, down), y: mix(hang.y, grip.y, down) };
+        var elb = { x: (sh.x + hand.x) / 2 - 4 * (1 - down), y: (sh.y + hand.y) / 2 };
+        var expr = pull > .2 ? "strain" : t > .62 ? "nope" : "calm";
+        var shakeHead = Math.sin(seg(t, .8, 1) * Math.PI * 3) * 10 * bump(seg(t, .8, 1));
+        var far = { x: 6, y: -4 };
+        figure.innerHTML =
+          '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
+          sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
+          sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
+          torso(hip, sh) +
+          sideLeg(hip, knee, ankle) +
+          profile(head, 60 * down + shakeHead, expr) +
+          sideArm(sh, elb, hand) +
+          plates({ x: bar.x + tremble, y: bar.y }, t > .62 ? "nope." : "");
       } },
 
     // ---- violin: on the left shoulder, four bow strokes, a little vibrato ----
@@ -2437,7 +2552,7 @@ body.reeling { overflow: hidden; }
     moodName = "";               // force the quip to refresh even if already proud
     setMood("delight", pickLine(["new fit", "how about this", "ok, this one", "closet's deep", "one more"]));
     look.classList.add("on");    // touch users get the lookbook for a moment
-    setTimeout(function () { if (!wasOnHead) look.classList.remove("on"); }, 2600);
+    setTimeout(function () { if (!wasOnHead && !liftOn && !acting) look.classList.remove("on"); }, 2600);
   });
 
 

@@ -248,6 +248,12 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   the timeline. Any fit in shorts shows the legs with the quads and calves
   drawn in (`leg()`), action or not. To add an action: an entry in `ACTS`, a
   button with `data-act`.
+  The three lifts are `side: true`: drawn from the side at a slight
+  diagonal (he faces right, the bar comes toward you end-on). They skip the
+  front-view figure and redraw a stick skeleton every frame from joint
+  positions - `pt()` walks a limb, `sideLeg()` / `sideArm()` / `torso()`
+  draw thick rounded limbs in the fit's colours, `profile()` is the head in
+  profile with the fit's hat and glasses, `plates()` the loaded bar.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section
