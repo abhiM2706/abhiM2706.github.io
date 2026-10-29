@@ -85,6 +85,37 @@ No git at all: go to <https://app.netlify.com/drop> and drag the
 `abhinav-site` folder onto the page. Instantly live at a random subdomain.
 Fine for a quick look, worse for updating later.
 
+## Chosen: `malv.dev` -> `abhinav.malv.dev`
+
+Register `malv.dev` (Cloudflare Registrar or Porkbun both carry `.dev`; it is
+HTTPS-only by design, which GitHub Pages satisfies). Then add one record at the
+registrar's DNS panel:
+
+```
+Type:   CNAME
+Name:   abhinav
+Target: abhim2706.github.io
+TTL:    auto
+```
+
+If the registrar is Cloudflare, leave the record on **DNS only** (grey cloud)
+until GitHub has issued the certificate. Then run, from this folder:
+
+```bash
+gh api -X PUT repos/abhiM2706/abhinav-site/pages -f cname=abhinav.malv.dev
+```
+
+GitHub writes a `CNAME` file into the repo, verifies the record, and issues a
+Let's Encrypt certificate within about an hour. Once `https://abhinav.malv.dev`
+loads, enforce HTTPS:
+
+```bash
+gh api -X PUT repos/abhiM2706/abhinav-site/pages -F https_enforced=true
+```
+
+The old `abhim2706.github.io/abhinav-site/` address keeps working and
+redirects to the new domain.
+
 ## Step 3 — Point the domain at the host
 
 ### If you used Cloudflare Pages
