@@ -2329,6 +2329,7 @@ body.reeling { overflow: hidden; }
     runAnim(act.dur * reps, function (t) { act.tick((t * reps) % 1); if (moodName !== act.mood && t < .98) setMood(act.mood); },
       function () {
         acting = null;
+        lastMove = Date.now();
         setMood("yay", name === "dead" ? "nope." : undefined);
         setTimeout(function () {
           if (acting) return;
@@ -2395,7 +2396,7 @@ body.reeling { overflow: hidden; }
   window.addEventListener("blur", function () { setMood("away"); });
 
   setInterval(function () {
-    if (!overTarget && Date.now() - lastMove > 6000) setMood("bored");
+    if (!overTarget && !acting && !pointHost && Date.now() - lastMove > 6000) setMood("bored");
   }, 1000);
 
   // keyboard users get the same reactions
@@ -2498,6 +2499,7 @@ body.reeling { overflow: hidden; }
     if (!d) return;
     e.preventDefault();
     target = Math.max(0, Math.min(reelEls.length - 1, target + d));
+    lastMove = Date.now();
     reelEls[target].scrollIntoView({ block: "start" });
   });
 
