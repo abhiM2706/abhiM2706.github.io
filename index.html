@@ -1834,20 +1834,15 @@ body.reeling { overflow: hidden; }
     return f || { torso: "", sleeve: {} };
   }
 
-  // A bare leg below the hem: thigh into calf into ankle, with the quad
-  // and calf lines drawn in. x is the left edge of the pants leg above it.
+  // A bare leg below the hem: thigh into calf into ankle. x is the left
+  // edge of the pants leg above it.
   function leg(x, y, h) {
     var k = y + h * .6, c = y + h * .78, b = y + h;
     return '<path d="M' + (x - 1) + ' ' + y + ' H' + (x + 25) +
       ' C' + (x + 25) + ' ' + (y + h * .35) + ' ' + (x + 22.5) + ' ' + (k - 2) + ' ' + (x + 25) + ' ' + c +
       ' Q' + (x + 24) + ' ' + b + ' ' + (x + 19) + ' ' + b + ' H' + (x + 5) +
       ' Q' + x + ' ' + b + ' ' + (x - 1) + ' ' + c +
-      ' C' + (x + 1.5) + ' ' + (k - 2) + ' ' + (x - 1) + ' ' + (y + h * .35) + ' ' + (x - 1) + ' ' + y + ' Z" fill="var(--skin)"/>' +
-      '<g fill="none" stroke="var(--skin-dk)" stroke-width="1.6" stroke-linecap="round" opacity=".55">' +
-      '<path d="M' + (x + 12) + ' ' + (y + 3) + ' q-2 9 1 17"/>' +
-      '<path d="M' + (x + 3.5) + ' ' + (y + 5) + ' q-1.5 8 2 15"/>' +
-      '<path d="M' + (x + 20.5) + ' ' + (y + 5) + ' q1.5 8 -2 15"/>' +
-      '<path d="M' + (x + 5) + ' ' + (y + h - 11) + ' q7 -6 14 0"/></g>';
+      ' C' + (x + 1.5) + ' ' + (k - 2) + ' ' + (x - 1) + ' ' + (y + h * .35) + ' ' + (x - 1) + ' ' + y + ' Z" fill="var(--skin)"/>';
   }
 
   // An arm in two pieces that bend at the elbow, drawn as soft capsules
@@ -2307,19 +2302,11 @@ body.reeling { overflow: hidden; }
     }
     return g + '</g>';
   }
-  // One leg, side on: thigh, shin, shoe. Shorts show the leg, with the quad
-  // and calf drawn in.
+  // One leg, side on: thigh, shin, shoe. Shorts show the leg.
   function sideLeg(hip, knee, ankle, far) {
     var p = fit.pants, shorts = p.kind === "shorts", o = "";
     o += limb(hip, knee, shorts ? 17 : 19, p.col);
     o += limb(knee, ankle, shorts ? 14 : 17, shorts ? "var(--skin)" : p.col);
-    if (shorts) {
-      var m = { x: (hip.x + knee.x) / 2, y: (hip.y + knee.y) / 2 };
-      o += '<path d="M' + (m.x + 4).toFixed(1) + ' ' + (m.y - 8).toFixed(1) + ' q3 8 -1 16" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".55"/>' +
-           '<path d="M' + (hip.x + 2).toFixed(1) + ' ' + (hip.y + 6).toFixed(1) + ' q10 4 12 18" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".4"/>';
-      var cm = { x: (knee.x + ankle.x) / 2, y: (knee.y + ankle.y) / 2 };
-      o += '<path d="M' + (cm.x - 6).toFixed(1) + ' ' + (cm.y - 10).toFixed(1) + ' q-4 8 0 16" stroke="var(--skin-dk)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>';
-    }
     o += '<path d="M' + (ankle.x - 9).toFixed(1) + ' ' + (ankle.y + 2).toFixed(1) + ' h26 q8 0 8 6 v3 q0 3 -3 3 h-31 Z" fill="' + fit.shoes.col + '"/>' +
          '<path d="M' + (ankle.x - 9).toFixed(1) + ' ' + (ankle.y + 10).toFixed(1) + ' h34 v2 q0 2 -3 2 h-31 Z" fill="' + fit.shoes.sole + '"/>';
     if (far) o += limb(hip, knee, 19, "rgba(0,0,0,.22)") + limb(knee, ankle, 17, "rgba(0,0,0,.22)");
@@ -2354,6 +2341,134 @@ body.reeling { overflow: hidden; }
   function liftKey(e, st) { if (e.key === " " && st.repAt < 0 && st.rep < 3) st.repAt = st.now; }
   function liftAuto(sec, st) { if (st.repAt < 0 && sec - (st.lastAuto || 0) > .5) { st.lastAuto = sec; liftKey({ key: " " }, st); } }
 
+  // What he might play: a random pull from the liked songs on his Spotify
+  // (read off the library in October 2026), one every few seconds.
+  var TRACKS = [
+    "RMB (Ring My Bell) \u2014 Aitch",
+    "Everything You Have Done (Meduza Edit) \u2014 GENESI, MEDUZA",
+    "Speechless \u2014 Obsk\u00fcr",
+    "Gypsy Woman \u2014 Darius Syrossian, Holly Jaz",
+    "313 \u2014 RUZE, Matthew Dear",
+    "I Remember \u2014 Oden & Fatzo, m.O.N.R.O.E.",
+    "Hey Everybody (L.P. Rhythm Remix) \u2014 Kolter",
+    "Because of You \u2014 Robbie Doherty, Tom Did It",
+    "Think of You \u2014 KETTAMA, Prospa",
+    "Insomnia \u2014 Mike Candys, Jack Holiday",
+    "Slow Burner \u2014 Interplanetary Criminal",
+    "Do It Again (Massano Remix) \u2014 The Chemical Brothers",
+    "Back To Funk \u2014 Bushbaby, Danny P",
+    "Feel The XTC \u2014 Max Styler",
+    "Freak \u2014 GENESI, MEDUZA, Aya Anne",
+    "Wild \u2014 James Hype",
+    "Work With Me \u2014 Green Velvet, Detlef",
+    "MOMBASA \u2014 john claude",
+    "Lights Down Low \u2014 Body Ocean, Benni Ola",
+    "Let The Power \u2014 RUZE, THEOS",
+    "Murder On The Dancefloor (UKG Edit) \u2014 BVNQUET",
+    "La Musa (Andruss Remix) \u2014 Jamie Jones",
+    "Born Funky \u2014 San Pacho, GREG 99",
+    "About To Lose It \u2014 Matroda",
+    "No Room For A Saint \u2014 Dom Dolla",
+    "Nights With You \u2014 Matroda, Sudakov",
+    "DANGER DANGER \u2014 Dom Dolla, Solomun, Skepta",
+    "Fancy Footwork \u2014 Chris Lorenzo, Chromeo",
+    "Welcome To Miami \u2014 Bass Mode",
+    "Pearls \u2014 Sade",
+    "Money On The Dash \u2014 LUC\u00d8, Alice Gray",
+    "Free Your Body (Noizu Remix) \u2014 Chris Lake, Solardo",
+    "Comes and Goes (Dom Dolla Remix) \u2014 KETTAMA",
+    "Desert Flute \u2014 Andruss",
+    "I Like 2 Party \u2014 The Funk Hunters, The Sponges",
+    "Uproar \u2014 Trace, Eskuche",
+    "Be Without You \u2014 SOSA",
+    "Sticky \u2014 NO STATIC",
+    "I Don't Want To \u2014 AYYBO, Ragie Ban",
+    "The Ratchet Express \u2014 Kyle Watson, The Sponges",
+    "Spring Girl (Vintage Culture Remix) \u2014 Adam Ten, Maori",
+    "Elegante \u2014 Real Slummy",
+    "Sun is Shining (Lovelee Dae) \u2014 Tommy Phillips",
+    "Alcoholic \u2014 San Pacho",
+    "House x Pressure \u2014 Matroda",
+    "Get Up And Dance \u2014 Cloonee",
+    "Dummy (Chris Lake Remix) \u2014 Portugal. The Man",
+    "Ride On Me \u2014 PAWSA",
+    "Let's Pardey \u2014 Sidney Charles, Kolter",
+    "Slinging Dope \u2014 AFTER MIDNIGHT, Matroda, San Pacho",
+    "House Mentality \u2014 Dale Howard",
+    "Believe Me \u2014 Navos",
+    "1997 \u2014 Beave",
+    "House Is A Feeling \u2014 Last Value",
+    "Baggy Black Jeans \u2014 AC Slater",
+    "Beat Goes On \u2014 Adam Ten, Rafael",
+    "Talking To Myself \u2014 Max Dean",
+    "HOLD DA PHONE \u2014 Interplanetary Criminal, Silva Bumpa",
+    "Da Fonk (DJ Fuzil Remix) \u2014 Mochakk, Joni",
+    "Serious \u2014 Obsk\u00fcr, Omar+",
+    "Party People \u2014 Prospa, Nafe Smallz",
+    "I Could Be Madonna \u2014 Barry Can't Swim, Sammy Virji",
+    "ALL EYEZ \u2014 PAWSA",
+    "Renegade Master (Back Once Again) \u2014 Deeperlove",
+    "Mercy \u2014 Joshwa",
+    "My Humps (Detlef Remix) \u2014 Joshwa, Lee Foss",
+    "Pardon Me \u2014 TCTS, Beaux Neptune",
+    "Insane \u2014 Shermanology",
+    "Long Jacket \u2014 Chris Lake, Chris Lorenzo, Kenny Beats",
+    "Beatbox \u2014 Robbie Doherty",
+    "DOUBLE C \u2014 PAWSA",
+    "algorhythm \u2014 Biscits",
+    "Gimme That Money \u2014 Wax Motif",
+    "Who Is He? (Claptone Remix) \u2014 Alaia & Gallo",
+    "High On Me \u2014 Rossi., Jazzy",
+    "Hakuna Matata \u2014 Ben Graves",
+    "Just A Little Bit More \u2014 Mau P",
+    "Can't Wait No More \u2014 Devault",
+    "London's On Fire \u2014 Chris Lorenzo, Max Styler",
+    "The Legend of Zelda (Club Mix) \u2014 Zedd",
+    "Keep Pushing \u2014 Gene Farris",
+    "Hope \u2014 Justin Martin",
+    "Makes Me Feel Good \u2014 The Sponges, Ultra Nat\u00e9",
+    "Body Funk (Dom Dolla Remix) \u2014 Purple Disco Machine",
+    "Hypnotized \u2014 Bleu Clair",
+    "Turn It Up \u2014 House Divided",
+    "Need Your Lovin' \u2014 Dan White (UK)",
+    "Loneliness \u2014 Robbie Doherty",
+    "Good Girl \u2014 Cloonee, Prospa, Tristan Henry",
+    "MYSTERY OF RAW \u2014 Michael Bibi, KETTAMA, Wu-Tang Clan",
+    "TWOSTEP \u2014 Riordan",
+    "Innerbloom \u2014 R\u00dcF\u00dcS DU SOL",
+    "Crown \u2014 BUNT.",
+    "Empire Ants \u2014 Gorillaz, Little Dragon",
+    "Touch \u2014 Daft Punk, Paul Williams",
+    "Up & Down \u2014 Sammy Virji, Tuff Jam",
+    "The Recipe \u2014 Kendrick Lamar, Dr. Dre",
+    "Body & Soul \u2014 Clarcq",
+    "Free Your Body \u2014 Chris Lake, Solardo",
+    "Homies \u2014 Fred again.., Henry Wu",
+    "Misbehave \u2014 Aluna, SIDEPIECE",
+    "LA NOCHE \u2014 Chris Lake, Skrillex",
+    "Suavemente \u2014 MichaelBM, LATIN HOUSE GANG",
+    "MERTHER \u2014 Mau P",
+    "Toxic \u2014 Chris Lake, Ragie Ban",
+    "Space Funk '75 \u2014 The Sponges",
+    "What You Need \u2014 Steve Angello, Wh0",
+    "Open Your Mind \u2014 Deltech",
+    "Freedom (Body Ocean Remix) \u2014 Steve Angello, Pusha T",
+    "Needed U \u2014 Conducta",
+    "Shapes (Oppidan Remix) \u2014 Sammy Virji",
+    "0117 \u2014 Oppidan",
+    "La Vida \u2014 Joshwa",
+    "2AM \u2014 Boogie Vice, LUUKHANYO",
+    "Lola \u2014 Interplanetary Criminal",
+    "What's a Girl to Do (JAEL Remix) \u2014 Fatima Yamaha",
+    "Goodums (Sammy Virji Remix) \u2014 Unknown T",
+    "Can You Feel The Beat \u2014 RSCL",
+    "Jamming (FISHER Rework) \u2014 Bob Marley & The Wailers",
+    "New Gold (Dom Dolla Remix) \u2014 Gorillaz, Tame Impala",
+    "Turn off the Lights (Cages Remix) \u2014 Chris Lake",
+    "MUSIC NEVER STOPS \u2014 Peter Jolyon",
+    "Hotel California \u2014 Eagles"
+  ];
+
   var ACTS = {
     // ---- squat: bar on the back, hips back, knees forward, depth ----
     squat: { dur: 2.6, mood: "strain", side: true, hint: "space: one rep",
@@ -2367,14 +2482,19 @@ body.reeling { overflow: hidden; }
         var hip = pt(knee, -(84 * d), 50);
         var sh = pt(hip, 42 * d, 52);
         var head = pt(sh, 26 * d, 23);
-        var elb = { x: sh.x - 11, y: sh.y + 12 }, hand = { x: sh.x + 9, y: sh.y - 3 };
-        var bb = barbell({ x: sh.x + 1, y: sh.y - 3 }, 375, "375");
+        // the bar sits across the back of the shoulders, on the traps, and
+        // the hands hold it a little way out along it on each side
+        var c = { x: sh.x - 5 - 2 * d, y: sh.y - 6 };
+        var bb = barbell(c, 375, "375");
         var far = { x: 12, y: -7 };
+        var hand = { x: c.x + .78 * 15, y: c.y + .62 * 15 };
+        var farHand = { x: c.x - .78 * 15 - far.x, y: c.y - .62 * 15 - far.y };
+        var elb = { x: sh.x - 8, y: sh.y + 14 };
         figure.innerHTML =
           '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
           bb.back +
           sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
-          sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
+          sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x - 6, y: elb.y + far.y }, { x: farHand.x + far.x, y: farHand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
           profile(head, 12 * d, "strain") +
@@ -2457,9 +2577,11 @@ body.reeling { overflow: hidden; }
     // ---- violin: every press of space is a bow stroke ----
     violin: { mood: "delight", hint: "space: bow stroke · esc: done", idle: 6,
       setup: function (st) {
-        st.k = -8; st.from = -8; st.to = -8; st.at = -9; st.dir = 1; st.notes = []; st.n = 0;
+        st.k = 9; st.from = 9; st.to = 9; st.at = -9; st.dir = 1; st.notes = []; st.n = 0;
+        // the violin rests on his left shoulder with the chin on it, scroll
+        // out to the right and a little down; the bow crosses at the bridge
         el("fFront").innerHTML =
-          '<g transform="rotate(38 76 104)">' +
+          '<g transform="translate(-2 -2) rotate(108 76 112)">' +
             '<path d="M63 94 q-11 -2 -11 9 q0 7 6 9 q-6 3 -6 10 q0 9 10 9 h28 q10 0 10 -9 q0 -7 -6 -10 q6 -2 6 -9 q0 -11 -11 -9 Z" fill="#8A4B22"/>' +
             '<path d="M63 94 q-11 -2 -11 9 q0 7 6 9 q-6 3 -6 10 q0 9 10 9 h28 q10 0 10 -9 q0 -7 -6 -10 q6 -2 6 -9 q0 -11 -11 -9 Z" fill="none" stroke="#5A2E12" stroke-width="1"/>' +
             '<path d="M69 100 q-1.5 6 1 12 M83 100 q1.5 6 -1 12" stroke="#2A1608" stroke-width="1.3" fill="none" stroke-linecap="round"/>' +
@@ -2469,33 +2591,41 @@ body.reeling { overflow: hidden; }
             '<path d="M74.5 58 v62 M76 58 v62 M77.5 58 v62" stroke="#E8E2D0" stroke-width=".45"/>' +
             '<rect x="70" y="110" width="12" height="2.4" rx=".6" fill="#E8DDC0"/>' +
             '<path d="M73 114 q3 8 3 12 q0 -4 3 -12" fill="#1E1208"/>' +
+            '<ellipse cx="68" cy="126" rx="6" ry="3.5" fill="#1E1208"/>' +
           '</g>' +
           '<path id="fBow" d="" stroke="#3A2A1C" stroke-width="2.2" stroke-linecap="round"/>' +
-          '<path id="fBowHair" d="" stroke="#F2EBD6" stroke-width="1"/>';
+          '<path id="fBowHair" d="" stroke="#F2EBD6" stroke-width="1"/>' +
+          '<circle id="fBowHand" r="6.2" fill="var(--skin)"/>';
       },
       key: function (e, st) {
         if (e.key !== " ") return;
-        st.from = st.k; st.to = st.dir > 0 ? -34 : -8; st.dir = -st.dir; st.at = st.now; st.n++;
-        st.notes.push({ at: st.now, x: 98 + Math.random() * 18, g: Math.random() < .5 ? "&#9834;" : "&#9835;" });
+        st.from = st.k; st.to = st.dir > 0 ? 34 : 9; st.dir = -st.dir; st.at = st.now; st.n++;
+        st.notes.push({ at: st.now, x: 110 + Math.random() * 18, g: Math.random() < .5 ? "&#9834;" : "&#9835;" });
         if (st.notes.length > 6) st.notes.shift();
       },
       auto: function (sec, st) { if (sec - (st.lastAuto || 0) > .6) { st.lastAuto = sec; if (st.n >= 8) st.finish("that'll do."); else this.key({ key: " " }, st); } },
       tick: function (sec, st) {
         var u = Math.min(1, (sec - st.at) / .55);
         st.k = mix(st.from, st.to, ease(u));
+        // left hand on the neck, out toward the scroll, with vibrato
         var vib = Math.sin(sec * 60) * .9 * (sec - st.at < 1 ? 1 : .25);
-        setArm("R", 104 + vib * .3, 78 + vib, -1);
-        var hx = 72.3 + st.k * .788, hy = 108.7 + st.k * .616;
+        setArm("R", 109 + vib * .3, 125 + vib, -1);
+        // the bow hand sits below the bridge; a stroke slides it along the
+        // bow's line, the stick running up-right across the strings
+        var bridge = { x: 74, y: 110 };
+        var hx = bridge.x - .34 * st.k, hy = bridge.y + .94 * st.k;
         setArm("L", hx, hy, 1);
-        var bx = hx + 64 * .788, by = hy + 64 * .616;
-        el("fBow").setAttribute("d", "M" + hx + " " + hy + " L" + bx + " " + by);
-        el("fBowHair").setAttribute("d", "M" + (hx + 1.6) + " " + (hy - 2) + " L" + (bx + 1.6) + " " + (by - 2));
-        tf("fHead", "rotate(" + (-7 + 2.5 * Math.sin(sec * 2.4)).toFixed(2) + " 60 70) translate(0 " + (1.5 * Math.sin(sec * 2.4)).toFixed(2) + ")");
+        var bx = hx + 66 * .34, by = hy - 66 * .94;
+        el("fBow").setAttribute("d", "M" + hx.toFixed(1) + " " + hy.toFixed(1) + " L" + bx.toFixed(1) + " " + by.toFixed(1));
+        el("fBowHair").setAttribute("d", "M" + (hx + 2).toFixed(1) + " " + (hy + .7).toFixed(1) + " L" + (bx + 2).toFixed(1) + " " + (by + .7).toFixed(1));
+        el("fBowHand").setAttribute("cx", hx.toFixed(1)); el("fBowHand").setAttribute("cy", hy.toFixed(1));
+        // the head rests on the chinrest, tilted into the instrument
+        tf("fHead", "rotate(" + (9 + 2 * Math.sin(sec * 2.4)).toFixed(2) + " 60 70) translate(0 " + (2 + 1.2 * Math.sin(sec * 2.4)).toFixed(2) + ")");
         var fx = "";
         st.notes.forEach(function (n) {
           var p = (sec - n.at) / 1.6;
           if (p > 1) return;
-          fx += '<text x="' + (n.x + 10 * Math.sin(p * 7)).toFixed(1) + '" y="' + (62 - 44 * p).toFixed(1) + '" opacity="' + (bump(p) * .9).toFixed(2) +
+          fx += '<text x="' + (n.x + 10 * Math.sin(p * 7)).toFixed(1) + '" y="' + (118 - 50 * p).toFixed(1) + '" opacity="' + (bump(p) * .9).toFixed(2) +
                 '" font-family="Fraunces, Georgia, serif" font-size="11" fill="var(--accent)">' + n.g + '</text>';
         });
         el("fFx").innerHTML = fx;
@@ -2514,12 +2644,14 @@ body.reeling { overflow: hidden; }
           '<g id="fEq"><rect x="53" y="156" width="3" height="4" fill="var(--accent)"/><rect x="58.5" y="156" width="3" height="4" fill="var(--accent)"/><rect x="64" y="156" width="3" height="4" fill="var(--accent)"/></g>' +
           '<rect x="53" y="167" width="14" height="2" rx="1" fill="#15151C"/><rect id="fXf" x="58.5" y="164.5" width="3" height="7" rx="1" fill="#E8E2D0"/>' +
           '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
-        el("fFx").innerHTML = '<text id="fDrop" x="60" y="-10" text-anchor="middle" opacity="0" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="14" fill="var(--warm)">DROP</text>';
+        el("fFx").innerHTML = '<text id="fDrop" x="60" y="-10" text-anchor="middle" opacity="0" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="14" fill="var(--warm)">DROP</text>' +
+          '<text id="fNow" x="60" y="194" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)"></text>';
+        st.track = -1; st.trackAt = -9;
       },
       key: function (e, st) {
         if (e.key === "ArrowLeft") st.v -= 320;
         else if (e.key === "ArrowRight") st.v += 320;
-        else if (e.key === " ") st.drop = st.now;
+        else if (e.key === " ") { st.drop = st.now; st.trackAt = -9; }
       },
       auto: function (sec, st) {
         if (sec - (st.lastAuto || 0) > .5) { st.lastAuto = sec; st.n = (st.n || 0) + 1; this.key({ key: st.n % 2 ? "ArrowLeft" : "ArrowRight" }, st); if (st.n === 6) this.key({ key: " " }, st); if (st.n >= 12) st.finish("one more tune, then."); }
@@ -2549,27 +2681,34 @@ body.reeling { overflow: hidden; }
         }
         var dr = el("fDrop");
         dr.setAttribute("opacity", dropK.toFixed(2)); dr.setAttribute("y", (-8 - 14 * seg(sec - st.drop, 0, 1.2)).toFixed(1));
+        // the next track every few seconds, or on a drop
+        if (sec - st.trackAt > 7) {
+          var next; do { next = Math.floor(Math.random() * TRACKS.length); } while (next === st.track && TRACKS.length > 1);
+          st.track = next; st.trackAt = sec;
+          var name = TRACKS[next];
+          el("fNow").textContent = "\u266a " + (name.length > 30 ? name.slice(0, 29) + "\u2026" : name);
+        }
+        el("fNow").setAttribute("opacity", Math.min(1, (sec - st.trackAt) * 3).toFixed(2));
       } },
 
     // ---- a problem: you type it, enter runs it ----
     code: { mood: "think", hint: "type to code · enter: run · esc: done", idle: 10,
       setup: function (st) {
         st.w = [0, 0, 0, 0]; st.line = 0; st.typed = 0; st.ran = -1; st.tap = -1; st.side = false;
+        // the laptop open toward you: the screen with the code on it, the
+        // keyboard in front of it with his hands on the keys
         el("fFront").innerHTML =
           '<rect x="-8" y="152" width="136" height="10" rx="3" fill="#6B5240"/>' +
-          '<path d="M24 142 H96 L102 154 H18 Z" fill="#8F939B"/>' +
-          '<path d="M30 146 H90 M28 149.5 H92" stroke="#6E727A" stroke-width="1.2" stroke-dasharray="3 1.5"/>' +
-          '<rect x="28" y="100" width="64" height="44" rx="3" fill="#5B5F69"/><circle cx="60" cy="122" r="3" fill="#8F939B"/>' +
+          '<rect x="27" y="96" width="66" height="50" rx="3" fill="#B9BDC4"/>' +
+          '<rect x="31" y="100" width="58" height="42" rx="1.5" fill="#1C1E2A"/>' +
+          '<circle cx="35.5" cy="104" r="1.2" fill="#E86B5C"/><circle cx="39.5" cy="104" r="1.2" fill="#E8C24A"/><circle cx="43.5" cy="104" r="1.2" fill="#6CC46B"/>' +
+          '<g id="fLines" fill="#9FA6C8"><rect x="35" y="109" height="2.6" rx="1" width="0"/><rect x="40" y="114.5" height="2.6" rx="1" width="0"/><rect x="40" y="120" height="2.6" rx="1" width="0"/><rect x="35" y="125.5" height="2.6" rx="1" width="0"/></g>' +
+          '<rect id="fCur" x="35" y="109" width="1.5" height="3" fill="#8E80FF"/>' +
+          '<text id="fPass" x="35" y="138" font-family="DM Mono, monospace" font-size="5" opacity="0"></text>' +
+          '<path d="M24 146 H96 L102 156 H18 Z" fill="#8F939B"/>' +
+          '<path d="M30 149.5 H90 M28 153 H92" stroke="#6E727A" stroke-width="1.2" stroke-dasharray="3 1.5"/>' +
           '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
-        el("fFx").innerHTML =
-          '<g transform="translate(74 -30)">' +
-            '<rect x="0" y="0" width="86" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>' +
-            '<path d="M14 56 l6 8 l6 -8 Z" fill="var(--surface)" stroke="var(--line)"/><path d="M15 56 h10" stroke="var(--surface)" stroke-width="2"/>' +
-            '<circle cx="8" cy="7" r="1.8" fill="#E86B5C"/><circle cx="13.5" cy="7" r="1.8" fill="#E8C24A"/><circle cx="19" cy="7" r="1.8" fill="#6CC46B"/>' +
-            '<g id="fLines" fill="var(--muted)"><rect x="8" y="16" height="3.4" rx="1.2" width="0"/><rect x="14" y="23" height="3.4" rx="1.2" width="0"/><rect x="14" y="30" height="3.4" rx="1.2" width="0"/><rect x="8" y="37" height="3.4" rx="1.2" width="0"/></g>' +
-            '<rect id="fCur" x="8" y="16" width="2" height="4" fill="var(--accent)"/>' +
-            '<text id="fPass" x="8" y="51" class="na" font-size="7.5" opacity="0"></text>' +
-          '</g>';
+        el("fFx").innerHTML = "";
       },
       key: function (e, st) {
         if (st.ran >= 0) return;
@@ -2581,9 +2720,9 @@ body.reeling { overflow: hidden; }
           return;
         }
         if (e.key.length !== 1) return;
-        var W = [58, 40, 50, 30];
+        var W = [46, 32, 40, 24];
         st.typed++; st.tap = st.now; st.side = !st.side;
-        st.w[st.line] = Math.min(W[st.line], st.w[st.line] + 2.4);
+        st.w[st.line] = Math.min(W[st.line], st.w[st.line] + 1.9);
         if (st.w[st.line] >= W[st.line] && st.line < 3) st.line++;
         st.extra = st.typed + " chars";
       },
@@ -2592,21 +2731,21 @@ body.reeling { overflow: hidden; }
         var tapping = sec - st.tap < .13;
         var tapL = tapping && !st.side ? 2.2 : 0, tapR = tapping && st.side ? 2.2 : 0;
         var up = st.ran >= 0 ? ease(seg(sec - st.ran, 0, .35)) : 0;
-        setArm("L", 46, 147 - tapL - 4 * up, 1);
-        setArm("R", 74, 147 - tapR - 4 * up, -1);
+        setArm("L", 46, 150 - tapL - 4 * up, 1);
+        setArm("R", 74, 150 - tapR - 4 * up, -1);
         var hs = el("fHands").children;
-        hs[0].setAttribute("cx", 46); hs[0].setAttribute("cy", 149 - tapL - 4 * up);
-        hs[1].setAttribute("cx", 74); hs[1].setAttribute("cy", 149 - tapR - 4 * up);
+        hs[0].setAttribute("cx", 46); hs[0].setAttribute("cy", 152 - tapL - 4 * up);
+        hs[1].setAttribute("cx", 74); hs[1].setAttribute("cy", 152 - tapR - 4 * up);
         tf("fHead", "translate(0 " + (3 * (1 - up)).toFixed(2) + ") rotate(" + (-2 * (1 - up)).toFixed(2) + " 60 70)");
-        var ln = el("fLines").children, x = [8, 14, 14, 8], y = [16, 23, 30, 37];
+        var ln = el("fLines").children, x = [35, 40, 40, 35], y = [109, 114.5, 120, 125.5];
         for (var i = 0; i < 4; i++) ln[i].setAttribute("width", st.w[i].toFixed(1));
         var cl = Math.min(3, st.line);
         el("fCur").setAttribute("x", x[cl] + st.w[cl] + 1); el("fCur").setAttribute("y", y[cl]);
         el("fCur").setAttribute("opacity", st.ran >= 0 ? 0 : (Math.sin(sec * 7) > 0 ? 1 : .15));
         var ps = el("fPass");
         if (st.ran >= 0) {
-          ps.textContent = st.ok ? "✓ 10/10 passed" : "✗ 3/10 · time limit exceeded";
-          ps.setAttribute("fill", st.ok ? "#3E9E4F" : "#C8384A");
+          ps.textContent = st.ok ? "✓ 10/10 passed" : "✗ 3/10 · TLE";
+          ps.setAttribute("fill", st.ok ? "#6CC46B" : "#E86B5C");
           ps.setAttribute("opacity", out(seg(sec - st.ran, .1, .5)).toFixed(2));
           if (sec - st.ran > 2.4) st.finish(st.ok ? "10/10. next." : "TLE. read the input size first.", st.ok ? "yay" : "think");
         }
@@ -2695,7 +2834,8 @@ body.reeling { overflow: hidden; }
       } }
   };
 
-  var acting = null;       // the action playing from a button, if any
+  var acting = null;       // the action playing, if any
+  var actObj = null;       // its entry in ACTS (the gym card resolves to a lift)
   var liftOn = null;       // the lift tab under the cursor, if any
   var st = null;           // the running action's state
   var khint = document.getElementById("khint");
@@ -2741,7 +2881,7 @@ body.reeling { overflow: hidden; }
     if (!act) return;
     stopAnim();
     liftOn = null;
-    acting = name;
+    acting = name; actObj = act;
     st = newState(false);
     renderLook(name === "gym" ? liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift") : name);
     look.classList.add("on");
@@ -2764,7 +2904,7 @@ body.reeling { overflow: hidden; }
   function finishAct(line, mood, quiet) {
     if (!acting) return;
     stopAnim();
-    acting = null; st = null;
+    acting = null; actObj = null; st = null;
     lastMove = Date.now();
     khint.textContent = "";
     if (quiet) { hoverName = null; [].forEach.call(document.querySelectorAll(".hobby.playing"), function (c) { c.classList.remove("playing"); }); }
@@ -2941,8 +3081,7 @@ body.reeling { overflow: hidden; }
     if (acting && st) {
       if (e.key === "Escape") { finishAct(undefined, undefined, true); return; }
       st.lastKey = st.now;
-      var a = ACTS[acting];
-      if (a.key) a.key(e, st);
+      if (actObj && actObj.key) actObj.key(e, st);
       if (e.key === " " || e.key.indexOf("Arrow") === 0) e.preventDefault();
       return;
     }

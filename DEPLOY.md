@@ -245,7 +245,10 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   stroke / a rep, arrows scratch and space drops the beat, typing writes the
   code and enter runs it (24+ characters pass, fewer get a TLE), and the
   serve puts up a meter: space on the green is an ace, anything else and the
-  ball comes down on his head. The three lifts are drawn side-on at a
+  ball comes down on his head. The decks show what he might be playing:
+  `TRACKS` is a pull from the liked songs on his Spotify (read off the
+  library in October 2026); one is drawn at random every seven seconds or
+  on a drop. The three lifts are drawn side-on at a
   three-quarter angle with the bar loaded like a real one (`barbell()`:
   45 lb bar, then per side 45s, a 25, 10s, 5s until it adds up, near plates
   big and in front, far plates small and behind).
@@ -256,9 +259,8 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   hand-drawn ones): the torso from the shoulders to the hem, clipped to the
   body, and a `sleeve` spec the arm drawing reads (colour, cuff, stripe,
   bands, a camo blob). Pants carry their marks, pockets, drawstrings and
-  seams; shoes their N, tiger stripes, Air Max waves, laces. Shorts show the
-  legs with the quads and calves drawn in. The pointing arm on the bust is
-  built from the same pieces.
+  seams; shoes their N, tiger stripes, Air Max waves, laces. The pointing
+  arm on the bust is built from the same pieces.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section
