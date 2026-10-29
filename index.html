@@ -280,6 +280,48 @@ h2 {
 .hobby svg { width: 44px; height: 44px; flex: none; }
 .hobby h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 4px; letter-spacing: -.01em; }
 .hobby p { margin: 0; font-size: .9rem; color: var(--muted); }
+.hobby.gym { grid-column: 1 / -1; }
+.hobby > div { min-width: 0; flex: 1; }
+
+/* lift tracker: three tabs; hover one and the figure up top does the lift */
+.lifts { display: flex; gap: 5px; margin-top: 13px; flex-wrap: wrap; }
+.lift {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  padding: 6px 11px; border-radius: 7px; cursor: pointer;
+  transition: color .18s ease, border-color .18s ease;
+}
+.lift:hover { border-color: var(--warm); color: var(--ink); }
+.lift.on { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+.liftbox { margin-top: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.liftbox b { font-family: var(--display); font-size: 1.6rem; font-weight: 600; color: var(--ink); margin-right: 7px; letter-spacing: -.02em; }
+.liftbox .goal { color: var(--muted); }
+.meter { height: 6px; border-radius: 3px; background: var(--line); margin: 9px 0 7px; overflow: hidden; max-width: 320px; }
+.meter i { display: block; height: 100%; width: var(--p); background: var(--warm); border-radius: 3px; transition: width .5s cubic-bezier(.2,.8,.3,1); }
+.liftbox .note { margin: 0; font-size: 11.5px; }
+
+/* the lifts, played by the lookbook figure */
+#look.gym svg { width: 124px; }
+.sq-upper { animation: sqUp 2.6s ease-in-out infinite; }
+@keyframes sqUp { 0%,15% { transform: translateY(0) } 50%,62% { transform: translateY(38px) } 92%,100% { transform: translateY(0) } }
+.sq-legs { transform-origin: 60px 276px; animation: sqLegs 2.6s ease-in-out infinite; }
+@keyframes sqLegs { 0%,15% { transform: scale(1,1) } 50%,62% { transform: scale(1.24,.7) } 92%,100% { transform: scale(1,1) } }
+.bb { transform-origin: 60px 131px; animation: press 3.4s ease-in-out infinite; }
+@keyframes press {
+  0%  { transform: scale(1) }
+  28% { transform: scale(1.05) translateY(-2px) }
+  36% { transform: scale(1.05) translate(1.6px, -2px) }
+  42% { transform: scale(1.05) translate(-1.6px, -2px) }
+  48% { transform: scale(1.05) translate(1.4px, -2.5px) }
+  54% { transform: scale(1.06) translate(-1.2px, -3px) }
+  60% { transform: scale(1.06) translate(1px, -3px) }
+  76% { transform: scale(1.13) translateY(-6px) }
+  88% { transform: scale(1.13) translateY(-6px) }
+  100% { transform: scale(1) }
+}
+.shake { transform-origin: 60px 70px; animation: nope 2.6s ease-in-out infinite; }
+@keyframes nope { 0%,38% { transform: rotate(0) } 46% { transform: rotate(-8deg) } 56% { transform: rotate(8deg) } 66% { transform: rotate(-5deg) } 76%,100% { transform: rotate(0) } }
+.na { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
 
 /* ---------- contact ---------- */
 .links { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -301,7 +343,7 @@ h2 {
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
-  #face *, .card, .chip, .vbtn, .pip { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  #face *, .card, .chip, .vbtn, .pip, .sq-upper, .sq-legs, .bb, .shake { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
 /* ---------- view switch ---------- */
@@ -1075,6 +1117,24 @@ body.reeling { overflow: hidden; }
         <div><h3>Tennis</h3><p>Singles when I can find a partner, the wall when I can't. Working on the serve.</p></div>
       </div>
 
+      <div class="hobby gym" data-mood="proud" data-say="most days|leg day is most days|hover a lift">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M12 22 h20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <rect x="6" y="13" width="6" height="18" rx="2" fill="var(--accent)"/><rect x="32" y="13" width="6" height="18" rx="2" fill="var(--accent)"/>
+          <rect x="2" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/><rect x="38" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/>
+        </svg>
+        <div>
+          <h3>Gym</h3>
+          <p>Most days. Current numbers below &mdash; hover a lift and the figure up top will demonstrate.</p>
+          <div class="lifts" role="tablist" aria-label="Lifts">
+            <button class="lift on" type="button" role="tab" data-lift="bench" data-mood="strain" data-say="two forty five...|spotter?|it's going up. slowly.|lock it out, lock it out">Bench</button>
+            <button class="lift" type="button" role="tab" data-lift="squat" data-mood="strain" data-say="three seventy five|depth? yes.|leg day is every day|ass to grass">Squat</button>
+            <button class="lift" type="button" role="tab" data-lift="dead" data-mood="think" data-say="my back and I have a deal|deadlift: N/A|next year, maybe|the bar is fine where it is">Deadlift</button>
+          </div>
+          <div class="liftbox" id="liftbox"></div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1126,6 +1186,7 @@ body.reeling { overflow: hidden; }
     startle: { lid:1.42, browY:-6,   browTilt:-7,  curve:-.1, open:.62, width:.8,  skew:0,  blush:.1,  tilt:0,  quips:["whoa", "easy!", "slow down", "where's the fire?"] },
     wink:    { lid:1,    browY:-3.5, browTilt:-9,  curve:.85, open:.2,  width:1.08,skew:.6, blush:.4,  tilt:5,  quips:["drop me a line", "say hi", "inbox is open", "I actually reply"], winkR:true },
     bored:   { lid:.52,  browY:2.5,  browTilt:6,   curve:-.28,open:0,   width:.86, skew:.4, blush:0,   tilt:-7, quips:["still here...", "take your time", "scroll down, there's more", "hello?"] },
+    strain:  { lid:.22,  browY:1.5,  browTilt:16,  curve:-.45,open:.42, width:.56, skew:0,  blush:.85, tilt:0,  quips:["hnnng", "one more", "it's moving", "that's heavy"] },
     away:    { lid:.86,  browY:-2.5, browTilt:-4,  curve:-.05,open:.1,  width:.8,  skew:0,  blush:0,   tilt:0,  quips:["where'd you go?", "come back", "I'll wait", "bye for now"] }
   };
 
@@ -1638,27 +1699,42 @@ body.reeling { overflow: hidden; }
   // --- the full-body figure for the lookbook ---
   var figure = document.getElementById("figure");
   var lookList = document.getElementById("lookList");
-  function renderLook() {
+  // A bare leg, with the quads and calf drawn in: shorts show the legs off.
+  function leg(x, y, h) {
+    return '<rect x="' + (x - 1) + '" y="' + y + '" width="26" height="' + h + '" rx="8" fill="var(--skin)"/>' +
+      '<g fill="none" stroke="var(--skin-dk)" stroke-width="1.6" stroke-linecap="round" opacity=".55">' +
+      '<path d="M' + (x + 12) + ' ' + (y + 3) + ' q-2 9 1 17"/>' +
+      '<path d="M' + (x + 3.5) + ' ' + (y + 5) + ' q-1.5 8 2 15"/>' +
+      '<path d="M' + (x + 20.5) + ' ' + (y + 5) + ' q1.5 8 -2 15"/>' +
+      '<path d="M' + (x + 5) + ' ' + (y + h - 11) + ' q7 -6 14 0"/></g>';
+  }
+
+  // `action` is a lift from the tracker (bench, squat, dead); without one
+  // the figure just stands there in the fit.
+  function renderLook(action) {
     var c = fit.col, p = fit.pants, sh = fit.shoes, o = "";
     var shortSleeve = fit.shirt.sleeves === "short";
     var dark = '<rect x="26" y="118" width="68" height="62" fill="#000" opacity=".06"/>';
+    var bench = action === "bench", squat = action === "squat", dead = action === "dead";
+    var upper = "", lower = "";
 
-    // arms, behind the torso
-    o += '<rect x="13" y="110" width="15" height="' + (shortSleeve ? 30 : 68) + '" rx="7.5" fill="' + c + '"/>' +
-         '<rect x="92" y="110" width="15" height="' + (shortSleeve ? 30 : 68) + '" rx="7.5" fill="' + c + '"/>';
-    if (shortSleeve) o += '<rect x="15.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>' +
-                          '<rect x="94.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>';
-    o += '<circle cx="20.5" cy="183" r="6" fill="var(--skin)"/><circle cx="99.5" cy="183" r="6" fill="var(--skin)"/>';
+    // arms, behind the torso. Benching (seen from above) they reach for the
+    // bar, so they are short stubs and the hands go on the bar further down.
+    var sl = bench ? 20 : (shortSleeve ? 30 : 68);
+    upper += '<rect x="13" y="110" width="15" height="' + sl + '" rx="7.5" fill="' + c + '"/>' +
+             '<rect x="92" y="110" width="15" height="' + sl + '" rx="7.5" fill="' + c + '"/>';
+    if (!bench) {
+      if (shortSleeve) upper += '<rect x="15.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>' +
+                                '<rect x="94.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>';
+      upper += '<circle cx="20.5" cy="183" r="6" fill="var(--skin)"/><circle cx="99.5" cy="183" r="6" fill="var(--skin)"/>';
+    }
     // torso
-    o += '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
+    upper += '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
     // legs: shorts stop at the knee, pants run to the shoe; both cut baggy
     var hem = p.kind === "shorts" ? (p.capri ? 236 : 222) : 262;
     var flare = p.wide ? 4 : 0;
     o += '<path d="M24 178 H96 L' + (97 + flare) + ' ' + hem + ' H63 L60 214 L57 ' + hem + ' H' + (23 - flare) + ' Z" fill="' + p.col + '"/>';
-    if (p.kind === "shorts") {
-      o += '<rect x="29" y="' + (hem - 2) + '" width="24" height="' + (262 - hem + 2) + '" rx="6" fill="var(--skin)"/>' +
-           '<rect x="67" y="' + (hem - 2) + '" width="24" height="' + (262 - hem + 2) + '" rx="6" fill="var(--skin)"/>';
-    }
+    if (p.kind === "shorts") o += leg(29, hem - 2, 262 - hem + 2) + leg(67, hem - 2, 262 - hem + 2);
     if (p.trim && p.kind === "track") {
       o += '<path d="M27 182 L25 ' + hem + ' M93 182 L95 ' + hem + '" stroke="' + p.trim + '" stroke-width="2.4"/>';
     } else if (p.trim && p.kind === "shorts") {
@@ -1675,9 +1751,43 @@ body.reeling { overflow: hidden; }
          '<rect x="63" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
          '<rect x="17" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>' +
          '<rect x="63" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>';
+    lower = o;
+
     // the live bust and head, borrowed from the top-left rig
-    o += '<use href="#body"/><use href="#head"/>';
-    figure.innerHTML = o;
+    var head = '<use href="#head"/>';
+    if (dead) head = '<g class="shake">' + head + '</g>';
+    upper += '<use href="#body"/>';
+
+    var pre = "", post = "";
+    if (bench) {
+      // seen from above: bench under him, rack at the head end, the bar
+      // across the chest with his hands on it, inching up
+      pre = '<rect x="36" y="14" width="48" height="268" rx="7" fill="#3A3A46"/>' +
+            '<rect x="-16" y="26" width="7" height="46" rx="2" fill="#55555F"/><rect x="129" y="26" width="7" height="46" rx="2" fill="#55555F"/>';
+      post = '<g class="bb"><rect x="-30" y="128" width="180" height="6" rx="3" fill="#4A4A55"/>' +
+             '<rect x="-34" y="110" width="12" height="42" rx="2" fill="#23232B"/><rect x="-21" y="114" width="7" height="34" rx="2" fill="#2E2E38"/>' +
+             '<rect x="142" y="110" width="12" height="42" rx="2" fill="#23232B"/><rect x="134" y="114" width="7" height="34" rx="2" fill="#2E2E38"/>' +
+             '<circle cx="27" cy="131" r="7" fill="var(--skin)"/><circle cx="93" cy="131" r="7" fill="var(--skin)"/>' +
+             '<text x="60" y="156" text-anchor="middle" class="na">245</text></g>';
+      figure.innerHTML = pre + lower + upper + head + post;
+    } else if (squat) {
+      // bar across the back of the shoulders; the top half drops, the legs fold
+      var bar = '<rect x="-30" y="103" width="180" height="6" rx="3" fill="#4A4A55"/>' +
+                '<rect x="-34" y="86" width="12" height="42" rx="2" fill="#23232B"/><rect x="-21" y="90" width="7" height="34" rx="2" fill="#2E2E38"/>' +
+                '<rect x="142" y="86" width="12" height="42" rx="2" fill="#23232B"/><rect x="134" y="90" width="7" height="34" rx="2" fill="#2E2E38"/>';
+      figure.innerHTML = '<g class="sq-legs">' + lower + '</g><g class="sq-upper">' + upper + bar + head +
+                         '<text x="60" y="140" text-anchor="middle" class="na">375</text></g>';
+    } else if (dead) {
+      // the bar stays on the floor. He looks at it. He shakes his head.
+      post = '<rect x="-30" y="266" width="180" height="6" rx="3" fill="#4A4A55"/>' +
+             '<rect x="-36" y="232" width="14" height="50" rx="2" fill="#23232B"/><rect x="-21" y="238" width="7" height="38" rx="2" fill="#2E2E38"/>' +
+             '<rect x="142" y="232" width="14" height="50" rx="2" fill="#23232B"/><rect x="134" y="238" width="7" height="38" rx="2" fill="#2E2E38"/>' +
+             '<text x="60" y="226" text-anchor="middle" class="na">nope.</text>';
+      figure.innerHTML = lower + upper + head + post;
+    } else {
+      figure.innerHTML = lower + upper + head;
+    }
+    figure.parentNode.setAttribute("viewBox", action ? "-38 0 196 290" : "0 0 120 290");
 
     var rows = [["top", fit.shirt.name], ["bottom", fit.pants.name], ["feet", fit.shoes.name]];
     if (fit.hat) rows.push(["head", fit.hat.name]);
@@ -1883,6 +1993,36 @@ body.reeling { overflow: hidden; }
     return t ? pickLine(t.split("|")) : undefined;
   }
 
+  // --- lift tracker: tabs pick what is shown; hovering one plays the lift ---
+  var LIFTS = {
+    bench: { num: "245", goal: "goal 315", p: 245 / 315, note: "70 lb to go. It goes up. Slowly." },
+    squat: { num: "375", goal: "goal 405", p: 375 / 405, note: "30 lb from four plates. Leg day is most days." },
+    dead:  { num: "N/A", goal: "goal: also N/A", p: 0, note: "My lower back and I have an agreement: I don't pull, it doesn't complain." }
+  };
+  var liftbox = document.getElementById("liftbox");
+  var liftTabs = [].slice.call(document.querySelectorAll(".lift"));
+  function showLift(k) {
+    var l = LIFTS[k];
+    liftTabs.forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-lift") === k); b.setAttribute("aria-selected", b.getAttribute("data-lift") === k); });
+    liftbox.innerHTML = "<b>" + l.num + "</b><span class=\"goal\">" + l.goal + "</span>" +
+      '<div class="meter"><i style="--p:' + Math.round(l.p * 100) + '%"></i></div><p class="note">' + l.note + "</p>";
+  }
+  liftTabs.forEach(function (b) {
+    b.addEventListener("click", function () { showLift(b.getAttribute("data-lift")); });
+    b.addEventListener("focus", function () { playLift(b.getAttribute("data-lift")); });
+    b.addEventListener("blur", function () { playLift(null); });
+  });
+  showLift("bench");
+
+  var liftOn = null;
+  function playLift(k) {
+    if (k === liftOn) return;
+    liftOn = k;
+    renderLook(k || undefined);
+    look.classList.toggle("gym", !!k);
+    if (k) look.classList.add("on");
+  }
+
   // what the arm points at: a project, a job, a hobby or the reel on screen
   var pointHost = null, armA = 20, armS = 0;
   function pointAt(host) {
@@ -1911,7 +2051,8 @@ body.reeling { overflow: hidden; }
       overHost = h;
       wasOnHead = onHead;
       clearTimeout(hoverTimer);
-      look.classList.toggle("on", onHead);
+      playLift(h ? h.getAttribute("data-lift") : null);
+      look.classList.toggle("on", onHead || !!liftOn);
       if (onHead) {
         pointAt(null);
         setMood("proud", pickLine(HEAD_LINES));
@@ -1931,7 +2072,7 @@ body.reeling { overflow: hidden; }
     setTimeout(function () { setMood(overTarget || "idle"); }, 900);
   });
 
-  document.addEventListener("pointerleave", function () { setMood("away"); pointAt(null); look.classList.remove("on"); });
+  document.addEventListener("pointerleave", function () { setMood("away"); pointAt(null); playLift(null); look.classList.remove("on"); });
   window.addEventListener("blur", function () { setMood("away"); });
 
   setInterval(function () {
