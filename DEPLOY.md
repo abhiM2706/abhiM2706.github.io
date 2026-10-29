@@ -232,14 +232,22 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   screen); its sleeve takes the shirt colour.
 
 - **Hobbies.** The "Off the clock" section: five `.hobby` cards with an
-  inline icon each. The copy is a first draft - fix the specifics. The gym
-  card holds the lift tracker: numbers and notes live in `LIFTS` in the
-  script, the tabs in the markup. Hovering a tab (or focusing it) plays the
-  lift in the lookbook with the `strain` mood: `renderLook("bench")`,
-  `"squat"` or `"dead"`. Bench is drawn from above (bench, rack, bar on the
-  chest, hands on it); squat drops the top half and folds the legs; the
-  deadlift bar stays on the floor and he shakes his head. Any fit in shorts
-  shows the legs with the quads and calves drawn in (`leg()`), lift or not.
+  inline icon each and a `.play` button that makes him do it. The copy is a
+  first draft - fix the specifics. The gym card holds the lift tracker:
+  numbers and notes live in `LIFTS` in the script, the tabs in the markup;
+  hovering a tab loops that lift, "Do 3 reps" does three of the selected one.
+
+- **Doing the hobbies.** `ACTS` in the script holds one entry per action
+  (`violin`, `dj`, `code`, `serve`, `squat`, `bench`, `dead`), each with a
+  `dur`, a `mood`, a `setup()` that drops props into the figure's `fBack` /
+  `fFront` / `fFx` layers, and a `tick(t)` that poses it for a time `t` from
+  0 to 1. `runAnim()` drives `tick` every frame. The figure (`figureSVG()`)
+  has two-segment arms: `setArm(side, x, y, bend)` puts the centre of a hand
+  at a point and bends the elbow to suit, so a motion is just a hand target
+  moving smoothly, eased with `ease`/`out`/`inn` over a `seg(t, a, b)` of
+  the timeline. Any fit in shorts shows the legs with the quads and calves
+  drawn in (`leg()`), action or not. To add an action: an entry in `ACTS`, a
+  button with `data-act`.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section

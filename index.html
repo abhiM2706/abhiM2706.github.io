@@ -102,8 +102,8 @@ body {
    (wide screens only: anywhere narrower the legs would run into the text) */
 body.full #face svg { height: 251px; }
 body.full #look { left: calc(max(18px, env(safe-area-inset-left, 0px)) + 118px); width: 176px; }
-body.full #look:not(.gym) svg { display: none; }
-body.full #look.gym { width: 244px; }
+body.full #look:not(.act) svg { display: none; }
+body.full #look.act { width: 252px; }
 #quip {
   font-family: var(--mono);
   font-size: 11px;
@@ -306,27 +306,24 @@ h2 {
 .meter i { display: block; height: 100%; width: var(--p); background: var(--warm); border-radius: 3px; transition: width .5s cubic-bezier(.2,.8,.3,1); }
 .liftbox .note { margin: 0; font-size: 11.5px; }
 
-/* the lifts, played by the lookbook figure */
-#look.gym svg { width: 124px; }
-.sq-upper { animation: sqUp 2.6s ease-in-out infinite; }
-@keyframes sqUp { 0%,15% { transform: translateY(0) } 50%,62% { transform: translateY(38px) } 92%,100% { transform: translateY(0) } }
-.sq-legs { transform-origin: 60px 276px; animation: sqLegs 2.6s ease-in-out infinite; }
-@keyframes sqLegs { 0%,15% { transform: scale(1,1) } 50%,62% { transform: scale(1.24,.7) } 92%,100% { transform: scale(1,1) } }
-.bb { transform-origin: 60px 131px; animation: press 3.4s ease-in-out infinite; }
-@keyframes press {
-  0%  { transform: scale(1) }
-  28% { transform: scale(1.05) translateY(-2px) }
-  36% { transform: scale(1.05) translate(1.6px, -2px) }
-  42% { transform: scale(1.05) translate(-1.6px, -2px) }
-  48% { transform: scale(1.05) translate(1.4px, -2.5px) }
-  54% { transform: scale(1.06) translate(-1.2px, -3px) }
-  60% { transform: scale(1.06) translate(1px, -3px) }
-  76% { transform: scale(1.13) translateY(-6px) }
-  88% { transform: scale(1.13) translateY(-6px) }
-  100% { transform: scale(1) }
+/* a hobby being done: the figure gets a wider stage for props and the ball */
+#look.act svg { width: 132px; }
+@media (max-width: 860px) {
+  #look.act.on { display: flex; top: calc(84px + env(safe-area-inset-top, 0px)); width: 236px; }
 }
-.shake { transform-origin: 60px 70px; animation: nope 2.6s ease-in-out infinite; }
-@keyframes nope { 0%,38% { transform: rotate(0) } 46% { transform: rotate(-8deg) } 56% { transform: rotate(8deg) } 66% { transform: rotate(-5deg) } 76%,100% { transform: rotate(0) } }
+
+/* the button on each hobby that makes him do it */
+.play {
+  margin-top: 11px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--accent); color: var(--accent); background: none;
+  border-radius: 7px; padding: 6px 11px 6px 9px; cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.play::before { content: ""; width: 0; height: 0; border-left: 6px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+.play:hover, .play:focus-visible { background: var(--accent); color: var(--bg); }
+.play[disabled] { opacity: .55; cursor: default; }
 .na { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
 
 /* ---------- contact ---------- */
@@ -349,7 +346,7 @@ h2 {
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
 @media (prefers-reduced-motion: reduce) {
-  #face *, .card, .chip, .vbtn, .pip, .sq-upper, .sq-legs, .bb, .shake { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  #face *, .card, .chip, .vbtn, .pip { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
 /* ---------- view switch ---------- */
@@ -1085,7 +1082,8 @@ body.reeling { overflow: hidden; }
           <path d="M20 22 q-1 3 1 5 M28 22 q1 3 -1 5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
           <path d="M24 14 v22" stroke="var(--ink)" stroke-width="1" opacity=".55"/>
         </svg>
-        <div><h3>Violin</h3><p>Played since before I could code. Still the best way to reset after a long debugging session.</p></div>
+        <div><h3>Violin</h3><p>Played since before I could code. Still the best way to reset after a long debugging session.</p>
+          <button class="play" type="button" data-act="violin" data-mood="delight" data-say="a phrase, then|tuning first|watch the bow arm">Play a phrase</button></div>
       </div>
 
       <div class="hobby" data-mood="yay" data-say="I take requests|the transitions are the fun part|house, mostly">
@@ -1096,7 +1094,8 @@ body.reeling { overflow: hidden; }
           <path d="M22 17 v12 M20 25 h4" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
           <path d="M6 40 q4 -5 8 0 t8 0 t8 0 t8 0" fill="none" stroke="var(--warm)" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
-        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p></div>
+        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p>
+          <button class="play" type="button" data-act="dj" data-mood="yay" data-say="hands up|one more tune|this transition though">Drop the beat</button></div>
       </div>
 
       <div class="hobby" data-mood="think" data-say="graph problems are the best problems|moo|where the DP habit comes from">
@@ -1110,7 +1109,8 @@ body.reeling { overflow: hidden; }
           <circle cx="17" cy="20" r="1.4" fill="var(--ink)"/><circle cx="27" cy="20" r="1.4" fill="var(--ink)"/>
           <text x="22" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)">&lt;/&gt;</text>
         </svg>
-        <div><h3>USACO</h3><p>Competitive programming. Graphs and dynamic programming are where I'm happiest; the cow is Bessie.</p></div>
+        <div><h3>USACO</h3><p>Competitive programming. Graphs and dynamic programming are where I'm happiest; the cow is Bessie.</p>
+          <button class="play" type="button" data-act="code" data-mood="think" data-say="watch me solve one|it's a DP, obviously|first try, probably">Solve one</button></div>
       </div>
 
       <div class="hobby" data-mood="aim" data-say="singles, usually|the wall never misses|the serve is a work in progress">
@@ -1121,7 +1121,8 @@ body.reeling { overflow: hidden; }
           <circle cx="35" cy="11" r="4.5" fill="var(--warm)"/>
           <path d="M31.5 9 q3.5 2 7 0 M31.5 13 q3.5 -2 7 0" fill="none" stroke="var(--surface)" stroke-width="1"/>
         </svg>
-        <div><h3>Tennis</h3><p>Singles when I can find a partner, the wall when I can't. Working on the serve.</p></div>
+        <div><h3>Tennis</h3><p>Singles when I can find a partner, the wall when I can't. Working on the serve.</p>
+          <button class="play" type="button" data-act="serve" data-mood="aim" data-say="toss, reach, snap|let's see this serve|ace, hopefully">Hit a serve</button></div>
       </div>
 
       <div class="hobby gym" data-mood="proud" data-say="most days|leg day is most days|hover a lift">
@@ -1139,6 +1140,7 @@ body.reeling { overflow: hidden; }
             <button class="lift" type="button" role="tab" data-lift="dead" data-mood="think" data-say="my back and I have a deal|deadlift: N/A|next year, maybe|the bar is fine where it is">Deadlift</button>
           </div>
           <div class="liftbox" id="liftbox"></div>
+          <button class="play" type="button" data-act="reps" data-mood="strain" data-say="three reps|spot me|light weight">Do 3 reps</button>
         </div>
       </div>
 
@@ -1709,6 +1711,16 @@ body.reeling { overflow: hidden; }
   var fullEl = document.getElementById("full");
   var wide = window.matchMedia("(min-width: 1180px)");
   wide.addEventListener("change", function () { if (fit) renderLook(); });
+  // ---------------------------------------------------------------------
+  // The figure. Built from parts so the hobbies can move them: arms in two
+  // segments that bend at the elbow (a hand goes where setArm() puts it),
+  // a wrapper round the live head, the legs, and prop layers behind and in
+  // front. The copy standing in the margin for shorts is the same drawing
+  // without the ids.
+  // ---------------------------------------------------------------------
+  var SHOULDER = { L: { x: 20.5, y: 114 }, R: { x: 99.5, y: 114 } };
+  var L1 = 36, L2 = 33;       // upper arm, forearm to the centre of the hand
+
   // A bare leg, with the quads and calf drawn in: shorts show the legs off.
   function leg(x, y, h) {
     return '<rect x="' + (x - 1) + '" y="' + y + '" width="26" height="' + h + '" rx="8" fill="var(--skin)"/>' +
@@ -1719,27 +1731,24 @@ body.reeling { overflow: hidden; }
       '<path d="M' + (x + 5) + ' ' + (y + h - 11) + ' q7 -6 14 0"/></g>';
   }
 
-  // `action` is a lift from the tracker (bench, squat, dead); without one
-  // the figure just stands there in the fit.
-  function renderLook(action) {
-    var c = fit.col, p = fit.pants, sh = fit.shoes, o = "";
-    var shortSleeve = fit.shirt.sleeves === "short";
-    var dark = '<rect x="26" y="118" width="68" height="62" fill="#000" opacity=".06"/>';
-    var bench = action === "bench", squat = action === "squat", dead = action === "dead";
-    var upper = "", lower = "";
+  function armSVG(side, ids, stub) {
+    var s0 = SHOULDER[side], c = fit.col, shortS = fit.shirt.sleeves === "short";
+    var x = s0.x - 7.5;
+    if (stub) return '<rect x="' + x + '" y="110" width="15" height="20" rx="7.5" fill="' + c + '"/>';
+    var up = '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
+             (shortS ? '<rect x="' + x + '" y="110" width="15" height="28" rx="7.5" fill="' + c + '"/>' : "");
+    var fore = '<rect x="' + (s0.x - 5.5) + '" y="146" width="11" height="40" rx="5.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
+               '<circle cx="' + s0.x + '" cy="183" r="6.2" fill="var(--skin)"/>';
+    return '<g' + (ids ? ' id="fArm' + side + '"' : "") + '>' + up +
+           '<g' + (ids ? ' id="fFore' + side + '"' : "") + '>' + fore + '</g></g>';
+  }
 
-    // arms, behind the torso. Benching (seen from above) they reach for the
-    // bar, so they are short stubs and the hands go on the bar further down.
-    var sl = bench ? 20 : (shortSleeve ? 30 : 68);
-    upper += '<rect x="13" y="110" width="15" height="' + sl + '" rx="7.5" fill="' + c + '"/>' +
-             '<rect x="92" y="110" width="15" height="' + sl + '" rx="7.5" fill="' + c + '"/>';
-    if (!bench) {
-      if (shortSleeve) upper += '<rect x="15.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>' +
-                                '<rect x="94.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>';
-      upper += '<circle cx="20.5" cy="183" r="6" fill="var(--skin)"/><circle cx="99.5" cy="183" r="6" fill="var(--skin)"/>';
-    }
-    // torso
-    upper += '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
+  function figureSVG(ids, opt) {
+    opt = opt || {};
+    var c = fit.col, p = fit.pants, sh = fit.shoes, o = "";
+    var I = function (n) { return ids ? ' id="' + n + '"' : ""; };
+    var dark = '<rect x="26" y="118" width="68" height="62" fill="#000" opacity=".06"/>';
+
     // legs: shorts stop at the knee, pants run to the shoe; both cut baggy
     var hem = p.kind === "shorts" ? (p.capri ? 236 : 222) : 262;
     var flare = p.wide ? 4 : 0;
@@ -1761,7 +1770,21 @@ body.reeling { overflow: hidden; }
          '<rect x="63" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
          '<rect x="17" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>' +
          '<rect x="63" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>';
-    lower = o;
+
+    var torso = '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
+    var arms = armSVG("L", ids, opt.stub) + armSVG("R", ids, opt.stub);
+    // the live bust and head, borrowed from the top-left rig
+    var head = '<g' + I("fHead") + '>' + (ids ? '<use href="#head"/>' : "") + '</g>';
+    return '<g' + I("fBack") + '></g>' +
+           '<g' + I("fLegs") + '>' + o + '</g>' +
+           '<g' + I("fUpper") + '>' + torso + (ids ? '<use href="#body"/>' : "") + arms + head + '</g>' +
+           '<g' + I("fFront") + '></g><g' + I("fFx") + '></g>';
+  }
+
+  // `action` is one of ACTS (a lift or a hobby); without one the figure just
+  // stands there in the fit.
+  function renderLook(action) {
+    var p = fit.pants;
 
     // Shorts: the whole figure stands in the margin, legs and all. The
     // lower body goes behind the real bust, which already sits on top.
@@ -1769,43 +1792,12 @@ body.reeling { overflow: hidden; }
     document.body.classList.toggle("full", full);
     vbH = full ? 290 : 120;
     svg.setAttribute("viewBox", "0 0 120 " + vbH);
-    fullEl.innerHTML = full ? lower + upper : "";
+    fullEl.innerHTML = full ? figureSVG(false) : "";
 
-    // the live bust and head, borrowed from the top-left rig
-    var head = '<use href="#head"/>';
-    if (dead) head = '<g class="shake">' + head + '</g>';
-    upper += '<use href="#body"/>';
-
-    var pre = "", post = "";
-    if (bench) {
-      // seen from above: bench under him, rack at the head end, the bar
-      // across the chest with his hands on it, inching up
-      pre = '<rect x="36" y="14" width="48" height="268" rx="7" fill="#3A3A46"/>' +
-            '<rect x="-16" y="26" width="7" height="46" rx="2" fill="#55555F"/><rect x="129" y="26" width="7" height="46" rx="2" fill="#55555F"/>';
-      post = '<g class="bb"><rect x="-30" y="128" width="180" height="6" rx="3" fill="#4A4A55"/>' +
-             '<rect x="-34" y="110" width="12" height="42" rx="2" fill="#23232B"/><rect x="-21" y="114" width="7" height="34" rx="2" fill="#2E2E38"/>' +
-             '<rect x="142" y="110" width="12" height="42" rx="2" fill="#23232B"/><rect x="134" y="114" width="7" height="34" rx="2" fill="#2E2E38"/>' +
-             '<circle cx="27" cy="131" r="7" fill="var(--skin)"/><circle cx="93" cy="131" r="7" fill="var(--skin)"/>' +
-             '<text x="60" y="156" text-anchor="middle" class="na">245</text></g>';
-      figure.innerHTML = pre + lower + upper + head + post;
-    } else if (squat) {
-      // bar across the back of the shoulders; the top half drops, the legs fold
-      var bar = '<rect x="-30" y="103" width="180" height="6" rx="3" fill="#4A4A55"/>' +
-                '<rect x="-34" y="86" width="12" height="42" rx="2" fill="#23232B"/><rect x="-21" y="90" width="7" height="34" rx="2" fill="#2E2E38"/>' +
-                '<rect x="142" y="86" width="12" height="42" rx="2" fill="#23232B"/><rect x="134" y="90" width="7" height="34" rx="2" fill="#2E2E38"/>';
-      figure.innerHTML = '<g class="sq-legs">' + lower + '</g><g class="sq-upper">' + upper + bar + head +
-                         '<text x="60" y="140" text-anchor="middle" class="na">375</text></g>';
-    } else if (dead) {
-      // the bar stays on the floor. He looks at it. He shakes his head.
-      post = '<rect x="-30" y="266" width="180" height="6" rx="3" fill="#4A4A55"/>' +
-             '<rect x="-36" y="232" width="14" height="50" rx="2" fill="#23232B"/><rect x="-21" y="238" width="7" height="38" rx="2" fill="#2E2E38"/>' +
-             '<rect x="142" y="232" width="14" height="50" rx="2" fill="#23232B"/><rect x="134" y="238" width="7" height="38" rx="2" fill="#2E2E38"/>' +
-             '<text x="60" y="226" text-anchor="middle" class="na">nope.</text>';
-      figure.innerHTML = lower + upper + head + post;
-    } else {
-      figure.innerHTML = lower + upper + head;
-    }
-    figure.parentNode.setAttribute("viewBox", action ? "-38 0 196 290" : "0 0 120 290");
+    figure.innerHTML = figureSVG(true, { stub: action === "bench" });
+    figure.parentNode.setAttribute("viewBox", action ? "-44 -34 208 326" : "0 0 120 290");
+    look.classList.toggle("act", !!action);
+    if (action && ACTS[action]) ACTS[action].setup();
 
     var rows = [["top", fit.shirt.name], ["bottom", fit.pants.name], ["feet", fit.shoes.name]];
     if (fit.hat) rows.push(["head", fit.hat.name]);
@@ -2033,14 +2025,321 @@ body.reeling { overflow: hidden; }
   });
   showLift("bench");
 
-  var liftOn = null;
+  // ---------------------------------------------------------------------
+  // Doing the hobbies. A tiny timeline: runAnim() calls tick(t) every frame
+  // with t from 0 to 1 (or looping), and each action moves the figure's
+  // parts with plain transforms. Hands are placed by setArm(), a two-link
+  // IK, so a motion is just a hand target moving smoothly through space.
+  // ---------------------------------------------------------------------
+  function el(id) { return document.getElementById(id); }
+  function tf(id, v) { var e = el(id); if (e) e.setAttribute("transform", v); }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function seg(t, a, b) { return clamp01((t - a) / (b - a)); }       // 0..1 across [a,b]
+  function ease(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  function out(t) { return 1 - Math.pow(1 - t, 3); }
+  function inn(t) { return t * t * t; }
+  function mix(a, b, t) { return a + (b - a) * t; }
+  function bump(t) { return Math.sin(Math.PI * clamp01(t)); }      // 0 -> 1 -> 0
+
+  // Put the centre of a hand at (x, y). bend is +1 or -1: which way the
+  // elbow goes. Returns the elbow, for things held in line with the forearm.
+  function setArm(side, x, y, bend) {
+    var s0 = SHOULDER[side];
+    var dx = x - s0.x, dy = y - s0.y;
+    var d = Math.max(6, Math.min(L1 + L2, Math.hypot(dx, dy)));
+    var phi = Math.atan2(-dx, dy);
+    var a = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + d * d - L2 * L2) / (2 * L1 * d))));
+    var t1 = phi + bend * a;
+    var ex = s0.x - Math.sin(t1) * L1, ey = s0.y + Math.cos(t1) * L1;
+    var t2 = Math.atan2(-(x - ex), y - ey);
+    var D = 180 / Math.PI;
+    tf("fArm" + side, "rotate(" + (t1 * D).toFixed(2) + " " + s0.x + " " + s0.y + ")");
+    tf("fFore" + side, "rotate(" + ((t2 - t1) * D).toFixed(2) + " " + s0.x + " " + (s0.y + L1) + ")");
+    var fl = Math.hypot(x - ex, y - ey) || 1;
+    return { ex: ex, ey: ey, ux: (x - ex) / fl, uy: (y - ey) / fl };
+  }
+
+  var anim = null;
+  function stopAnim() { if (anim) { anim.dead = true; anim = null; } }
+  function runAnim(dur, tick, done, loop) {
+    stopAnim();
+    var a = { dead: false }, t0 = performance.now();
+    anim = a;
+    (function step(now) {
+      if (a.dead) return;
+      var t = (now - t0) / dur;
+      if (loop) { tick(t % 1, t); requestAnimationFrame(step); return; }
+      if (t >= 1) { tick(1, 1); anim = null; if (done) done(); return; }
+      tick(t, t);
+      requestAnimationFrame(step);
+    })(t0);
+  }
+
+  var PLATES = function (y, h) {   // a loaded bar, plates at both ends
+    return '<rect x="-30" y="' + (y + 10) + '" width="180" height="6" rx="3" fill="#4A4A55"/>' +
+      '<rect x="-34" y="' + y + '" width="12" height="' + h + '" rx="2" fill="#23232B"/><rect x="-21" y="' + (y + 4) + '" width="7" height="' + (h - 8) + '" rx="2" fill="#2E2E38"/>' +
+      '<rect x="142" y="' + y + '" width="12" height="' + h + '" rx="2" fill="#23232B"/><rect x="134" y="' + (y + 4) + '" width="7" height="' + (h - 8) + '" rx="2" fill="#2E2E38"/>';
+  };
+
+  var ACTS = {
+    // ---- the lifts ----
+    squat: { dur: 2600, mood: "strain",
+      setup: function () {
+        // bar across the back of the shoulders, so it rides with the top half
+        el("fHead").insertAdjacentHTML("beforebegin", PLATES(86, 42) + '<text x="60" y="140" text-anchor="middle" class="na">375</text>');
+        setArm("L", -8, 106, 1); setArm("R", 128, 106, -1);
+      },
+      tick: function (t) {
+        var d = t < .45 ? ease(seg(t, 0, .45)) : t < .56 ? 1 : 1 - ease(seg(t, .56, 1));
+        tf("fUpper", "translate(0 " + (38 * d).toFixed(2) + ")");
+        tf("fLegs", "translate(60 276) scale(" + (1 + .24 * d).toFixed(3) + " " + (1 - .3 * d).toFixed(3) + ") translate(-60 -276)");
+      } },
+    bench: { dur: 3400, mood: "strain",
+      setup: function () {
+        // seen from above: bench under him, rack at the head end, the bar
+        // across the chest with his hands on it
+        el("fBack").innerHTML = '<rect x="36" y="14" width="48" height="268" rx="7" fill="#3A3A46"/>' +
+          '<rect x="-16" y="26" width="7" height="46" rx="2" fill="#55555F"/><rect x="129" y="26" width="7" height="46" rx="2" fill="#55555F"/>';
+        el("fFront").innerHTML = '<g id="fBar">' + PLATES(110, 42) +
+          '<circle cx="27" cy="131" r="7" fill="var(--skin)"/><circle cx="93" cy="131" r="7" fill="var(--skin)"/>' +
+          '<text x="60" y="156" text-anchor="middle" class="na">245</text></g>';
+      },
+      tick: function (t) {
+        // up a little, stall and shake at the sticking point, grind through,
+        // lock out, then back down for the next one
+        var d, shake = 0;
+        if (t < .28)      d = .35 * out(seg(t, 0, .28));
+        else if (t < .6)  { d = .35 + .12 * seg(t, .28, .6); shake = Math.sin(t * 160) * 1.3 * bump(seg(t, .28, .6)); }
+        else if (t < .78) d = .47 + .53 * ease(seg(t, .6, .78));
+        else if (t < .88) d = 1;
+        else              d = 1 - ease(seg(t, .88, 1));
+        tf("fBar", "translate(" + shake.toFixed(2) + " " + (-7 * d).toFixed(2) + ") translate(60 131) scale(" + (1 + .14 * d).toFixed(3) + ") translate(-60 -131)");
+      } },
+    dead: { dur: 2800, mood: "think",
+      setup: function () {
+        // the bar stays on the floor. He looks at it. He shakes his head.
+        el("fFront").innerHTML = PLATES(232, 50).replace('y="242"', 'y="266"') +
+          '<text x="60" y="226" text-anchor="middle" class="na">nope.</text>';
+      },
+      tick: function (t) {
+        var lean = 3 * bump(seg(t, .05, .4));
+        var sh = Math.sin(seg(t, .4, .8) * Math.PI * 3) * 8 * bump(seg(t, .4, .8));
+        tf("fUpper", "translate(0 " + lean.toFixed(2) + ")");
+        tf("fHead", "rotate(" + sh.toFixed(2) + " 60 70)");
+      } },
+
+    // ---- violin: on the left shoulder, four bow strokes, a little vibrato ----
+    violin: { dur: 5200, mood: "delight",
+      setup: function () {
+        el("fFront").innerHTML =
+          '<g transform="rotate(38 76 104)">' +
+            '<path d="M63 94 q-11 -2 -11 9 q0 7 6 9 q-6 3 -6 10 q0 9 10 9 h28 q10 0 10 -9 q0 -7 -6 -10 q6 -2 6 -9 q0 -11 -11 -9 Z" fill="#8A4B22"/>' +
+            '<path d="M63 94 q-11 -2 -11 9 q0 7 6 9 q-6 3 -6 10 q0 9 10 9 h28 q10 0 10 -9 q0 -7 -6 -10 q6 -2 6 -9 q0 -11 -11 -9 Z" fill="none" stroke="#5A2E12" stroke-width="1"/>' +
+            '<path d="M69 100 q-1.5 6 1 12 M83 100 q1.5 6 -1 12" stroke="#2A1608" stroke-width="1.3" fill="none" stroke-linecap="round"/>' +
+            '<rect x="72.5" y="56" width="7" height="68" rx="1.2" fill="#1E1208"/>' +
+            '<circle cx="76" cy="54" r="3.6" fill="#2A1608"/>' +
+            '<path d="M72 60 h-3 M72 64 h-3 M80 60 h3 M80 64 h3" stroke="#D8B45E" stroke-width="1.2"/>' +
+            '<path d="M74.5 58 v62 M76 58 v62 M77.5 58 v62" stroke="#E8E2D0" stroke-width=".45"/>' +
+            '<rect x="70" y="110" width="12" height="2.4" rx=".6" fill="#E8DDC0"/>' +
+            '<path d="M73 114 q3 8 3 12 q0 -4 3 -12" fill="#1E1208"/>' +
+          '</g>' +
+          '<path id="fBow" d="" stroke="#3A2A1C" stroke-width="2.2" stroke-linecap="round"/>' +
+          '<path id="fBowHair" d="" stroke="#F2EBD6" stroke-width="1"/>';
+        el("fFx").innerHTML = '<g font-family="Fraunces, Georgia, serif" font-size="11" fill="var(--accent)">' +
+          '<text id="fN0" opacity="0">&#9834;</text><text id="fN1" opacity="0">&#9835;</text><text id="fN2" opacity="0">&#9834;</text></g>';
+      },
+      tick: function (t) {
+        // fingers on the neck, vibrato on the long notes
+        var vib = Math.sin(t * 90) * .9 * (Math.sin(t * 6) > 0 ? 1 : .3);
+        setArm("R", 104 + vib * .3, 78 + vib, -1);
+        // the bow: hand up-left of the bridge, stick running down-right across
+        // the strings. Four strokes, easing into every turn.
+        var ph = t * 4, i = Math.floor(ph), u = ease(ph - i);
+        var k = i % 2 === 0 ? mix(-8, -34, u) : mix(-34, -8, u);
+        var hx = 72.3 + k * .788, hy = 108.7 + k * .616;
+        setArm("L", hx, hy, 1);
+        var bx = hx + 64 * .788, by = hy + 64 * .616;
+        el("fBow").setAttribute("d", "M" + hx + " " + hy + " L" + bx + " " + by);
+        el("fBowHair").setAttribute("d", "M" + (hx + 1.6) + " " + (hy - 2) + " L" + (bx + 1.6) + " " + (by - 2));
+        // head leans into it and sways
+        tf("fHead", "rotate(" + (-7 + 2.5 * Math.sin(t * 12.6)).toFixed(2) + " 60 70) translate(0 " + (1.5 * Math.sin(t * 12.6)).toFixed(2) + ")");
+        for (var n = 0; n < 3; n++) {
+          var p = (t * 1.6 + n / 3) % 1, on = t > .12 && t < .95;
+          var e = el("fN" + n);
+          e.setAttribute("x", (104 + 10 * Math.sin(p * 7 + n)).toFixed(1));
+          e.setAttribute("y", (62 - 40 * p).toFixed(1));
+          e.setAttribute("opacity", on ? (bump(p) * .9).toFixed(2) : 0);
+        }
+      } },
+
+    // ---- decks: scratch with one hand, ride the crossfader with the other ----
+    dj: { dur: 5000, mood: "yay",
+      setup: function () {
+        el("fFront").innerHTML =
+          '<rect x="0" y="146" width="120" height="32" rx="4" fill="#2A2A36"/>' +
+          '<circle cx="34" cy="161" r="13" fill="#15151C"/><circle cx="86" cy="161" r="13" fill="#15151C"/>' +
+          '<g id="fDiscL"><circle cx="34" cy="161" r="11" fill="#1F1F28"/><circle cx="34" cy="161" r="3.6" fill="var(--accent)"/><path d="M34 150.5 v4" stroke="#8C8CA6" stroke-width="1.2"/></g>' +
+          '<g id="fDiscR"><circle cx="86" cy="161" r="11" fill="#1F1F28"/><circle cx="86" cy="161" r="3.6" fill="var(--warm)"/><path d="M86 150.5 v4" stroke="#8C8CA6" stroke-width="1.2"/></g>' +
+          '<rect x="50" y="150" width="20" height="24" rx="2" fill="#3A3A48"/>' +
+          '<g id="fEq"><rect x="53" y="156" width="3" height="4" fill="var(--accent)"/><rect x="58.5" y="156" width="3" height="4" fill="var(--accent)"/><rect x="64" y="156" width="3" height="4" fill="var(--accent)"/></g>' +
+          '<rect x="53" y="167" width="14" height="2" rx="1" fill="#15151C"/><rect id="fXf" x="58.5" y="164.5" width="3" height="7" rx="1" fill="#E8E2D0"/>' +
+          '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
+      },
+      tick: function (t) {
+        var beat = t * 10;                       // 120 bpm over five seconds
+        // left record: pushed back and forth, two scratches a beat
+        var sc = Math.sin(beat * Math.PI * 2) * 26 * (Math.sin(beat * Math.PI) > 0 ? 1 : .35);
+        tf("fDiscL", "rotate(" + sc.toFixed(2) + " 34 161)");
+        tf("fDiscR", "rotate(" + (t * 1080).toFixed(1) + " 86 161)");
+        var hx = 34 + 7.5 * Math.sin(sc / 57.3), hy = 161 - 7.5 * Math.cos(sc / 57.3);
+        setArm("L", hx, hy - 2, 1);
+        // crossfader rides the beat
+        var xf = 60 + 5.5 * Math.tanh(3 * Math.sin(beat * Math.PI + 1.2));
+        setArm("R", xf, 162, -1);
+        el("fXf").setAttribute("x", (xf - 1.5).toFixed(2));
+        var hs = el("fHands").children;
+        hs[0].setAttribute("cx", hx); hs[0].setAttribute("cy", hy);
+        hs[1].setAttribute("cx", xf); hs[1].setAttribute("cy", 165);
+        // head nods, body bounces, meters jump
+        var nod = Math.max(0, Math.sin(beat * Math.PI * 2));
+        tf("fHead", "translate(0 " + (3 * nod).toFixed(2) + ") rotate(" + (3 * Math.sin(beat * Math.PI)).toFixed(2) + " 60 70)");
+        tf("fUpper", "translate(0 " + (1.2 * nod).toFixed(2) + ")");
+        var eq = el("fEq").children;
+        for (var i = 0; i < 3; i++) {
+          var h = 3 + 9 * Math.abs(Math.sin(beat * Math.PI * (1 + i * .5) + i));
+          eq[i].setAttribute("height", h.toFixed(1)); eq[i].setAttribute("y", (160 - h).toFixed(1));
+        }
+      } },
+
+    // ---- a problem: type, run, pass ----
+    code: { dur: 5200, mood: "think",
+      setup: function () {
+        el("fFront").innerHTML =
+          '<rect x="-8" y="152" width="136" height="10" rx="3" fill="#6B5240"/>' +
+          '<path d="M24 142 H96 L102 154 H18 Z" fill="#8F939B"/>' +
+          '<path d="M30 146 H90 M28 149.5 H92" stroke="#6E727A" stroke-width="1.2" stroke-dasharray="3 1.5"/>' +
+          '<rect x="28" y="100" width="64" height="44" rx="3" fill="#5B5F69"/><circle cx="60" cy="122" r="3" fill="#8F939B"/>' +
+          '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
+        // what he is typing, in a window beside him
+        el("fFx").innerHTML =
+          '<g transform="translate(74 -24)">' +
+            '<rect x="0" y="0" width="86" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>' +
+            '<path d="M14 56 l6 8 l6 -8 Z" fill="var(--surface)" stroke="var(--line)"/><path d="M15 56 h10" stroke="var(--surface)" stroke-width="2"/>' +
+            '<circle cx="8" cy="7" r="1.8" fill="#E86B5C"/><circle cx="13.5" cy="7" r="1.8" fill="#E8C24A"/><circle cx="19" cy="7" r="1.8" fill="#6CC46B"/>' +
+            '<g id="fLines" fill="var(--muted)"><rect x="8" y="16" height="3.4" rx="1.2" width="0"/><rect x="14" y="23" height="3.4" rx="1.2" width="0"/><rect x="14" y="30" height="3.4" rx="1.2" width="0"/><rect x="8" y="37" height="3.4" rx="1.2" width="0"/></g>' +
+            '<rect id="fCur" x="8" y="16" width="2" height="4" fill="var(--accent)"/>' +
+            '<text id="fPass" x="8" y="51" class="na" font-size="7.5" fill="#3E9E4F" opacity="0">&#10003; 10/10 passed</text>' +
+          '</g>';
+      },
+      tick: function (t) {
+        // hands on the keys, fingers going; wrists lift at the end
+        var done = t > .84, lift = 4 * ease(seg(t, .84, .92));
+        var tapL = done ? 0 : 1.8 * Math.max(0, Math.sin(t * 140)), tapR = done ? 0 : 1.8 * Math.max(0, Math.sin(t * 140 + 2.1));
+        setArm("L", 46 + .6 * Math.sin(t * 50), 147 - tapL - lift, 1);
+        setArm("R", 74 + .6 * Math.cos(t * 44), 147 - tapR - lift, -1);
+        var hs = el("fHands").children;
+        hs[0].setAttribute("cx", 46 + .6 * Math.sin(t * 50)); hs[0].setAttribute("cy", 149 - tapL - lift);
+        hs[1].setAttribute("cx", 74 + .6 * Math.cos(t * 44)); hs[1].setAttribute("cy", 149 - tapR - lift);
+        // eyes on the screen, then up when it passes
+        tf("fHead", "translate(0 " + (3 * (1 - ease(seg(t, .84, .95)))).toFixed(2) + ") rotate(" + (-2 * (1 - seg(t, .84, .95))).toFixed(2) + " 60 70)");
+        // lines appear a character at a time
+        var ln = el("fLines").children, W = [58, 40, 50, 30], y = [16, 23, 30, 37], x = [8, 14, 14, 8];
+        var cx = 8, cy = 16;
+        for (var i = 0; i < 4; i++) {
+          var u = seg(t, .06 + i * .19, .22 + i * .19), w = W[i] * Math.floor(u * 10) / 10;
+          ln[i].setAttribute("width", w.toFixed(1));
+          if (u > 0) { cx = x[i] + w + 1; cy = y[i]; }
+        }
+        el("fCur").setAttribute("x", cx); el("fCur").setAttribute("y", cy);
+        el("fCur").setAttribute("opacity", done ? 0 : (Math.sin(t * 60) > 0 ? 1 : .15));
+        el("fPass").setAttribute("opacity", out(seg(t, .86, .94)));
+      } },
+
+    // ---- a serve: toss, reach, snap through, watch it go ----
+    serve: { dur: 2800, mood: "aim",
+      setup: function () {
+        el("fFx").innerHTML =
+          '<path id="fTrail" d="" stroke="#D6E04A" stroke-width="3" stroke-linecap="round" opacity="0"/>' +
+          '<g id="fRacket"><path d="M0 -5 v-20" stroke="#2A2A36" stroke-width="3" stroke-linecap="round"/>' +
+            '<ellipse cx="0" cy="-37" rx="9.5" ry="13" fill="#F1EFE6" stroke="#2A2A36" stroke-width="2"/>' +
+            '<path d="M-6 -44 h12 M-8 -37 h16 M-6 -30 h12 M-3 -48 v22 M3 -48 v22" stroke="#B8B6AC" stroke-width=".7"/></g>' +
+          '<g id="fPop" opacity="0" stroke="var(--warm)" stroke-width="2" stroke-linecap="round"><path d="M-9 -9 l-4 -4 M9 -9 l4 -4 M0 -12 v-6 M-12 0 h-6 M12 0 h6"/></g>' +
+          '<circle id="fBall" r="4.2" fill="#D6E04A" stroke="#B9C33A" stroke-width=".8"/>';
+      },
+      tick: function (t) {
+        // the tossing hand goes up and lets go; the ball floats to its peak
+        var up = ease(seg(t, 0, .34)), back = ease(seg(t, .62, .96));
+        var tx = mix(99.5, 92, up) - 0 * back, ty = mix(183, 48, up);
+        tx = mix(tx, 99.5, back); ty = mix(ty, 183, back);
+        setArm("R", tx, ty, -1);
+        var bx, by, bo = 1;
+        if (t < .3) { bx = tx; by = ty - 7; }
+        else if (t < .58) { var r = seg(t, .3, .58); bx = mix(92, 67, r); by = mix(41, 11, out(r)); }
+        else { var f = seg(t, .58, .82); bx = mix(67, 210, f); by = mix(11, -64, f); bo = 1 - inn(seg(t, .72, .84)); }
+        el("fBall").setAttribute("cx", bx.toFixed(1)); el("fBall").setAttribute("cy", by.toFixed(1)); el("fBall").setAttribute("opacity", bo.toFixed(2));
+        el("fTrail").setAttribute("d", "M" + bx + " " + by + " L" + (bx - 26 * (bx - 67) / 143 - 2) + " " + (by + 26 * (11 - by) / 75 + 1));
+        el("fTrail").setAttribute("opacity", (t > .6 && t < .84 ? .5 * bo : 0).toFixed(2));
+        // the racket arm: a small backswing, then up and over fast, follow
+        // through across the body, back to rest
+        var hx, hy;
+        if (t < .25)       { var a = ease(seg(t, 0, .25)); hx = mix(20.5, 4, a); hy = mix(183, 158, a); }
+        else if (t < .58)  { var b = inn(seg(t, .25, .58)); hx = mix(4, 52, b); hy = mix(158, 44, b); }
+        else if (t < .8)   { var c = out(seg(t, .58, .8)); hx = mix(52, 92, c); hy = mix(44, 150, c); }
+        else               { var d = ease(seg(t, .8, 1)); hx = mix(92, 20.5, d); hy = mix(150, 183, d); }
+        var e = setArm("L", hx, hy, 1);
+        tf("fRacket", "translate(" + hx.toFixed(1) + " " + hy.toFixed(1) + ") rotate(" + (Math.atan2(e.ux, -e.uy) * 57.3).toFixed(1) + ")");
+        tf("fPop", "translate(67 11)");
+        el("fPop").setAttribute("opacity", bump(seg(t, .56, .7)).toFixed(2));
+        // knees bend for the toss, the whole body reaches at contact
+        var reach = bump(seg(t, .42, .7)), bend = bump(seg(t, .05, .5));
+        tf("fUpper", "translate(0 " + (-4 * reach + 2 * bend).toFixed(2) + ")");
+        tf("fLegs", "translate(60 276) scale(1 " + (1 - .03 * bend + .015 * reach).toFixed(3) + ") translate(-60 -276)");
+        tf("fHead", "rotate(" + (-6 * reach).toFixed(2) + " 60 70)");
+      } }
+  };
+
+  var acting = null;       // the action playing from a button, if any
+  var liftOn = null;       // the lift tab under the cursor, if any
+
+  // Hover a lift tab: that lift, on a loop, until the cursor leaves.
   function playLift(k) {
     if (k === liftOn) return;
     liftOn = k;
-    renderLook(k || undefined);
-    look.classList.toggle("gym", !!k);
-    if (k) look.classList.add("on");
+    if (acting) return;
+    if (k) {
+      renderLook(k);
+      look.classList.add("on");
+      runAnim(ACTS[k].dur, ACTS[k].tick, null, true);
+    } else {
+      stopAnim();
+      renderLook();
+    }
   }
+
+  // Press a hobby's button: once through, then back to standing.
+  function playAct(name) {
+    if (name === "reps") name = liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift");
+    var act = ACTS[name];
+    if (!act) return;
+    var reps = (name === "squat" || name === "bench") ? 3 : 1;
+    acting = name;
+    renderLook(name);
+    look.classList.add("on");
+    setMood(act.mood);
+    runAnim(act.dur * reps, function (t) { act.tick((t * reps) % 1); if (moodName !== act.mood && t < .98) setMood(act.mood); },
+      function () {
+        acting = null;
+        setMood("yay", name === "dead" ? "nope." : undefined);
+        setTimeout(function () {
+          if (acting) return;
+          if (liftOn) { liftOn = null; playLift(overHost && overHost.getAttribute("data-lift")); }
+          else { renderLook(); if (!wasOnHead) look.classList.remove("on"); }
+        }, 1100);
+      });
+  }
+  [].forEach.call(document.querySelectorAll(".play"), function (b) {
+    b.addEventListener("click", function () { playAct(b.getAttribute("data-act")); });
+  });
 
   // what the arm points at: a project, a job, a hobby or the reel on screen
   var pointHost = null, armA = 20, armS = 0;
@@ -2074,24 +2373,25 @@ body.reeling { overflow: hidden; }
       look.classList.toggle("on", onHead || !!liftOn);
       if (onHead) {
         pointAt(null);
-        setMood("proud", pickLine(HEAD_LINES));
+        if (!acting) setMood("proud", pickLine(HEAD_LINES));
       } else if (m) {
         // small dwell, so brushing past a link doesn't set off the whole face
-        hoverTimer = setTimeout(function () { setMood(m, sayFor(h)); pointAt(h); }, 110);
+        hoverTimer = setTimeout(function () { if (!acting) setMood(m, sayFor(h)); pointAt(h); }, 110);
       } else {
         pointAt(null);
-        if (!speedMood) setMood("idle");
+        if (!speedMood && !acting) setMood("idle");
       }
     }
   }, { passive: true });
 
-  document.addEventListener("pointerdown", function () { setMood("brace"); });
+  document.addEventListener("pointerdown", function () { if (!acting) setMood("brace"); });
   document.addEventListener("pointerup", function () {
+    if (acting) return;
     setMood(overTarget ? "yay" : "idle");
-    setTimeout(function () { setMood(overTarget || "idle"); }, 900);
+    setTimeout(function () { if (!acting) setMood(overTarget || "idle"); }, 900);
   });
 
-  document.addEventListener("pointerleave", function () { setMood("away"); pointAt(null); playLift(null); look.classList.remove("on"); });
+  document.addEventListener("pointerleave", function () { if (!acting) { setMood("away"); look.classList.remove("on"); } pointAt(null); playLift(null); });
   window.addEventListener("blur", function () { setMood("away"); });
 
   setInterval(function () {
@@ -2131,6 +2431,7 @@ body.reeling { overflow: hidden; }
   });
 
   svg.addEventListener("click", function () {
+    if (acting) { stopAnim(); acting = null; }
     rollFit();
     moodName = "";               // force the quip to refresh even if already proud
     setMood("delight", pickLine(["new fit", "how about this", "ok, this one", "closet's deep", "one more"]));
