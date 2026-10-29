@@ -231,29 +231,27 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   `.card`, `.job`, `.hobby` or `.reel` the cursor is on (or the reel on
   screen); its sleeve takes the shirt colour.
 
-- **Hobbies.** The "Off the clock" section: five `.hobby` cards with an
-  inline icon each and a `.play` button that makes him do it. The copy is a
-  first draft - fix the specifics. The gym card holds the lift tracker:
-  numbers and notes live in `LIFTS` in the script, the tabs in the markup;
-  hovering a tab loops that lift, "Do 3 reps" does three of the selected one.
+- **Off the clock** is its own view (`#hobbies`, the middle button up top),
+  five `.hobby` cards with an icon, copy drawn from the college essays, and
+  a `.play` button that makes him do it. Hovering a card makes him point you
+  at the button (its `data-say` lines) and the button nudges. The gym card
+  holds the lift tracker: numbers and notes live in `LIFTS` in the script,
+  the tabs in the markup; hovering a tab loops that lift as a preview.
 
 - **Doing the hobbies.** `ACTS` in the script holds one entry per action
   (`violin`, `dj`, `code`, `serve`, `squat`, `bench`, `dead`), each with a
-  `dur`, a `mood`, a `setup()` that drops props into the figure's `fBack` /
-  `fFront` / `fFx` layers, and a `tick(t)` that poses it for a time `t` from
-  0 to 1. `runAnim()` drives `tick` every frame. The figure (`figureSVG()`)
-  has two-segment arms: `setArm(side, x, y, bend)` puts the centre of a hand
-  at a point and bends the elbow to suit, so a motion is just a hand target
-  moving smoothly, eased with `ease`/`out`/`inn` over a `seg(t, a, b)` of
-  the timeline. Any fit in shorts shows the legs with the quads and calves
-  drawn in (`leg()`), action or not. To add an action: an entry in `ACTS`, a
-  button with `data-act`.
-  The three lifts are `side: true`: drawn from the side at a slight
-  diagonal (he faces right, the bar comes toward you end-on). They skip the
-  front-view figure and redraw a stick skeleton every frame from joint
-  positions - `pt()` walks a limb, `sideLeg()` / `sideArm()` / `torso()`
-  draw thick rounded limbs in the fit's colours, `profile()` is the head in
-  profile with the fit's hat and glasses, `plates()` the loaded bar.
+  `hint` for the keys (shown under the figure), a `mood`, a `setup(st)` that
+  lays out the scene, a `tick(sec, st)` called every frame with seconds since
+  the start, and a `key(e, st)` the keyboard reaches while it plays. `st` is
+  the action's scratch state; `st.finish(line, mood)` ends it, and escape or
+  `idle` seconds without a key ends it too. Space is a bow stroke / a rep,
+  arrows scratch and space drops the beat, typing writes the code and enter
+  runs it (24+ characters pass, fewer get a TLE), and the serve puts up a
+  meter: space on the green is an ace, anything else and the ball comes down
+  on his head. On a touch screen (no hover) each action's `auto()` presses
+  the keys itself. The figure (`figureSVG()`) is one rounded piece under the
+  live head, with two-segment arms placed by `setArm(side, x, y, bend)`.
+  Shorts show the legs with the quads and calves drawn in (`leg()`).
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section

@@ -283,6 +283,12 @@ h2 {
   transition: transform .22s cubic-bezier(.2,.8,.3,1), border-color .22s ease;
 }
 .hobby:hover { transform: translateY(-3px); border-color: var(--warm); }
+.hobby:hover .play { animation: nudge 1.1s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: none } 50% { transform: translateX(4px) } }
+.hero-sm { padding-block: 140px 36px; }
+.h-sm { font-size: clamp(2rem, 6vw, 3rem); }
+#hobbies .lede { margin-bottom: 0; }
+#hobbies .hobbies { padding-bottom: 20px; }
 .hobby svg { width: 44px; height: 44px; flex: none; }
 .hobby h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 4px; letter-spacing: -.01em; }
 .hobby p { margin: 0; font-size: .9rem; color: var(--muted); }
@@ -308,6 +314,13 @@ h2 {
 
 /* a hobby being done: the figure gets a wider stage for props and the ball */
 #look.act svg { width: 132px; }
+#look.act { padding-bottom: 30px; }
+#look .khint {
+  position: absolute; left: 12px; right: 12px; bottom: 9px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .03em;
+  color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#look .khint:empty { display: none; }
 @media (max-width: 860px) {
   #look.act.on { display: flex; top: calc(84px + env(safe-area-inset-top, 0px)); width: 236px; }
 }
@@ -370,7 +383,8 @@ h2 {
   transition: color .18s ease, border-color .18s ease;
 }
 .vbtn:first-child { border-radius: 8px 0 0 8px; }
-.vbtn:last-child  { border-radius: 0 8px 8px 0; margin-left: -5px; }
+.vbtn + .vbtn { margin-left: -5px; }
+.vbtn:last-child  { border-radius: 0 8px 8px 0; }
 .vbtn.on { color: var(--bg); background: var(--ink); border-color: var(--ink); }
 
 /* ---------- reel deck ---------- */
@@ -668,10 +682,12 @@ body.reeling { overflow: hidden; }
        looks around and wears the same pieces; the rest is drawn by renderLook() -->
   <svg viewBox="0 0 120 290" xmlns="http://www.w3.org/2000/svg"><g id="figure"></g></svg>
   <dl id="lookList"></dl>
+  <div class="khint" id="khint"></div>
 </div>
 
 <nav id="views" aria-label="View">
   <button class="vbtn on" data-view="profile" type="button">Profile</button>
+  <button class="vbtn" data-view="hobbies" type="button">Off the clock</button>
   <button class="vbtn" data-view="reels" type="button">Reels</button>
 </nav>
 
@@ -1070,82 +1086,6 @@ body.reeling { overflow: hidden; }
     </div>
   </section>
 
-  <section>
-    <h2>Off the clock</h2>
-    <div class="hobbies">
-
-      <div class="hobby" data-mood="delight" data-say="the oldest hobby|yes, I still practise|ask me to play something">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <path d="M8 38 L36 10" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/>
-          <path d="M24 5 v9" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>
-          <path d="M19 14 q-7 2 -6 9 q1 5 6 6 q-3 5 2 9 h6 q5 -4 2 -9 q5 -1 6 -6 q1 -7 -6 -9 z" fill="var(--warm)"/>
-          <path d="M20 22 q-1 3 1 5 M28 22 q1 3 -1 5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-          <path d="M24 14 v22" stroke="var(--ink)" stroke-width="1" opacity=".55"/>
-        </svg>
-        <div><h3>Violin</h3><p>Played since before I could code. Still the best way to reset after a long debugging session.</p>
-          <button class="play" type="button" data-act="violin" data-mood="delight" data-say="a phrase, then|tuning first|watch the bow arm">Play a phrase</button></div>
-      </div>
-
-      <div class="hobby" data-mood="yay" data-say="I take requests|the transitions are the fun part|house, mostly">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <rect x="3" y="12" width="38" height="22" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
-          <circle cx="13" cy="23" r="7" fill="var(--accent)"/><circle cx="13" cy="23" r="2" fill="var(--surface)"/>
-          <circle cx="31" cy="23" r="7" fill="var(--accent)"/><circle cx="31" cy="23" r="2" fill="var(--surface)"/>
-          <path d="M22 17 v12 M20 25 h4" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
-          <path d="M6 40 q4 -5 8 0 t8 0 t8 0 t8 0" fill="none" stroke="var(--warm)" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p>
-          <button class="play" type="button" data-act="dj" data-mood="yay" data-say="hands up|one more tune|this transition though">Drop the beat</button></div>
-      </div>
-
-      <div class="hobby" data-mood="think" data-say="graph problems are the best problems|moo|where the DP habit comes from">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <path d="M11 14 q-6 -7 -1 -10 M33 14 q6 -7 1 -10" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
-          <ellipse cx="22" cy="22" rx="13" ry="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>
-          <ellipse cx="7" cy="19" rx="4" ry="2.5" fill="var(--skin)"/><ellipse cx="37" cy="19" rx="4" ry="2.5" fill="var(--skin)"/>
-          <path d="M11 22 q3 -8 9 -5 q-4 4 -9 5 z M30 14 q6 2 4 8 q-5 -2 -4 -8 z" fill="var(--ink)"/>
-          <ellipse cx="22" cy="29" rx="7.5" ry="4.5" fill="var(--skin)"/>
-          <circle cx="19" cy="29" r="1.1" fill="var(--ink)"/><circle cx="25" cy="29" r="1.1" fill="var(--ink)"/>
-          <circle cx="17" cy="20" r="1.4" fill="var(--ink)"/><circle cx="27" cy="20" r="1.4" fill="var(--ink)"/>
-          <text x="22" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)">&lt;/&gt;</text>
-        </svg>
-        <div><h3>USACO</h3><p>Competitive programming. Graphs and dynamic programming are where I'm happiest; the cow is Bessie.</p>
-          <button class="play" type="button" data-act="code" data-mood="think" data-say="watch me solve one|it's a DP, obviously|first try, probably">Solve one</button></div>
-      </div>
-
-      <div class="hobby" data-mood="aim" data-say="singles, usually|the wall never misses|the serve is a work in progress">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <ellipse cx="17" cy="16" rx="10" ry="12" fill="none" stroke="var(--ink)" stroke-width="2"/>
-          <path d="M11 10 h12 M9 16 h16 M11 22 h12 M14 6 v20 M20 6 v20" stroke="var(--ink)" stroke-width=".8" opacity=".5"/>
-          <path d="M24 26 l12 13" stroke="var(--ink)" stroke-width="3.2" stroke-linecap="round"/>
-          <circle cx="35" cy="11" r="4.5" fill="var(--warm)"/>
-          <path d="M31.5 9 q3.5 2 7 0 M31.5 13 q3.5 -2 7 0" fill="none" stroke="var(--surface)" stroke-width="1"/>
-        </svg>
-        <div><h3>Tennis</h3><p>Singles when I can find a partner, the wall when I can't. Working on the serve.</p>
-          <button class="play" type="button" data-act="serve" data-mood="aim" data-say="toss, reach, snap|let's see this serve|ace, hopefully">Hit a serve</button></div>
-      </div>
-
-      <div class="hobby gym" data-mood="proud" data-say="most days|leg day is most days|hover a lift">
-        <svg viewBox="0 0 44 44" aria-hidden="true">
-          <path d="M12 22 h20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
-          <rect x="6" y="13" width="6" height="18" rx="2" fill="var(--accent)"/><rect x="32" y="13" width="6" height="18" rx="2" fill="var(--accent)"/>
-          <rect x="2" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/><rect x="38" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/>
-        </svg>
-        <div>
-          <h3>Gym</h3>
-          <p>Most days. Current numbers below &mdash; hover a lift and the figure up top will demonstrate.</p>
-          <div class="lifts" role="tablist" aria-label="Lifts">
-            <button class="lift on" type="button" role="tab" data-lift="bench" data-mood="strain" data-say="two forty five...|spotter?|it's going up. slowly.|lock it out, lock it out">Bench</button>
-            <button class="lift" type="button" role="tab" data-lift="squat" data-mood="strain" data-say="three seventy five|depth? yes.|leg day is every day|ass to grass">Squat</button>
-            <button class="lift" type="button" role="tab" data-lift="dead" data-mood="think" data-say="my back and I have a deal|deadlift: N/A|next year, maybe|the bar is fine where it is">Deadlift</button>
-          </div>
-          <div class="liftbox" id="liftbox"></div>
-          <button class="play" type="button" data-act="reps" data-mood="strain" data-say="three reps|spot me|light weight">Do 3 reps</button>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <section>
     <h2>Coursework</h2>
@@ -1168,6 +1108,87 @@ body.reeling { overflow: hidden; }
   </section>
 
 </main>
+
+<section id="hobbies" class="wrap" hidden aria-label="Off the clock">
+  <header class="hero hero-sm">
+    <p class="eyebrow">Off the clock</p>
+    <h1 class="h-sm">The things that made me, me.</h1>
+    <p class="lede">Hover a card and he&rsquo;ll tell you what to do. The button makes him do it, and once he&rsquo;s going the keyboard gets you involved &mdash; the hint under him says how.</p>
+  </header>
+    <div class="hobbies">
+
+      <div class="hobby" data-mood="delight" data-say="press the button, I'll play|go on, press it|first violin, by the way">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M8 38 L36 10" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M24 5 v9" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M19 14 q-7 2 -6 9 q1 5 6 6 q-3 5 2 9 h6 q5 -4 2 -9 q5 -1 6 -6 q1 -7 -6 -9 z" fill="var(--warm)"/>
+          <path d="M20 22 q-1 3 1 5 M28 22 q1 3 -1 5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <path d="M24 14 v22" stroke="var(--ink)" stroke-width="1" opacity=".55"/>
+        </svg>
+        <div><h3>Violin</h3><p>California Youth Symphony since 4th grade, first violin. Section leader of the Monta Vista chamber orchestra when it was invited to the Midwest Clinic &mdash; the big one. Also played senior homes, which taught me more than the concert halls did.</p>
+          <button class="play" type="button" data-act="violin" data-mood="delight" data-say="a phrase, then|tuning first|watch the bow arm">Play a phrase</button></div>
+      </div>
+
+      <div class="hobby" data-mood="yay" data-say="press it, I'll drop one|the button, go|arrows scratch, by the way">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="3" y="12" width="38" height="22" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+          <circle cx="13" cy="23" r="7" fill="var(--accent)"/><circle cx="13" cy="23" r="2" fill="var(--surface)"/>
+          <circle cx="31" cy="23" r="7" fill="var(--accent)"/><circle cx="31" cy="23" r="2" fill="var(--surface)"/>
+          <path d="M22 17 v12 M20 25 h4" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M6 40 q4 -5 8 0 t8 0 t8 0 t8 0" fill="none" stroke="var(--warm)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p>
+          <button class="play" type="button" data-act="dj" data-mood="yay" data-say="hands up|one more tune|this transition though">Drop the beat</button></div>
+      </div>
+
+      <div class="hobby" data-mood="think" data-say="press it and type|go on, give me a problem|gold division, not bragging">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M11 14 q-6 -7 -1 -10 M33 14 q6 -7 1 -10" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <ellipse cx="22" cy="22" rx="13" ry="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>
+          <ellipse cx="7" cy="19" rx="4" ry="2.5" fill="var(--skin)"/><ellipse cx="37" cy="19" rx="4" ry="2.5" fill="var(--skin)"/>
+          <path d="M11 22 q3 -8 9 -5 q-4 4 -9 5 z M30 14 q6 2 4 8 q-5 -2 -4 -8 z" fill="var(--ink)"/>
+          <ellipse cx="22" cy="29" rx="7.5" ry="4.5" fill="var(--skin)"/>
+          <circle cx="19" cy="29" r="1.1" fill="var(--ink)"/><circle cx="25" cy="29" r="1.1" fill="var(--ink)"/>
+          <circle cx="17" cy="20" r="1.4" fill="var(--ink)"/><circle cx="27" cy="20" r="1.4" fill="var(--ink)"/>
+          <text x="22" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)">&lt;/&gt;</text>
+        </svg>
+        <div><h3>USACO</h3><p>Gold division &mdash; roughly the top 1,000 competitors worldwide. Started in 7th grade with brute force, timed out in Silver, and learned to read the input size before anything else. Taught the lower divisions in my school&rsquo;s CS club. The cow is Bessie.</p>
+          <button class="play" type="button" data-act="code" data-mood="think" data-say="watch me solve one|it's a DP, obviously|first try, probably">Solve one</button></div>
+      </div>
+
+      <div class="hobby" data-mood="aim" data-say="press it, then watch the meter|space on the green|go on, serve one">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <ellipse cx="17" cy="16" rx="10" ry="12" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M11 10 h12 M9 16 h16 M11 22 h12 M14 6 v20 M20 6 v20" stroke="var(--ink)" stroke-width=".8" opacity=".5"/>
+          <path d="M24 26 l12 13" stroke="var(--ink)" stroke-width="3.2" stroke-linecap="round"/>
+          <circle cx="35" cy="11" r="4.5" fill="var(--warm)"/>
+          <path d="M31.5 9 q3.5 2 7 0 M31.5 13 q3.5 -2 7 0" fill="none" stroke="var(--surface)" stroke-width="1"/>
+        </svg>
+        <div><h3>Tennis</h3><p>JV captain in 10th grade, varsity vice-captain in 11th at Monta Vista; the team made the CCS playoffs. Ran practices without ranking players, on purpose. The serve is still a work in progress &mdash; see for yourself.</p>
+          <button class="play" type="button" data-act="serve" data-mood="aim" data-say="toss, reach, snap|let's see this serve|ace, hopefully">Hit a serve</button></div>
+      </div>
+
+      <div class="hobby gym" data-mood="proud" data-say="pick a lift, press the button|hover a tab for a preview|space does the reps">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M12 22 h20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <rect x="6" y="13" width="6" height="18" rx="2" fill="var(--accent)"/><rect x="32" y="13" width="6" height="18" rx="2" fill="var(--accent)"/>
+          <rect x="2" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/><rect x="38" y="17" width="4" height="10" rx="1.5" fill="var(--ink)"/>
+        </svg>
+        <div>
+          <h3>Gym</h3>
+          <p>Most days. Current numbers below &mdash; hover a lift for a preview, press the button and push the reps yourself.</p>
+          <div class="lifts" role="tablist" aria-label="Lifts">
+            <button class="lift on" type="button" role="tab" data-lift="bench" data-mood="strain" data-say="two forty five...|spotter?|it's going up. slowly.|lock it out, lock it out">Bench</button>
+            <button class="lift" type="button" role="tab" data-lift="squat" data-mood="strain" data-say="three seventy five|depth? yes.|leg day is every day|ass to grass">Squat</button>
+            <button class="lift" type="button" role="tab" data-lift="dead" data-mood="think" data-say="my back and I have a deal|deadlift: N/A|next year, maybe|the bar is fine where it is">Deadlift</button>
+          </div>
+          <div class="liftbox" id="liftbox"></div>
+          <button class="play" type="button" data-act="reps" data-mood="strain" data-say="three reps|spot me|light weight">Do 3 reps</button>
+        </div>
+      </div>
+
+    </div>
+</section>
 
 <script>
 (function () {
@@ -1402,13 +1423,25 @@ body.reeling { overflow: hidden; }
     swoosh: function (col) { return '<path d="M53 111 q5 4 13 -4 q-6 7 -13 4 Z" fill="' + col + '"/>'; },
     chest:  function (col) { return '<rect x="66" y="108" width="7" height="5" rx="1" fill="none" stroke="' + col + '" stroke-width="1.2"/>'; },
     flag:   function (col) { return '<rect x="55" y="108" width="10" height="6" fill="#FFFFFF"/><rect x="55" y="108" width="10" height="2" fill="' + col + '"/><rect x="55" y="112" width="10" height="2" fill="' + col + '"/>'; },
-    patch:  function (col) { return '<circle cx="60" cy="111" r="4" fill="' + col + '"/>'; }
+    patch:  function (col) { return '<circle cx="60" cy="111" r="4" fill="' + col + '"/>'; },
+    // the brands, as small as they can go and still read
+    txt:    function (col, t) { return '<text x="60" y="113.4" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="5.4" fill="' + col + '">' + t + '</text>'; },
+    pony:   function (col) { return '<path d="M55.5 115 l1.6 -4.2 l2.4 .4 l.6 -2.8 l2 .4 l-.4 2.4 l2.6 1.6 l-1 2.2 Z" fill="' + col + '"/><path d="M60.4 108.6 l1.2 -2.6" stroke="' + col + '" stroke-width="1" stroke-linecap="round"/>'; },
+    cee:    function (col) { return '<path d="M63 108.4 a3.6 3.6 0 1 0 0 6.2" fill="none" stroke="' + col + '" stroke-width="1.9"/>'; },
+    csq:    function (col) { return '<path d="M63.5 108 h-6 v6.6 h6" fill="none" stroke="' + col + '" stroke-width="1.6"/><path d="M60 111.3 h3.5" stroke="' + col + '" stroke-width="1.6"/>'; },
+    bars:   function (col) { return '<path d="M54.5 109.5 h4.5 M61 109.5 h4.5 M54.5 112.5 h4.5 M61 112.5 h4.5" stroke="' + col + '" stroke-width="1.8"/>'; },
+    omega:  function (col) { return '<path d="M55.5 114.5 h2.5 q-2.5 -2 -2.5 -4.2 a4.5 4.5 0 0 1 9 0 q0 2.2 -2.5 4.2 h2.5" fill="none" stroke="' + col + '" stroke-width="1.5"/>'; },
+    ring:   function (col) { return '<circle cx="60" cy="111" r="3.8" fill="none" stroke="' + col + '" stroke-width="2"/>'; },
+    wing:   function (col) { return '<circle cx="56.5" cy="111" r="3" fill="none" stroke="' + col + '" stroke-width="1.6"/><path d="M59.5 109 l6 -2 M59.5 111 h6 M59.5 113 l6 2" stroke="' + col + '" stroke-width="1.4" stroke-linecap="round"/>'; },
+    harp:   function (col) { return '<path d="M56.5 115 V108.5 q3.5 -3 7 0 V115 M58.8 109.5 v5.5 M61.2 109.5 v5.5" fill="none" stroke="' + col + '" stroke-width="1.2"/>'; },
+    tri:    function (col) { return '<path d="M60 107.5 l4 7 h-8 Z" fill="none" stroke="' + col + '" stroke-width="1.5"/>'; },
+    loval:  function (col) { return '<ellipse cx="60" cy="111" rx="4.6" ry="3.3" fill="none" stroke="' + col + '" stroke-width="1.2"/><path d="M58.3 109 v4 h3" fill="none" stroke="' + col + '" stroke-width="1.2"/>'; }
   };
 
   function tpl(name, c, mark) {
     return function () {
       var out = byName[name].draw(c);
-      if (mark) out += MARK[mark[0]](mark[1]);
+      if (mark) out += MARK[mark[0]](mark[1], mark[2]);
       return out;
     };
   }
@@ -1467,52 +1500,52 @@ body.reeling { overflow: hidden; }
       } },
 
     // --- drawn on the templates ---
-    { name: "Champion Cal windbreaker, navy & yellow", kind: "jacket", draw: tpl("coach jacket", { main: "#1E2A5A", alt: "#16204A", trim: "#F2C230" }, ["block", "#F2C230"]) },
+    { name: "Champion Cal windbreaker, navy & yellow", kind: "jacket", draw: tpl("coach jacket", { main: "#1E2A5A", alt: "#16204A", trim: "#F2C230" }, ["cee", "#FDB515"]) },
     { name: "Soreto blue waffle thermal", kind: "sweat", draw: tpl("crewneck", { main: "#3B6FB6", alt: "#2E5A96", trim: "#D9E4F5" }) },
-    { name: "90s Russell blue crewneck", kind: "sweat", draw: tpl("crewneck", { main: "#2F4F9E", alt: "#24407F", trim: "#DCE3F2" }) },
-    { name: "90s Ralph Lauren navy striped polo", kind: "tee", draw: tpl("breton stripe", { main: "#E8E8EE", alt: "#141B33", trim: "#1F2A4A" }) },
-    { name: "Polo RL mocha quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#6B4A2E", alt: "#553A24", trim: "#E2D2C2" }) },
-    { name: "00s Detroit Red Wings hoodie", kind: "hood", draw: tpl("hoodie", { main: "#B5121B", alt: "#8E0E15", trim: "#F2F2F2" }, ["block", "#F2F2F2"]) },
-    { name: "Nike USC thermal, brown & grey", kind: "sweat", draw: tpl("crewneck", { main: "#6B4A2E", alt: "#5A3D24", trim: "#B9B2A8" }, ["swoosh", "#B9B2A8"]) },
-    { name: "Oregon Starter pullover", kind: "sweat", draw: tpl("crewneck", { main: "#154734", alt: "#0F3527", trim: "#FEE123" }, ["block", "#FEE123"]) },
-    { name: "Russell Wisconsin Rose Bowl hoodie", kind: "hood", draw: tpl("hoodie", { main: "#C5050C", alt: "#9C040A", trim: "#F2F2F2" }, ["block", "#F2F2F2"]) },
-    { name: "Russell Miami Hurricanes hoodie", kind: "hood", draw: tpl("hoodie", { main: "#005030", alt: "#003D24", trim: "#F47321" }, ["block", "#F47321"]) },
-    { name: "Boston Bruins embroidered tee", kind: "tee", draw: tpl("boxy tee", { main: "#141416", alt: "#0A0A0B", trim: "#FFB81C" }, ["patch", "#FFB81C"]) },
-    { name: "90s Columbia two-tone fleece, navy & tan", kind: "jacket", draw: tpl("varsity jacket", { main: "#2A3A6A", alt: "#1F2C52", trim: "#C9B99A" }) },
-    { name: "Polo RL pony pocket tee, slate blue", kind: "tee", draw: tpl("boxy tee", { main: "#6F86AE", alt: "#586E95", trim: "#1F3357" }, ["chest", "#1F3357"]) },
+    { name: "90s Russell blue crewneck", kind: "sweat", draw: tpl("crewneck", { main: "#2F4F9E", alt: "#24407F", trim: "#DCE3F2" }, ["txt", "#F2F2F2", "R"]) },
+    { name: "90s Ralph Lauren navy striped polo", kind: "tee", draw: tpl("breton stripe", { main: "#E8E8EE", alt: "#141B33", trim: "#1F2A4A" }, ["pony", "#1F3357"]) },
+    { name: "Polo RL mocha quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#6B4A2E", alt: "#553A24", trim: "#E2D2C2" }, ["pony", "#EADFC8"]) },
+    { name: "00s Detroit Red Wings hoodie", kind: "hood", draw: tpl("hoodie", { main: "#B5121B", alt: "#8E0E15", trim: "#F2F2F2" }, ["wing", "#F2F2F2"]) },
+    { name: "Nike USC thermal, brown & grey", kind: "sweat", draw: tpl("crewneck", { main: "#6B4A2E", alt: "#5A3D24", trim: "#B9B2A8" }, ["swoosh", "#EADFC8"]) },
+    { name: "Oregon Starter pullover", kind: "sweat", draw: tpl("crewneck", { main: "#154734", alt: "#0F3527", trim: "#FEE123" }, ["ring", "#FEE123"]) },
+    { name: "Russell Wisconsin Rose Bowl hoodie", kind: "hood", draw: tpl("hoodie", { main: "#C5050C", alt: "#9C040A", trim: "#F2F2F2" }, ["txt", "#F2F2F2", "W"]) },
+    { name: "Russell Miami Hurricanes hoodie", kind: "hood", draw: tpl("hoodie", { main: "#005030", alt: "#003D24", trim: "#F47321" }, ["txt", "#F47321", "U"]) },
+    { name: "Boston Bruins embroidered tee", kind: "tee", draw: tpl("boxy tee", { main: "#141416", alt: "#0A0A0B", trim: "#FFB81C" }, ["txt", "#FFB81C", "B"]) },
+    { name: "90s Columbia two-tone fleece, navy & tan", kind: "jacket", draw: tpl("varsity jacket", { main: "#2A3A6A", alt: "#1F2C52", trim: "#C9B99A" }, ["bars", "#EADFC8"]) },
+    { name: "Polo RL pony pocket tee, slate blue", kind: "tee", draw: tpl("boxy tee", { main: "#6F86AE", alt: "#586E95", trim: "#1F3357" }, ["pony", "#1F3357"]) },
     { name: "navy fleece quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#1F3357", alt: "#152542", trim: "#D6DEEC" }) },
-    { name: "Tommy Bahama red & grey quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#B3262E", alt: "#8E1E25", trim: "#C9CBD0" }) },
-    { name: "Delta fleece quarter zip, dark brown", kind: "sweat", draw: tpl("quarter zip", { main: "#3A2F2A", alt: "#2A211D", trim: "#C9B99A" }) },
-    { name: "Polo RL brown windbreaker", kind: "jacket", draw: tpl("coach jacket", { main: "#6B4A2E", alt: "#553A24", trim: "#E2D2C2" }) },
-    { name: "Polo RL Harrington, black", kind: "jacket", draw: tpl("coach jacket", { main: "#202024", alt: "#121214", trim: "#8C8CA6" }) },
-    { name: "90s Ashworth golf jacket, yellow & blue", kind: "jacket", draw: tpl("coach jacket", { main: "#E8C94A", alt: "#1F3A93", trim: "#1F3A93" }) },
-    { name: "vintage Athletics green quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#1F4D3A", alt: "#163A2B", trim: "#D8CFA8" }, ["patch", "#D8CFA8"]) },
+    { name: "Tommy Bahama red & grey quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#B3262E", alt: "#8E1E25", trim: "#C9CBD0" }, ["txt", "#F2F2F2", "TB"]) },
+    { name: "Delta fleece quarter zip, dark brown", kind: "sweat", draw: tpl("quarter zip", { main: "#3A2F2A", alt: "#2A211D", trim: "#C9B99A" }, ["tri", "#EADFC8"]) },
+    { name: "Polo RL brown windbreaker", kind: "jacket", draw: tpl("coach jacket", { main: "#6B4A2E", alt: "#553A24", trim: "#E2D2C2" }, ["pony", "#EADFC8"]) },
+    { name: "Polo RL Harrington, black", kind: "jacket", draw: tpl("coach jacket", { main: "#202024", alt: "#121214", trim: "#8C8CA6" }, ["pony", "#8C8CA6"]) },
+    { name: "90s Ashworth golf jacket, yellow & blue", kind: "jacket", draw: tpl("coach jacket", { main: "#E8C94A", alt: "#1F3A93", trim: "#1F3A93" }, ["txt", "#1E3A8A", "A"]) },
+    { name: "vintage Athletics green quarter zip", kind: "sweat", draw: tpl("quarter zip", { main: "#1F4D3A", alt: "#163A2B", trim: "#D8CFA8" }, ["txt", "#EFB21E", "A"]) },
     { name: "90s Spirit Lake fleece quarter zip, blue & red", kind: "sweat", draw: tpl("quarter zip", { main: "#2F5AA8", alt: "#244788", trim: "#C8102E" }) },
-    { name: "heavy cotton Guinness tee, grey", kind: "tee", draw: tpl("boxy tee", { main: "#8C9189", alt: "#737870", trim: "#3E4A28" }, ["block", "#3E4A28"]) },
-    { name: "Lexus jacket, navy", kind: "jacket", draw: tpl("coach jacket", { main: "#171B2A", alt: "#0E111C", trim: "#8C8CA6" }) },
+    { name: "heavy cotton Guinness tee, grey", kind: "tee", draw: tpl("boxy tee", { main: "#8C9189", alt: "#737870", trim: "#3E4A28" }, ["harp", "#1A1A1E"]) },
+    { name: "Lexus jacket, navy", kind: "jacket", draw: tpl("coach jacket", { main: "#171B2A", alt: "#0E111C", trim: "#8C8CA6" }, ["loval", "#C9CBD0"]) },
     { name: "Y2K cropped graphic tee, green", kind: "tee", draw: tpl("boxy tee", { main: "#2F5A3C", alt: "#24462E", trim: "#D8D2B8" }, ["block", "#D8D2B8"]) },
     { name: "navy thermal long sleeve", kind: "sweat", draw: tpl("boxy tee", { main: "#1F3357", alt: "#152542", trim: "#D6DEEC" }) },
-    { name: "90s Varsity Outfitters long sleeve, white", kind: "sweat", draw: tpl("varsity jacket", { main: "#EFEBE2", alt: "#D5CCB8", trim: "#2A2A30" }, ["block", "#2A2A30"]) },
-    { name: "80s Penguins pullover", kind: "sweat", draw: tpl("crewneck", { main: "#101012", alt: "#000000", trim: "#CFC493" }, ["patch", "#CFC493"]) },
+    { name: "90s Varsity Outfitters long sleeve, white", kind: "sweat", draw: tpl("varsity jacket", { main: "#EFEBE2", alt: "#D5CCB8", trim: "#2A2A30" }, ["txt", "#1F3357", "V"]) },
+    { name: "80s Penguins pullover", kind: "sweat", draw: tpl("crewneck", { main: "#101012", alt: "#000000", trim: "#CFC493" }, ["txt", "#FCB514", "P"]) },
     { name: "Y2K Grand Canyon long sleeve", kind: "sweat", guess: true, draw: tpl("boxy tee", { main: "#C9A97A", alt: "#A88B5E", trim: "#5A3A28" }, ["block", "#5A3A28"]) },
     { name: "Nike waffle long sleeve, navy", kind: "sweat", draw: tpl("boxy tee", { main: "#1F3357", alt: "#152542", trim: "#F2F2F2" }, ["swoosh", "#F2F2F2"]) },
     { name: "00s Tommy Hilfiger long sleeve", kind: "sweat", draw: tpl("boxy tee", { main: "#1F3357", alt: "#152542", trim: "#C8102E" }, ["flag", "#C8102E"]) },
-    { name: "lululemon long sleeve, maroon", kind: "tee", draw: tpl("boxy tee", { main: "#5A2A30", alt: "#451F24", trim: "#C9CBD0" }) },
-    { name: "Blue Jays 1993 World Series tee", kind: "tee", draw: tpl("boxy tee", { main: "#1F3357", alt: "#152542", trim: "#F2F2F2" }, ["arc", "#F2F2F2"]) },
-    { name: "Nike Athletics center swoosh long sleeve, royal", kind: "sweat", draw: tpl("boxy tee", { main: "#2A5BB8", alt: "#214894", trim: "#E8C94A" }, ["swoosh", "#E8C94A"]) },
-    { name: "vintage Miami Dolphins long sleeve", kind: "sweat", draw: tpl("boxy tee", { main: "#008E97", alt: "#007079", trim: "#FC4C02" }, ["patch", "#FC4C02"]) },
+    { name: "lululemon long sleeve, maroon", kind: "tee", draw: tpl("boxy tee", { main: "#5A2A30", alt: "#451F24", trim: "#C9CBD0" }, ["omega", "#EADFC8"]) },
+    { name: "Blue Jays 1993 World Series tee", kind: "tee", draw: tpl("boxy tee", { main: "#1F3357", alt: "#152542", trim: "#F2F2F2" }, ["txt", "#F2F2F2", "93"]) },
+    { name: "Nike Athletics center swoosh long sleeve, royal", kind: "sweat", draw: tpl("boxy tee", { main: "#2A5BB8", alt: "#214894", trim: "#E8C94A" }, ["swoosh", "#F2F2F2"]) },
+    { name: "vintage Miami Dolphins long sleeve", kind: "sweat", draw: tpl("boxy tee", { main: "#008E97", alt: "#007079", trim: "#FC4C02" }, ["txt", "#F58220", "M"]) },
     { name: "navy bomber, leather collar", kind: "jacket", draw: tpl("coach jacket", { main: "#1F3357", alt: "#6B4A2E", trim: "#C9B38A" }) },
-    { name: "Nike ACG long sleeve, forest", kind: "sweat", draw: tpl("boxy tee", { main: "#1F4D3A", alt: "#163A2B", trim: "#F2F2F2" }, ["block", "#F2F2F2"]) },
-    { name: "Y2K Kentucky zip hoodie", kind: "hood", draw: tpl("zip hoodie", { main: "#0033A0", alt: "#002677", trim: "#F2F2F2" }) },
-    { name: "Polo RL V-neck, periwinkle", kind: "sweat", draw: tpl("v-neck sweater", { main: "#7C9CC8", alt: "#6484B0", trim: "#F2EDE3" }) },
-    { name: "Carhartt Detroit jacket, moss", kind: "jacket", draw: tpl("coach jacket", { main: "#5F6B3C", alt: "#6B4A2E", trim: "#3E4A28" }) },
-    { name: "Oregon Ducks zip hoodie", kind: "hood", draw: tpl("zip hoodie", { main: "#154734", alt: "#0F3527", trim: "#FEE123" }) },
+    { name: "Nike ACG long sleeve, forest", kind: "sweat", draw: tpl("boxy tee", { main: "#1F4D3A", alt: "#163A2B", trim: "#F2F2F2" }, ["swoosh", "#EADFC8"]) },
+    { name: "Y2K Kentucky zip hoodie", kind: "hood", draw: tpl("zip hoodie", { main: "#0033A0", alt: "#002677", trim: "#F2F2F2" }, ["txt", "#F2F2F2", "UK"]) },
+    { name: "Polo RL V-neck, periwinkle", kind: "sweat", draw: tpl("v-neck sweater", { main: "#7C9CC8", alt: "#6484B0", trim: "#F2EDE3" }, ["pony", "#1F3357"]) },
+    { name: "Carhartt Detroit jacket, moss", kind: "jacket", draw: tpl("coach jacket", { main: "#5F6B3C", alt: "#6B4A2E", trim: "#3E4A28" }, ["csq", "#EADFC8"]) },
+    { name: "Oregon Ducks zip hoodie", kind: "hood", draw: tpl("zip hoodie", { main: "#154734", alt: "#0F3527", trim: "#FEE123" }, ["ring", "#FEE123"]) },
     { name: "vintage graphic tee, white (from the bundle of 5)", kind: "tee", draw: tpl("boxy tee", { main: "#EFEBE2", alt: "#D5CCB8", trim: "#1F3357" }, ["block", "#1F3357"]) },
     { name: "vintage graphic tee, red (from the bundle of 5)", kind: "tee", draw: tpl("boxy tee", { main: "#B3262E", alt: "#8E1E25", trim: "#F2F2F2" }, ["block", "#F2F2F2"]) },
     { name: "vintage graphic tee, grey (from the bundle of 5)", kind: "tee", draw: tpl("boxy tee", { main: "#8A8E96", alt: "#6E727A", trim: "#1F3357" }, ["block", "#1F3357"]) },
     { name: "Nike Cal Bears polo, blue & gold", kind: "tee", draw: tpl("polo", { main: "#003262", alt: "#00264A", trim: "#FDB515" }, ["swoosh", "#FDB515"]) },
-    { name: "Stussy black jacket", kind: "jacket", draw: tpl("coach jacket", { main: "#141416", alt: "#000000", trim: "#8C8CA6" }) },
-    { name: "Golf Wang varsity jacket, black", kind: "jacket", draw: tpl("varsity jacket", { main: "#141416", alt: "#0A0A0B", trim: "#EFE9DC" }, ["patch", "#EFE9DC"]) },
+    { name: "Stussy black jacket", kind: "jacket", draw: tpl("coach jacket", { main: "#141416", alt: "#000000", trim: "#8C8CA6" }, ["txt", "#F2F2F2", "S"]) },
+    { name: "Golf Wang varsity jacket, black", kind: "jacket", draw: tpl("varsity jacket", { main: "#141416", alt: "#0A0A0B", trim: "#EFE9DC" }, ["txt", "#EFE9DC", "GOLF"]) },
     { name: "90s Nike center swoosh pullover windbreaker", kind: "jacket", draw: tpl("quarter zip", { main: "#1F3357", alt: "#152542", trim: "#F2F2F2" }, ["swoosh", "#F2F2F2"]) }
   ];
 
@@ -1721,9 +1754,15 @@ body.reeling { overflow: hidden; }
   var SHOULDER = { L: { x: 20.5, y: 114 }, R: { x: 99.5, y: 114 } };
   var L1 = 36, L2 = 33;       // upper arm, forearm to the centre of the hand
 
-  // A bare leg, with the quads and calf drawn in: shorts show the legs off.
+  // A bare leg below the hem: thigh into calf into ankle, with the quad
+  // and calf lines drawn in. x is the left edge of the pants leg above it.
   function leg(x, y, h) {
-    return '<rect x="' + (x - 1) + '" y="' + y + '" width="26" height="' + h + '" rx="8" fill="var(--skin)"/>' +
+    var k = y + h * .6, c = y + h * .78, b = y + h;
+    return '<path d="M' + (x - 1) + ' ' + y + ' H' + (x + 25) +
+      ' C' + (x + 25) + ' ' + (y + h * .35) + ' ' + (x + 22.5) + ' ' + (k - 2) + ' ' + (x + 25) + ' ' + c +
+      ' Q' + (x + 24) + ' ' + b + ' ' + (x + 19) + ' ' + b + ' H' + (x + 5) +
+      ' Q' + x + ' ' + b + ' ' + (x - 1) + ' ' + c +
+      ' C' + (x + 1.5) + ' ' + (k - 2) + ' ' + (x - 1) + ' ' + (y + h * .35) + ' ' + (x - 1) + ' ' + y + ' Z" fill="var(--skin)"/>' +
       '<g fill="none" stroke="var(--skin-dk)" stroke-width="1.6" stroke-linecap="round" opacity=".55">' +
       '<path d="M' + (x + 12) + ' ' + (y + 3) + ' q-2 9 1 17"/>' +
       '<path d="M' + (x + 3.5) + ' ' + (y + 5) + ' q-1.5 8 2 15"/>' +
@@ -1731,11 +1770,13 @@ body.reeling { overflow: hidden; }
       '<path d="M' + (x + 5) + ' ' + (y + h - 11) + ' q7 -6 14 0"/></g>';
   }
 
-  function armSVG(side, ids, stub) {
+  // An arm in two pieces that bend at the elbow, drawn as soft capsules
+  // with a round shoulder so it flows out of the torso.
+  function armSVG(side, ids) {
     var s0 = SHOULDER[side], c = fit.col, shortS = fit.shirt.sleeves === "short";
     var x = s0.x - 7.5;
-    if (stub) return '<rect x="' + x + '" y="110" width="15" height="20" rx="7.5" fill="' + c + '"/>';
-    var up = '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
+    var up = '<circle cx="' + s0.x + '" cy="' + (s0.y + 4) + '" r="8" fill="' + c + '"/>' +
+             '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
              (shortS ? '<rect x="' + x + '" y="110" width="15" height="28" rx="7.5" fill="' + c + '"/>' : "");
     var fore = '<rect x="' + (s0.x - 5.5) + '" y="146" width="11" height="40" rx="5.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
                '<circle cx="' + s0.x + '" cy="183" r="6.2" fill="var(--skin)"/>';
@@ -1743,16 +1784,20 @@ body.reeling { overflow: hidden; }
            '<g' + (ids ? ' id="fFore' + side + '"' : "") + '>' + fore + '</g></g>';
   }
 
-  function figureSVG(ids, opt) {
-    opt = opt || {};
+  function figureSVG(ids) {
     var c = fit.col, p = fit.pants, sh = fit.shoes, o = "";
     var I = function (n) { return ids ? ' id="' + n + '"' : ""; };
-    var dark = '<rect x="26" y="118" width="68" height="62" fill="#000" opacity=".06"/>';
-
-    // legs: shorts stop at the knee, pants run to the shoe; both cut baggy
+    // legs: two soft tubes from the hips, shorts stopping at the knee and
+    // pants at the shoe; both cut baggy, with a little flare on the wide ones
     var hem = p.kind === "shorts" ? (p.capri ? 236 : 222) : 262;
-    var flare = p.wide ? 4 : 0;
-    o += '<path d="M24 178 H96 L' + (97 + flare) + ' ' + hem + ' H63 L60 214 L57 ' + hem + ' H' + (23 - flare) + ' Z" fill="' + p.col + '"/>';
+    var flare = p.wide ? 4 : 0, mid = (184 + hem) / 2;
+    o += '<path d="M24 178 H60 V204 Q60 209 58 213 L57 ' + (hem - 4) + ' Q57 ' + (hem + 3) + ' 51 ' + (hem + 3) +
+         ' H' + (30 - flare) + ' Q' + (23 - flare) + ' ' + (hem + 3) + ' ' + (23 - flare) + ' ' + (hem - 4) +
+         ' Q' + (21 - flare * .5) + ' ' + mid + ' 24 178 Z" fill="' + p.col + '"/>' +
+         '<path d="M96 178 H60 V204 Q60 209 62 213 L63 ' + (hem - 4) + ' Q63 ' + (hem + 3) + ' 69 ' + (hem + 3) +
+         ' H' + (90 + flare) + ' Q' + (97 + flare) + ' ' + (hem + 3) + ' ' + (97 + flare) + ' ' + (hem - 4) +
+         ' Q' + (99 + flare * .5) + ' ' + mid + ' 96 178 Z" fill="' + p.col + '"/>' +
+         '<path d="M28 178 Q60 174 92 178 Q60 184 28 178 Z" fill="#000" opacity=".12"/>';
     if (p.kind === "shorts") o += leg(29, hem - 2, 262 - hem + 2) + leg(67, hem - 2, 262 - hem + 2);
     if (p.trim && p.kind === "track") {
       o += '<path d="M27 182 L25 ' + hem + ' M93 182 L95 ' + hem + '" stroke="' + p.trim + '" stroke-width="2.4"/>';
@@ -1763,16 +1808,20 @@ body.reeling { overflow: hidden; }
     if (p.camo)  o += '<g fill="' + p.camo + '" opacity=".85"><ellipse cx="38" cy="195" rx="7" ry="4"/><ellipse cx="78" cy="205" rx="8" ry="4.5"/><ellipse cx="50" cy="212" rx="5" ry="3"/><ellipse cx="86" cy="190" rx="5" ry="3"/></g>';
     if (p.plaid) o += '<g stroke="' + p.plaid + '" stroke-width="1.6" opacity=".5"><path d="M24 192 H96 M24 206 H96 M36 180 V220 M52 180 V220 M68 180 V220 M84 180 V220"/></g>';
     if (p.waist) o += '<rect x="24" y="178" width="72" height="5" fill="' + p.waist + '"/><g fill="#3A2F2A"><circle cx="30" cy="180.5" r="1.1"/><circle cx="40" cy="180.5" r="1.1"/><circle cx="50" cy="180.5" r="1.1"/><circle cx="60" cy="180.5" r="1.1"/><circle cx="70" cy="180.5" r="1.1"/><circle cx="80" cy="180.5" r="1.1"/><circle cx="90" cy="180.5" r="1.1"/></g>';
-    o += '<path d="M60 214 V180" stroke="#000" stroke-width="1.2" opacity=".18"/>';
-    // shoes
+    // shoes: a rounded toe box on a sole
     var top = sh.boot ? 248 : 258;
-    o += '<rect x="17" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
-         '<rect x="63" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
-         '<rect x="17" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>' +
-         '<rect x="63" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>';
+    var shoe = function (x) {
+      return '<path d="M' + x + ' ' + (top + 6) + ' Q' + x + ' ' + top + ' ' + (x + 7) + ' ' + top + ' H' + (x + 28) +
+             ' Q' + (x + 40) + ' ' + top + ' ' + (x + 40) + ' ' + (top + 10) + ' V269 Q' + (x + 40) + ' 276 ' + (x + 34) + ' 276 H' + (x + 6) +
+             ' Q' + x + ' 276 ' + x + ' 270 Z" fill="' + sh.col + '"/>' +
+             '<path d="M' + x + ' 269 H' + (x + 40) + ' V271 Q' + (x + 40) + ' 277 ' + (x + 34) + ' 277 H' + (x + 6) + ' Q' + x + ' 277 ' + x + ' 271 Z" fill="' + sh.sole + '"/>';
+    };
+    o += shoe(17) + shoe(63);
 
-    var torso = '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
-    var arms = armSVG("L", ids, opt.stub) + armSVG("R", ids, opt.stub);
+    // torso: shoulders flow down from the bust, a soft waist, rounded hips
+    var torso = '<path d="M26 118 C24 140 24 160 25 176 Q26 182 32 182 H88 Q94 182 95 176 C96 160 96 140 94 118 Z" fill="' + c + '"/>' +
+                '<path d="M26 118 C24 140 24 160 25 176 Q26 182 32 182 H88 Q94 182 95 176 C96 160 96 140 94 118 Z" fill="#000" opacity=".06"/>';
+    var arms = armSVG("L", ids) + armSVG("R", ids);
     // the live bust and head, borrowed from the top-left rig
     var head = '<g' + I("fHead") + '>' + (ids ? '<use href="#head"/>' : "") + '</g>';
     return '<g' + I("fBack") + '></g>' +
@@ -1796,9 +1845,9 @@ body.reeling { overflow: hidden; }
 
     var act = action && ACTS[action];
     figure.innerHTML = act && act.side ? "" : figureSVG(true);
-    figure.parentNode.setAttribute("viewBox", act && act.side ? "-6 72 184 222" : action ? "-44 -34 208 326" : "0 0 120 290");
+    figure.parentNode.setAttribute("viewBox", act && act.side ? "-6 72 184 222" : action ? "-44 -52 208 344" : "0 0 120 290");
     look.classList.toggle("act", !!action);
-    if (act) act.setup();
+    if (act) act.setup(st);
 
     var rows = [["top", fit.shirt.name], ["bottom", fit.pants.name], ["feet", fit.shoes.name]];
     if (fit.hat) rows.push(["head", fit.hat.name]);
@@ -2157,11 +2206,33 @@ body.reeling { overflow: hidden; }
   }
   function torso(hip, sh) { return limb(hip, sh, 26, fit.col) + limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 26, fit.pants.col); }
 
+  // ---------------------------------------------------------------------
+  // The actions. Each has a hint for the keys, a setup(st) that lays out
+  // the scene, a tick(sec, st) called every frame with seconds since the
+  // start, and a key(e, st) that the keyboard reaches while it plays. st is
+  // the action's scratch state; st.finish(line, mood) ends it. The lift
+  // tabs run the same ticks on a loop (st.loop) with nothing to press.
+  // ---------------------------------------------------------------------
+  function liftT(act, sec, st) {     // where in a rep we are, 0..1
+    if (st.loop) return (sec / act.dur) % 1;
+    if (st.repAt < 0) return 0;
+    var t = (sec - st.repAt) / act.dur;
+    if (t < 1) return t;
+    st.repAt = -1; st.rep++;
+    st.extra = st.rep + "/3";
+    if (st.rep >= 3) st.finish("three. racked.");
+    return 0;
+  }
+  function liftKey(e, st) { if (e.key === " " && st.repAt < 0 && st.rep < 3) st.repAt = st.now; }
+  function liftAuto(sec, st) { if (st.repAt < 0 && sec - st.lastKey > .5) { st.lastKey = sec; liftKey({ key: " " }, st); } }
+
   var ACTS = {
     // ---- squat: bar on the back, hips back, knees forward, depth ----
-    squat: { dur: 2600, mood: "strain", side: true,
-      setup: function () { this.tick(0); },
-      tick: function (t) {
+    squat: { dur: 2.6, mood: "strain", side: true, hint: "space: one rep",
+      setup: function (st) { st.rep = 0; st.repAt = -1; st.extra = "0/3"; this.pose(0); },
+      key: liftKey, auto: liftAuto,
+      tick: function (sec, st) { this.pose(liftT(this, sec, st)); },
+      pose: function (t) {
         var d = t < .45 ? ease(seg(t, 0, .45)) : t < .56 ? 1 : 1 - ease(seg(t, .56, 1));
         var ankle = { x: 84, y: 268 };
         var knee = pt(ankle, 34 * d, 50);
@@ -2183,9 +2254,11 @@ body.reeling { overflow: hidden; }
       } },
 
     // ---- bench: on his back, the bar pressed up toward you ----
-    bench: { dur: 3400, mood: "strain", side: true,
-      setup: function () { this.tick(0); },
-      tick: function (t) {
+    bench: { dur: 3.4, mood: "strain", side: true, hint: "space: one rep",
+      setup: function (st) { st.rep = 0; st.repAt = -1; st.extra = "0/3"; this.pose(0); },
+      key: liftKey, auto: liftAuto,
+      tick: function (sec, st) { this.pose(liftT(this, sec, st)); },
+      pose: function (t) {
         var d, shake = 0;
         if (t < .28)      d = .35 * out(seg(t, 0, .28));
         else if (t < .6)  { d = .35 + .12 * seg(t, .28, .6); shake = Math.sin(t * 160) * 1.3 * bump(seg(t, .28, .6)); }
@@ -2213,9 +2286,14 @@ body.reeling { overflow: hidden; }
       } },
 
     // ---- deadlift: hinge down, grip, pull, nothing happens, stand up, nope ----
-    dead: { dur: 4200, mood: "think", side: true,
-      setup: function () { this.tick(0); },
-      tick: function (t) {
+    dead: { dur: 4.2, mood: "think", side: true, hint: "no key does this one",
+      setup: function () { this.pose(0); },
+      tick: function (sec, st) {
+        var t = st.loop ? (sec / this.dur) % 1 : Math.min(1, sec / this.dur);
+        this.pose(t);
+        if (!st.loop && t >= 1) st.finish("nope.", "think");
+      },
+      pose: function (t) {
         var down = t < .3 ? ease(seg(t, 0, .3)) : t < .6 ? 1 : 1 - ease(seg(t, .6, .8));
         var pull = bump(seg(t, .3, .6));
         var tremble = Math.sin(t * 150) * 1.2 * pull;
@@ -2243,9 +2321,10 @@ body.reeling { overflow: hidden; }
           plates({ x: bar.x + tremble, y: bar.y }, t > .62 ? "nope." : "");
       } },
 
-    // ---- violin: on the left shoulder, four bow strokes, a little vibrato ----
-    violin: { dur: 5200, mood: "delight",
-      setup: function () {
+    // ---- violin: every press of space is a bow stroke ----
+    violin: { mood: "delight", hint: "space: bow stroke · esc: done", idle: 6,
+      setup: function (st) {
+        st.k = -8; st.from = -8; st.to = -8; st.at = -9; st.dir = 1; st.notes = []; st.n = 0;
         el("fFront").innerHTML =
           '<g transform="rotate(38 76 104)">' +
             '<path d="M63 94 q-11 -2 -11 9 q0 7 6 9 q-6 3 -6 10 q0 9 10 9 h28 q10 0 10 -9 q0 -7 -6 -10 q6 -2 6 -9 q0 -11 -11 -9 Z" fill="#8A4B22"/>' +
@@ -2260,36 +2339,39 @@ body.reeling { overflow: hidden; }
           '</g>' +
           '<path id="fBow" d="" stroke="#3A2A1C" stroke-width="2.2" stroke-linecap="round"/>' +
           '<path id="fBowHair" d="" stroke="#F2EBD6" stroke-width="1"/>';
-        el("fFx").innerHTML = '<g font-family="Fraunces, Georgia, serif" font-size="11" fill="var(--accent)">' +
-          '<text id="fN0" opacity="0">&#9834;</text><text id="fN1" opacity="0">&#9835;</text><text id="fN2" opacity="0">&#9834;</text></g>';
       },
-      tick: function (t) {
-        // fingers on the neck, vibrato on the long notes
-        var vib = Math.sin(t * 90) * .9 * (Math.sin(t * 6) > 0 ? 1 : .3);
+      key: function (e, st) {
+        if (e.key !== " ") return;
+        st.from = st.k; st.to = st.dir > 0 ? -34 : -8; st.dir = -st.dir; st.at = st.now; st.n++;
+        st.notes.push({ at: st.now, x: 98 + Math.random() * 18, g: Math.random() < .5 ? "&#9834;" : "&#9835;" });
+        if (st.notes.length > 6) st.notes.shift();
+      },
+      auto: function (sec, st) { if (sec - st.lastKey > .6) { st.lastKey = sec; if (st.n >= 8) st.finish("that'll do."); else this.key({ key: " " }, st); } },
+      tick: function (sec, st) {
+        var u = Math.min(1, (sec - st.at) / .55);
+        st.k = mix(st.from, st.to, ease(u));
+        var vib = Math.sin(sec * 60) * .9 * (sec - st.at < 1 ? 1 : .25);
         setArm("R", 104 + vib * .3, 78 + vib, -1);
-        // the bow: hand up-left of the bridge, stick running down-right across
-        // the strings. Four strokes, easing into every turn.
-        var ph = t * 4, i = Math.floor(ph), u = ease(ph - i);
-        var k = i % 2 === 0 ? mix(-8, -34, u) : mix(-34, -8, u);
-        var hx = 72.3 + k * .788, hy = 108.7 + k * .616;
+        var hx = 72.3 + st.k * .788, hy = 108.7 + st.k * .616;
         setArm("L", hx, hy, 1);
         var bx = hx + 64 * .788, by = hy + 64 * .616;
         el("fBow").setAttribute("d", "M" + hx + " " + hy + " L" + bx + " " + by);
         el("fBowHair").setAttribute("d", "M" + (hx + 1.6) + " " + (hy - 2) + " L" + (bx + 1.6) + " " + (by - 2));
-        // head leans into it and sways
-        tf("fHead", "rotate(" + (-7 + 2.5 * Math.sin(t * 12.6)).toFixed(2) + " 60 70) translate(0 " + (1.5 * Math.sin(t * 12.6)).toFixed(2) + ")");
-        for (var n = 0; n < 3; n++) {
-          var p = (t * 1.6 + n / 3) % 1, on = t > .12 && t < .95;
-          var e = el("fN" + n);
-          e.setAttribute("x", (104 + 10 * Math.sin(p * 7 + n)).toFixed(1));
-          e.setAttribute("y", (62 - 40 * p).toFixed(1));
-          e.setAttribute("opacity", on ? (bump(p) * .9).toFixed(2) : 0);
-        }
+        tf("fHead", "rotate(" + (-7 + 2.5 * Math.sin(sec * 2.4)).toFixed(2) + " 60 70) translate(0 " + (1.5 * Math.sin(sec * 2.4)).toFixed(2) + ")");
+        var fx = "";
+        st.notes.forEach(function (n) {
+          var p = (sec - n.at) / 1.6;
+          if (p > 1) return;
+          fx += '<text x="' + (n.x + 10 * Math.sin(p * 7)).toFixed(1) + '" y="' + (62 - 44 * p).toFixed(1) + '" opacity="' + (bump(p) * .9).toFixed(2) +
+                '" font-family="Fraunces, Georgia, serif" font-size="11" fill="var(--accent)">' + n.g + '</text>';
+        });
+        el("fFx").innerHTML = fx;
       } },
 
-    // ---- decks: scratch with one hand, ride the crossfader with the other ----
-    dj: { dur: 5000, mood: "yay",
-      setup: function () {
+    // ---- decks: arrows scratch the record, space drops the beat ----
+    dj: { mood: "yay", hint: "← → scratch · space: drop · esc: done", idle: 8,
+      setup: function (st) {
+        st.a = 0; st.v = 0; st.drop = -9; st.prev = 0;
         el("fFront").innerHTML =
           '<rect x="0" y="146" width="120" height="32" rx="4" fill="#2A2A36"/>' +
           '<circle cx="34" cy="161" r="13" fill="#15151C"/><circle cx="86" cy="161" r="13" fill="#15151C"/>' +
@@ -2299,122 +2381,198 @@ body.reeling { overflow: hidden; }
           '<g id="fEq"><rect x="53" y="156" width="3" height="4" fill="var(--accent)"/><rect x="58.5" y="156" width="3" height="4" fill="var(--accent)"/><rect x="64" y="156" width="3" height="4" fill="var(--accent)"/></g>' +
           '<rect x="53" y="167" width="14" height="2" rx="1" fill="#15151C"/><rect id="fXf" x="58.5" y="164.5" width="3" height="7" rx="1" fill="#E8E2D0"/>' +
           '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
+        el("fFx").innerHTML = '<text id="fDrop" x="60" y="-10" text-anchor="middle" opacity="0" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="14" fill="var(--warm)">DROP</text>';
       },
-      tick: function (t) {
-        var beat = t * 10;                       // 120 bpm over five seconds
-        // left record: pushed back and forth, two scratches a beat
-        var sc = Math.sin(beat * Math.PI * 2) * 26 * (Math.sin(beat * Math.PI) > 0 ? 1 : .35);
+      key: function (e, st) {
+        if (e.key === "ArrowLeft") st.v -= 320;
+        else if (e.key === "ArrowRight") st.v += 320;
+        else if (e.key === " ") st.drop = st.now;
+      },
+      auto: function (sec, st) {
+        if (sec - st.lastKey > .5) { st.lastKey = sec; st.n = (st.n || 0) + 1; this.key({ key: st.n % 2 ? "ArrowLeft" : "ArrowRight" }, st); if (st.n === 6) this.key({ key: " " }, st); if (st.n >= 12) st.finish("one more tune, then."); }
+      },
+      tick: function (sec, st) {
+        var dt = Math.min(.05, sec - st.prev); st.prev = sec;
+        st.a += st.v * dt; st.v *= Math.pow(.01, dt); st.a *= Math.pow(.12, dt);
+        var beat = sec * 2, dropK = bump(seg(sec - st.drop, 0, 1.2));
+        var sc = st.a + Math.sin(beat * Math.PI * 2) * 3;
         tf("fDiscL", "rotate(" + sc.toFixed(2) + " 34 161)");
-        tf("fDiscR", "rotate(" + (t * 1080).toFixed(1) + " 86 161)");
+        tf("fDiscR", "rotate(" + (sec * 216).toFixed(1) + " 86 161)");
         var hx = 34 + 7.5 * Math.sin(sc / 57.3), hy = 161 - 7.5 * Math.cos(sc / 57.3);
         setArm("L", hx, hy - 2, 1);
-        // crossfader rides the beat
         var xf = 60 + 5.5 * Math.tanh(3 * Math.sin(beat * Math.PI + 1.2));
         setArm("R", xf, 162, -1);
         el("fXf").setAttribute("x", (xf - 1.5).toFixed(2));
         var hs = el("fHands").children;
         hs[0].setAttribute("cx", hx); hs[0].setAttribute("cy", hy);
         hs[1].setAttribute("cx", xf); hs[1].setAttribute("cy", 165);
-        // head nods, body bounces, meters jump
-        var nod = Math.max(0, Math.sin(beat * Math.PI * 2));
-        tf("fHead", "translate(0 " + (3 * nod).toFixed(2) + ") rotate(" + (3 * Math.sin(beat * Math.PI)).toFixed(2) + " 60 70)");
+        var nod = Math.max(0, Math.sin(beat * Math.PI * 2)) * (1 + 2 * dropK);
+        tf("fHead", "translate(0 " + (3 * nod).toFixed(2) + ") rotate(" + (3 * Math.sin(beat * Math.PI) * (1 + dropK)).toFixed(2) + " 60 70)");
         tf("fUpper", "translate(0 " + (1.2 * nod).toFixed(2) + ")");
         var eq = el("fEq").children;
         for (var i = 0; i < 3; i++) {
-          var h = 3 + 9 * Math.abs(Math.sin(beat * Math.PI * (1 + i * .5) + i));
+          var h = (3 + 9 * Math.abs(Math.sin(beat * Math.PI * (1 + i * .5) + i))) * (1 + dropK);
           eq[i].setAttribute("height", h.toFixed(1)); eq[i].setAttribute("y", (160 - h).toFixed(1));
         }
+        var dr = el("fDrop");
+        dr.setAttribute("opacity", dropK.toFixed(2)); dr.setAttribute("y", (-8 - 14 * seg(sec - st.drop, 0, 1.2)).toFixed(1));
       } },
 
-    // ---- a problem: type, run, pass ----
-    code: { dur: 5200, mood: "think",
-      setup: function () {
+    // ---- a problem: you type it, enter runs it ----
+    code: { mood: "think", hint: "type to code · enter: run · esc: done", idle: 10,
+      setup: function (st) {
+        st.w = [0, 0, 0, 0]; st.line = 0; st.typed = 0; st.ran = -1; st.tap = -1; st.side = false;
         el("fFront").innerHTML =
           '<rect x="-8" y="152" width="136" height="10" rx="3" fill="#6B5240"/>' +
           '<path d="M24 142 H96 L102 154 H18 Z" fill="#8F939B"/>' +
           '<path d="M30 146 H90 M28 149.5 H92" stroke="#6E727A" stroke-width="1.2" stroke-dasharray="3 1.5"/>' +
           '<rect x="28" y="100" width="64" height="44" rx="3" fill="#5B5F69"/><circle cx="60" cy="122" r="3" fill="#8F939B"/>' +
           '<g id="fHands"><circle r="6" fill="var(--skin)"/><circle r="6" fill="var(--skin)"/></g>';
-        // what he is typing, in a window beside him
         el("fFx").innerHTML =
-          '<g transform="translate(74 -24)">' +
+          '<g transform="translate(74 -30)">' +
             '<rect x="0" y="0" width="86" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>' +
             '<path d="M14 56 l6 8 l6 -8 Z" fill="var(--surface)" stroke="var(--line)"/><path d="M15 56 h10" stroke="var(--surface)" stroke-width="2"/>' +
             '<circle cx="8" cy="7" r="1.8" fill="#E86B5C"/><circle cx="13.5" cy="7" r="1.8" fill="#E8C24A"/><circle cx="19" cy="7" r="1.8" fill="#6CC46B"/>' +
             '<g id="fLines" fill="var(--muted)"><rect x="8" y="16" height="3.4" rx="1.2" width="0"/><rect x="14" y="23" height="3.4" rx="1.2" width="0"/><rect x="14" y="30" height="3.4" rx="1.2" width="0"/><rect x="8" y="37" height="3.4" rx="1.2" width="0"/></g>' +
             '<rect id="fCur" x="8" y="16" width="2" height="4" fill="var(--accent)"/>' +
-            '<text id="fPass" x="8" y="51" class="na" font-size="7.5" fill="#3E9E4F" opacity="0">&#10003; 10/10 passed</text>' +
+            '<text id="fPass" x="8" y="51" class="na" font-size="7.5" opacity="0"></text>' +
           '</g>';
       },
-      tick: function (t) {
-        // hands on the keys, fingers going; wrists lift at the end
-        var done = t > .84, lift = 4 * ease(seg(t, .84, .92));
-        var tapL = done ? 0 : 1.8 * Math.max(0, Math.sin(t * 140)), tapR = done ? 0 : 1.8 * Math.max(0, Math.sin(t * 140 + 2.1));
-        setArm("L", 46 + .6 * Math.sin(t * 50), 147 - tapL - lift, 1);
-        setArm("R", 74 + .6 * Math.cos(t * 44), 147 - tapR - lift, -1);
-        var hs = el("fHands").children;
-        hs[0].setAttribute("cx", 46 + .6 * Math.sin(t * 50)); hs[0].setAttribute("cy", 149 - tapL - lift);
-        hs[1].setAttribute("cx", 74 + .6 * Math.cos(t * 44)); hs[1].setAttribute("cy", 149 - tapR - lift);
-        // eyes on the screen, then up when it passes
-        tf("fHead", "translate(0 " + (3 * (1 - ease(seg(t, .84, .95)))).toFixed(2) + ") rotate(" + (-2 * (1 - seg(t, .84, .95))).toFixed(2) + " 60 70)");
-        // lines appear a character at a time
-        var ln = el("fLines").children, W = [58, 40, 50, 30], y = [16, 23, 30, 37], x = [8, 14, 14, 8];
-        var cx = 8, cy = 16;
-        for (var i = 0; i < 4; i++) {
-          var u = seg(t, .06 + i * .19, .22 + i * .19), w = W[i] * Math.floor(u * 10) / 10;
-          ln[i].setAttribute("width", w.toFixed(1));
-          if (u > 0) { cx = x[i] + w + 1; cy = y[i]; }
+      key: function (e, st) {
+        if (st.ran >= 0) return;
+        if (e.key === "Enter") {
+          st.ran = st.now; st.ok = st.typed >= 24;
+          st.extra = st.ok ? "10/10" : "3/10 · TLE";
+          st.mood = st.ok ? "yay" : "think";
+          setMood(st.mood, st.ok ? "accepted." : "brute force, huh");
+          return;
         }
-        el("fCur").setAttribute("x", cx); el("fCur").setAttribute("y", cy);
-        el("fCur").setAttribute("opacity", done ? 0 : (Math.sin(t * 60) > 0 ? 1 : .15));
-        el("fPass").setAttribute("opacity", out(seg(t, .86, .94)));
+        if (e.key.length !== 1) return;
+        var W = [58, 40, 50, 30];
+        st.typed++; st.tap = st.now; st.side = !st.side;
+        st.w[st.line] = Math.min(W[st.line], st.w[st.line] + 2.4);
+        if (st.w[st.line] >= W[st.line] && st.line < 3) st.line++;
+        st.extra = st.typed + " chars";
+      },
+      auto: function (sec, st) { if (sec - st.lastKey > .07) { st.lastKey = sec; this.key({ key: st.typed < 32 ? "x" : "Enter" }, st); } },
+      tick: function (sec, st) {
+        var tapping = sec - st.tap < .13;
+        var tapL = tapping && !st.side ? 2.2 : 0, tapR = tapping && st.side ? 2.2 : 0;
+        var up = st.ran >= 0 ? ease(seg(sec - st.ran, 0, .35)) : 0;
+        setArm("L", 46, 147 - tapL - 4 * up, 1);
+        setArm("R", 74, 147 - tapR - 4 * up, -1);
+        var hs = el("fHands").children;
+        hs[0].setAttribute("cx", 46); hs[0].setAttribute("cy", 149 - tapL - 4 * up);
+        hs[1].setAttribute("cx", 74); hs[1].setAttribute("cy", 149 - tapR - 4 * up);
+        tf("fHead", "translate(0 " + (3 * (1 - up)).toFixed(2) + ") rotate(" + (-2 * (1 - up)).toFixed(2) + " 60 70)");
+        var ln = el("fLines").children, x = [8, 14, 14, 8], y = [16, 23, 30, 37];
+        for (var i = 0; i < 4; i++) ln[i].setAttribute("width", st.w[i].toFixed(1));
+        var cl = Math.min(3, st.line);
+        el("fCur").setAttribute("x", x[cl] + st.w[cl] + 1); el("fCur").setAttribute("y", y[cl]);
+        el("fCur").setAttribute("opacity", st.ran >= 0 ? 0 : (Math.sin(sec * 7) > 0 ? 1 : .15));
+        var ps = el("fPass");
+        if (st.ran >= 0) {
+          ps.textContent = st.ok ? "✓ 10/10 passed" : "✗ 3/10 · time limit exceeded";
+          ps.setAttribute("fill", st.ok ? "#3E9E4F" : "#C8384A");
+          ps.setAttribute("opacity", out(seg(sec - st.ran, .1, .5)).toFixed(2));
+          if (sec - st.ran > 2.4) st.finish(st.ok ? "10/10. next." : "TLE. read the input size first.", st.ok ? "yay" : "think");
+        }
       } },
 
-    // ---- a serve: toss, reach, snap through, watch it go ----
-    serve: { dur: 2800, mood: "aim",
-      setup: function () {
+    // ---- a serve: toss, then hit space while the marker is on the green ----
+    serve: { mood: "aim", hint: "space on the green: ace",
+      setup: function (st) {
+        st.hit = -1; st.perfect = false; st.swung = false; st.bonk = -1;
         el("fFx").innerHTML =
           '<path id="fTrail" d="" stroke="#D6E04A" stroke-width="3" stroke-linecap="round" opacity="0"/>' +
           '<g id="fRacket"><path d="M0 -5 v-20" stroke="#2A2A36" stroke-width="3" stroke-linecap="round"/>' +
             '<ellipse cx="0" cy="-37" rx="9.5" ry="13" fill="#F1EFE6" stroke="#2A2A36" stroke-width="2"/>' +
             '<path d="M-6 -44 h12 M-8 -37 h16 M-6 -30 h12 M-3 -48 v22 M3 -48 v22" stroke="#B8B6AC" stroke-width=".7"/></g>' +
           '<g id="fPop" opacity="0" stroke="var(--warm)" stroke-width="2" stroke-linecap="round"><path d="M-9 -9 l-4 -4 M9 -9 l4 -4 M0 -12 v-6 M-12 0 h-6 M12 0 h6"/></g>' +
-          '<circle id="fBall" r="4.2" fill="#D6E04A" stroke="#B9C33A" stroke-width=".8"/>';
+          '<circle id="fBall" r="4.2" fill="#D6E04A" stroke="#B9C33A" stroke-width=".8"/>' +
+          '<g id="fMeter" opacity="0"><rect x="10" y="-46" width="100" height="7" rx="3.5" fill="var(--line)"/>' +
+            '<rect x="52.5" y="-46" width="15" height="7" rx="3.5" fill="#3E9E4F"/>' +
+            '<path id="fMark" d="M0 -48 l4 -7 h-8 Z" fill="var(--ink)"/></g>' +
+          '<text id="fCall" x="60" y="-56" text-anchor="middle" opacity="0" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="12" fill="var(--warm)"></text>';
       },
-      tick: function (t) {
-        // the tossing hand goes up and lets go; the ball floats to its peak
-        var up = ease(seg(t, 0, .34)), back = ease(seg(t, .62, .96));
-        var tx = mix(99.5, 92, up) - 0 * back, ty = mix(183, 48, up);
-        tx = mix(tx, 99.5, back); ty = mix(ty, 183, back);
+      pos: function (sec) { var p = ((sec - .5) / 1.3) % 2; return p < 1 ? p : 2 - p; },
+      key: function (e, st) {
+        if (e.key !== " " || st.hit >= 0 || st.now < .6) return;
+        st.hit = st.now;
+        st.perfect = Math.abs(this.pos(st.now) - .5) < .075;
+      },
+      auto: function (sec, st) { if (st.hit < 0 && sec > .6 && Math.abs(this.pos(sec) - .5) < .03) this.key({ key: " " }, st); },
+      tick: function (sec, st) {
+        // the toss: hand up, ball released and floating at its peak until the
+        // swing; the marker sweeps while you wait
+        if (st.hit < 0 && sec > 4.6) { st.hit = sec; st.perfect = false; }
+        var H = st.hit, after = H >= 0 ? sec - H : -1;
+        var up = ease(seg(sec, 0, .45)), back = H >= 0 ? ease(seg(after, .3, .9)) : 0;
+        var tx = mix(mix(99.5, 92, up), 99.5, back), ty = mix(mix(183, 48, up), 183, back);
         setArm("R", tx, ty, -1);
+        var apex = { x: 67, y: 6 };
         var bx, by, bo = 1;
-        if (t < .3) { bx = tx; by = ty - 7; }
-        else if (t < .58) { var r = seg(t, .3, .58); bx = mix(92, 67, r); by = mix(41, 11, out(r)); }
-        else { var f = seg(t, .58, .82); bx = mix(67, 210, f); by = mix(11, -64, f); bo = 1 - inn(seg(t, .72, .84)); }
-        el("fBall").setAttribute("cx", bx.toFixed(1)); el("fBall").setAttribute("cy", by.toFixed(1)); el("fBall").setAttribute("opacity", bo.toFixed(2));
-        el("fTrail").setAttribute("d", "M" + bx + " " + by + " L" + (bx - 26 * (bx - 67) / 143 - 2) + " " + (by + 26 * (11 - by) / 75 + 1));
-        el("fTrail").setAttribute("opacity", (t > .6 && t < .84 ? .5 * bo : 0).toFixed(2));
-        // the racket arm: a small backswing, then up and over fast, follow
-        // through across the body, back to rest
-        var hx, hy;
-        if (t < .25)       { var a = ease(seg(t, 0, .25)); hx = mix(20.5, 4, a); hy = mix(183, 158, a); }
-        else if (t < .58)  { var b = inn(seg(t, .25, .58)); hx = mix(4, 52, b); hy = mix(158, 44, b); }
-        else if (t < .8)   { var c = out(seg(t, .58, .8)); hx = mix(52, 92, c); hy = mix(44, 150, c); }
-        else               { var d = ease(seg(t, .8, 1)); hx = mix(92, 20.5, d); hy = mix(150, 183, d); }
+        if (sec < .4) { bx = tx; by = ty - 7; }
+        else { var r = out(seg(sec, .4, .85)); bx = mix(92, apex.x, r); by = mix(42, apex.y, r) + Math.sin(sec * 5) * 1.2 * r; }
+        // the swing
+        var hx, hy, contact = after >= .22;
+        if (H < 0 || after < 0) { var a = ease(seg(sec, 0, .3)); hx = mix(20.5, 4, a); hy = mix(183, 158, a); }
+        else if (after < .22) { var b = inn(seg(after, 0, .22)); hx = mix(4, st.perfect ? 52 : 36, b); hy = mix(158, st.perfect ? 44 : 52, b); }
+        else if (after < .5)  { var c = out(seg(after, .22, .5)); hx = mix(st.perfect ? 52 : 36, 92, c); hy = mix(st.perfect ? 44 : 52, 150, c); }
+        else                  { var d = ease(seg(after, .5, 1)); hx = mix(92, 20.5, d); hy = mix(150, 183, d); }
         var e = setArm("L", hx, hy, 1);
         tf("fRacket", "translate(" + hx.toFixed(1) + " " + hy.toFixed(1) + ") rotate(" + (Math.atan2(e.ux, -e.uy) * 57.3).toFixed(1) + ")");
-        tf("fPop", "translate(67 11)");
-        el("fPop").setAttribute("opacity", bump(seg(t, .56, .7)).toFixed(2));
+        var call = el("fCall"), callOp = 0;
+        if (contact && st.perfect) {
+          // clean contact: away it goes
+          var f = seg(after, .22, .5); bx = mix(apex.x, 214, f); by = mix(apex.y, -70, f); bo = 1 - inn(seg(after, .4, .55));
+          el("fTrail").setAttribute("d", "M" + bx + " " + by + " L" + (bx - 28) + " " + (by + 14));
+          el("fTrail").setAttribute("opacity", (.5 * bo).toFixed(2));
+          el("fPop").setAttribute("opacity", bump(seg(after, .2, .4)).toFixed(2)); tf("fPop", "translate(67 6)");
+          call.textContent = "ACE"; callOp = out(seg(after, .25, .5));
+          if (!st.mood) { st.mood = "yay"; setMood("yay", "ace."); }
+          if (after > 1.5) st.finish("ace.", "yay");
+        } else if (contact) {
+          // a whiff: the ball hangs, then comes down on his head
+          var fall = seg(after, .35, .62);
+          bx = apex.x; by = mix(apex.y, 16, inn(fall));
+          var bonk = after >= .62;
+          if (bonk) {
+            var g = seg(after, .62, 1.2);
+            bx = mix(67, 14, g); by = 16 + 300 * g * g - 140 * g;
+            if (by > 270) { by = 270; }
+            if (!st.mood) { st.mood = "startle"; setMood("startle", "ow."); }
+            tf("fHead", "translate(0 " + (3 * bump(seg(after, .62, .95))).toFixed(2) + ") scale(1 " + (1 - .08 * bump(seg(after, .62, .9))).toFixed(3) + ") translate(0 " + (0).toFixed(1) + ")");
+            call.textContent = "ow."; callOp = out(seg(after, .65, .9));
+          }
+          if (after > 2.2) st.finish("the wall never does that.", "think");
+        }
+        el("fBall").setAttribute("cx", bx.toFixed(1)); el("fBall").setAttribute("cy", by.toFixed(1)); el("fBall").setAttribute("opacity", bo.toFixed(2));
+        if (!(contact && st.perfect)) { el("fTrail").setAttribute("opacity", 0); el("fPop").setAttribute("opacity", 0); }
+        call.setAttribute("opacity", callOp.toFixed(2));
+        // the meter
+        var waiting = H < 0 && sec > .5;
+        el("fMeter").setAttribute("opacity", (waiting ? ease(seg(sec, .5, .8)) : Math.max(0, 1 - after * 3)).toFixed(2));
+        tf("fMark", "translate(" + (10 + 100 * this.pos(Math.min(sec, H < 0 ? sec : H))).toFixed(1) + " 0)");
         // knees bend for the toss, the whole body reaches at contact
-        var reach = bump(seg(t, .42, .7)), bend = bump(seg(t, .05, .5));
+        var reach = contact && st.perfect ? bump(seg(after, .1, .5)) : 0, bend = bump(seg(sec, .05, .5));
         tf("fUpper", "translate(0 " + (-4 * reach + 2 * bend).toFixed(2) + ")");
         tf("fLegs", "translate(60 276) scale(1 " + (1 - .03 * bend + .015 * reach).toFixed(3) + ") translate(-60 -276)");
-        tf("fHead", "rotate(" + (-6 * reach).toFixed(2) + " 60 70)");
+        if (!(contact && !st.perfect && after >= .62)) tf("fHead", "rotate(" + (-6 * reach).toFixed(2) + " 60 70)");
       } }
   };
 
   var acting = null;       // the action playing from a button, if any
   var liftOn = null;       // the lift tab under the cursor, if any
+  var st = null;           // the running action's state
+  var khint = document.getElementById("khint");
+  var touch = !window.matchMedia("(hover: hover)").matches;   // no keyboard: the action plays itself
+
+  function newState(loop) {
+    var o = { loop: loop, now: 0, lastKey: 0, extra: "", mood: null, done: null };
+    o.finish = function (line, mood) { o.done = { line: line, mood: mood }; };
+    return o;
+  }
 
   // Hover a lift tab: that lift, on a loop, until the cursor leaves.
   function playLift(k) {
@@ -2422,39 +2580,59 @@ body.reeling { overflow: hidden; }
     liftOn = k;
     if (acting) return;
     if (k) {
+      st = newState(true);
       renderLook(k);
       look.classList.add("on");
-      runAnim(ACTS[k].dur, ACTS[k].tick, null, true);
+      var t0 = performance.now();
+      runAnim(1e9, function () { ACTS[k].tick((performance.now() - t0) / 1000, st); }, null, true);
     } else {
       stopAnim();
+      st = null;
       renderLook();
     }
   }
 
-  // Press a hobby's button: once through, then back to standing.
+  // Press a hobby's button: the action runs until it finishes itself, the
+  // keys go quiet, or escape.
   function playAct(name) {
     if (name === "reps") name = liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift");
     var act = ACTS[name];
     if (!act) return;
-    var reps = (name === "squat" || name === "bench") ? 3 : 1;
+    if (acting === name) { finishAct(); return; }
+    stopAnim();
     acting = name;
+    st = newState(false);
     renderLook(name);
     look.classList.add("on");
     setMood(act.mood);
-    runAnim(act.dur * reps, function (t) { act.tick((t * reps) % 1); if (moodName !== act.mood && t < .98) setMood(act.mood); },
-      function () {
-        acting = null;
-        lastMove = Date.now();
-        setMood("yay", name === "dead" ? "nope." : undefined);
-        setTimeout(function () {
-          if (acting) return;
-          if (liftOn) { liftOn = null; playLift(overHost && overHost.getAttribute("data-lift")); }
-          else { renderLook(); if (!wasOnHead) look.classList.remove("on"); }
-        }, 1100);
-      });
+    var t0 = performance.now();
+    runAnim(1e9, function () {
+      var sec = (performance.now() - t0) / 1000;
+      st.now = sec;
+      if (touch && act.auto) act.auto(sec, st);
+      act.tick(sec, st);
+      var m = st.mood || act.mood;
+      if (moodName !== m) setMood(m);
+      khint.textContent = act.hint + (st.extra ? "  ·  " + st.extra : "");
+      if (act.idle && !touch && sec - st.lastKey > act.idle) st.finish();
+      if (st.done) finishAct(st.done.line, st.done.mood);
+    }, null, true);
+  }
+  function finishAct(line, mood) {
+    if (!acting) return;
+    stopAnim();
+    acting = null; st = null;
+    lastMove = Date.now();
+    khint.textContent = "";
+    setMood(mood || "yay", line);
+    setTimeout(function () {
+      if (acting) return;
+      if (liftOn) { var k = liftOn; liftOn = null; playLift(k); }
+      else { renderLook(); if (!wasOnHead) look.classList.remove("on"); }
+    }, 1200);
   }
   [].forEach.call(document.querySelectorAll(".play"), function (b) {
-    b.addEventListener("click", function () { playAct(b.getAttribute("data-act")); });
+    b.addEventListener("click", function () { playAct(b.getAttribute("data-act")); b.blur(); });
   });
 
   // what the arm points at: a project, a job, a hobby or the reel on screen
@@ -2568,24 +2746,27 @@ body.reeling { overflow: hidden; }
   var pips    = [].slice.call(reels.querySelectorAll(".pip"));
   var current = 0, target = 0;   // target leads current during a smooth scroll
 
+  var hob = document.getElementById("hobbies");
   function showView(v) {
-    var on = v === "reels";
+    var on = v === "reels", onHob = v === "hobbies";
     reels.hidden = !on;
-    page.hidden = on;
+    hob.hidden = !onHob;
+    page.hidden = on || onHob;
     document.body.classList.toggle("reeling", on);
     [].forEach.call(views.querySelectorAll(".vbtn"), function (b) {
       b.classList.toggle("on", b.getAttribute("data-view") === v);
     });
-    try { history.replaceState(null, "", on ? "#reels" : location.pathname + location.search); } catch (e) {}
+    try { history.replaceState(null, "", on ? "#reels" : onHob ? "#hobbies" : location.pathname + location.search); } catch (e) {}
     if (on) { reels.scrollTop = 0; setMood(reelEls[0].getAttribute("data-mood")); }
-    else { setMood("idle"); pointAt(null); }
+    else { window.scrollTo(0, 0); setMood(onHob ? "delight" : "idle", onHob ? pickLine(["the fun tab", "this is the real resume", "pick one"]) : undefined); pointAt(null); }
   }
+  function viewFor(h) { return h === "#reels" ? "reels" : h === "#hobbies" ? "hobbies" : "profile"; }
   views.addEventListener("click", function (e) {
     var b = e.target.closest(".vbtn");
     if (b) showView(b.getAttribute("data-view"));
   });
   window.addEventListener("hashchange", function () {
-    showView(location.hash === "#reels" ? "reels" : "profile");
+    showView(viewFor(location.hash));
   });
 
   var io = new IntersectionObserver(function (entries) {
@@ -2607,6 +2788,14 @@ body.reeling { overflow: hidden; }
     p.addEventListener("click", function () { reelEls[i].scrollIntoView({ block: "start" }); });
   });
   document.addEventListener("keydown", function (e) {
+    if (acting && st) {
+      if (e.key === "Escape") { finishAct(); return; }
+      st.lastKey = st.now;
+      var a = ACTS[acting];
+      if (a.key) a.key(e, st);
+      if (e.key === " " || e.key.indexOf("Arrow") === 0) e.preventDefault();
+      return;
+    }
     if (reels.hidden) return;
     var d = 0;
     if (e.key === "ArrowDown" || e.key === "j" || e.key === "PageDown") d = 1;
@@ -2618,7 +2807,7 @@ body.reeling { overflow: hidden; }
     reelEls[target].scrollIntoView({ block: "start" });
   });
 
-  showView(location.hash === "#reels" ? "reels" : "profile");
+  showView(viewFor(location.hash));
 
   rollFit();
   ptr.cx = window.innerWidth * 0.55;
