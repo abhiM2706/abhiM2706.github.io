@@ -250,8 +250,10 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   library in October 2026); one is drawn at random every seven seconds or
   on a drop. The three lifts are drawn side-on at a
   three-quarter angle with the bar loaded like a real one (`barbell()`:
-  45 lb bar, then per side 45s, a 25, 10s, 5s until it adds up, near plates
-  big and in front, far plates small and behind).
+  45 lb bar, then per side 45s, a 25, 10s, 5s until it adds up). The bar
+  runs away from you at about 45 degrees, so it is foreshortened on screen
+  and the plates show most of their face, stacked close like coins on a
+  slant; near plates big and in front, far plates small and behind.
 
 - **The figure.** `figureSVG()` is one rounded body under the live head,
   with two-segment arms placed by `setArm(side, x, y, bend)`. Every top has
@@ -259,8 +261,10 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   hand-drawn ones): the torso from the shoulders to the hem, clipped to the
   body, and a `sleeve` spec the arm drawing reads (colour, cuff, stripe,
   bands, a camo blob). Pants carry their marks, pockets, drawstrings and
-  seams; shoes their N, tiger stripes, Air Max waves, laces. The pointing
-  arm on the bust is built from the same pieces.
+  seams; shoes their N, tiger stripes, Air Max waves, laces. The shoulders
+  are one rounded yoke in the shirt over the arm roots, under the bust's
+  collar, so there is no seam; the pointing arm on the bust comes out from
+  behind its shoulder the same way.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section

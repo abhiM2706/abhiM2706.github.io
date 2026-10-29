@@ -619,6 +619,9 @@ body.reeling { overflow: hidden; }
   <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <!-- Body stays put while the head tilts. The outfit and any jewellery are
          filled in by rollFit() at load, so the fit differs every visit. -->
+    <!-- a pointing arm, raised from behind the right shoulder toward
+         whatever the cursor is on. Filled in by rollFit() to match the fit. -->
+    <g id="arm" opacity="0" pointer-events="none"></g>
     <g id="body">
       <path d="M50 90 h20 v17 h-20 z" fill="var(--skin-dk)"/>
       <g id="outfit"></g>
@@ -665,9 +668,6 @@ body.reeling { overflow: hidden; }
       <path id="mouth" d="" fill="var(--hair)" stroke="var(--hair)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
       <g id="acc"></g>
     </g>
-    <!-- a pointing arm, raised from the right shoulder toward whatever the
-         cursor is on. Filled in by rollFit() so the sleeve matches the fit. -->
-    <g id="arm" opacity="0" pointer-events="none"></g>
   </svg>
   <div id="quip"></div>
 </div>
@@ -1728,9 +1728,8 @@ body.reeling { overflow: hidden; }
     // hand, in the sleeve the garment says; only this one points
     var sl = fit.sleeve || {}, c = sl.col || col, shortS = fit.shirt.sleeves === "short", skin = "var(--skin)";
     armEl.innerHTML =
-      '<circle cx="2" cy="0" r="8" fill="' + c + '"/>' +
-      '<rect x="-4" y="-7.5" width="42" height="15" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
-      (shortS ? '<rect x="-4" y="-7.5" width="28" height="15" rx="7.5" fill="' + c + '"/>' : "") +
+      '<rect x="-10" y="-7.5" width="48" height="15" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
+      (shortS ? '<rect x="-10" y="-7.5" width="34" height="15" rx="7.5" fill="' + c + '"/>' : "") +
       (shortS && sl.cuff ? '<rect x="22" y="-7.5" width="6" height="15" rx="2" fill="' + sl.cuff + '"/>' : "") +
       '<rect x="34" y="-5.5" width="40" height="11" rx="5.5" fill="' + (shortS ? skin : c) + '"/>' +
       (!shortS && sl.cuff ? '<rect x="64" y="-5.5" width="8" height="11" rx="2" fill="' + sl.cuff + '"/>' : "") +
@@ -1851,8 +1850,7 @@ body.reeling { overflow: hidden; }
   function armSVG(side, ids) {
     var s0 = SHOULDER[side], sl = fit.sleeve || {}, c = sl.col || fit.col, shortS = fit.shirt.sleeves === "short";
     var x = s0.x - 7.5, skin = "var(--skin)", outer = side === "L" ? s0.x - 4.5 : s0.x + 4.5;
-    var o = '<circle cx="' + s0.x + '" cy="' + (s0.y + 4) + '" r="8" fill="' + c + '"/>' +
-            '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
+    var o = '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
             (shortS ? '<rect x="' + x + '" y="110" width="15" height="28" rx="7.5" fill="' + c + '"/>' : "");
     var end = shortS ? 136 : 150, d, y;
     if (sl.stripe) o += '<path d="M' + outer + ' 114 V' + end + '" stroke="' + sl.stripe + '" stroke-width="2.4" stroke-linecap="round" opacity="' + (sl.stripeAlpha || 1) + '"/>';
@@ -1929,11 +1927,16 @@ body.reeling { overflow: hidden; }
                 '<clipPath id="fClip"><path d="' + TORSO + '"/></clipPath><g clip-path="url(#fClip)">' + (fit.garment || "") + '</g>' +
                 '<path d="' + TORSO + '" fill="#000" opacity=".05"/>';
     var arms = armSVG("L", ids) + armSVG("R", ids);
+    // the shoulders: one rounded slope from the neck out over the arm
+    // roots, in the shirt, with the bust's own collar drawn over it
+    var yoke = '<path d="M15 127 C15 114 28 106 44 103 H76 C92 106 105 114 105 127 C105 131 102 133 98 133 H22 C18 133 15 131 15 127 Z" fill="' + c + '"/>' +
+               (fit.sleeve && fit.sleeve.col ? '<path d="M15 127 C15 116 24 108 36 105 L30 133 H22 C18 133 15 131 15 127 Z M105 127 C105 116 96 108 84 105 L90 133 H98 C102 133 105 131 105 127 Z" fill="' + fit.sleeve.col + '"/>' : "") +
+               '<path d="M15 127 C15 114 28 106 44 103 H76 C92 106 105 114 105 127" fill="none" stroke="#000" stroke-width="1" opacity=".08"/>';
     // the live bust and head, borrowed from the top-left rig
     var head = '<g' + I("fHead") + '>' + (ids ? '<use href="#head"/>' : "") + '</g>';
     return '<g' + I("fBack") + '></g>' +
            '<g' + I("fLegs") + '>' + o + '</g>' +
-           '<g' + I("fUpper") + '>' + torso + (ids ? '<use href="#body"/>' : "") + arms + head + '</g>' +
+           '<g' + I("fUpper") + '>' + torso + arms + yoke + (ids ? '<use href="#body"/>' : "") + head + '</g>' +
            '<g' + I("fFront") + '></g><g' + I("fFx") + '></g>';
   }
 
@@ -2109,7 +2112,7 @@ body.reeling { overflow: hidden; }
     }
     armA = lerp(armA, ang, .14);
     armS = lerp(armS, want, want ? .14 : .22);
-    armEl.setAttribute("transform", "translate(88 112) rotate(" + armA.toFixed(2) + ") scale(" + armS.toFixed(3) + ")");
+    armEl.setAttribute("transform", "translate(84 113) rotate(" + armA.toFixed(2) + ") scale(" + armS.toFixed(3) + ")");
     armEl.setAttribute("opacity", Math.min(1, armS * 1.6).toFixed(3));
 
     requestAnimationFrame(frame);
@@ -2246,28 +2249,34 @@ body.reeling { overflow: hidden; }
     return out;
   }
   function barbell(c, total, label) {
-    var ux = .78, uy = .62, deg = 38.5, collar = 36, ps = platesFor(total);
+    // The bar runs away from you at roughly 45 degrees, so on screen it is
+    // foreshortened (about .7 of its length), heads down and to the right,
+    // and the plates show most of their face: fat ellipses whose short
+    // axis lies along the bar, stacked close like coins seen on a slant.
+    var ux = .86, uy = .5, deg = 30, fore = .7, collar = 25, ps = platesFor(total);
     function at(k) { return { x: c.x + ux * k, y: c.y + uy * k }; }
     function plate(w, k, sc) {
       var P = PLATE[w], p = at(k);
-      return '<ellipse cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" rx="' + (P.t * .95 * sc).toFixed(1) + '" ry="' + (P.r * sc).toFixed(1) +
-        '" transform="rotate(' + deg + ' ' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')" fill="' + P.col + '" stroke="#55555F" stroke-width="1"/>';
+      return '<ellipse cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" rx="' + (P.r * .62 * sc).toFixed(1) + '" ry="' + (P.r * sc).toFixed(1) +
+        '" transform="rotate(' + deg + ' ' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')" fill="' + P.col + '" stroke="#55555F" stroke-width="1"/>' +
+        '<ellipse cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" rx="' + (P.r * .62 * sc * .45).toFixed(1) + '" ry="' + (P.r * sc * .45).toFixed(1) +
+        '" transform="rotate(' + deg + ' ' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')" fill="none" stroke="#3A3A46" stroke-width="1.2"/>';
     }
     // near side: innermost first so the outer plates sit on top
-    var near = "", k = collar, i;
-    for (i = 0; i < ps.length; i++) { k += PLATE[ps[i]].t / 2; near += plate(ps[i], k, 1); k += PLATE[ps[i]].t / 2; }
-    var nearEnd = k + 7;
+    var near = "", k = collar, i, step;
+    for (i = 0; i < ps.length; i++) { step = PLATE[ps[i]].t * fore; k += step / 2; near += plate(ps[i], k, 1); k += step / 2; }
+    var nearEnd = k + 5;
     // far side: outermost first, a little smaller for the distance
     var far = "", kf = collar, ks = [];
-    for (i = 0; i < ps.length; i++) { kf += PLATE[ps[i]].t * .8 / 2; ks.push(kf); kf += PLATE[ps[i]].t * .8 / 2; }
+    for (i = 0; i < ps.length; i++) { step = PLATE[ps[i]].t * fore * .8; kf += step / 2; ks.push(kf); kf += step / 2; }
     for (i = ps.length - 1; i >= 0; i--) far += plate(ps[i], -ks[i], .8);
-    var farEnd = at(-(kf + 6)), ne = at(nearEnd), lab = at(nearEnd - 2);
+    var farEnd = at(-(kf + 5)), ne = at(nearEnd), lab = at(nearEnd);
     var shaft = function (a, b) { return '<path d="M' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) + ' L' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) + '" stroke="#55555F" stroke-width="5" stroke-linecap="round"/>'; };
     return {
       back: shaft(farEnd, c) + far,
       front: shaft(c, ne) + near +
         '<circle cx="' + ne.x.toFixed(1) + '" cy="' + ne.y.toFixed(1) + '" r="3" fill="#6A6A76"/>' +
-        (label ? '<text x="' + lab.x.toFixed(1) + '" y="' + (lab.y + 32).toFixed(1) + '" text-anchor="middle" class="na">' + label + '</text>' : "")
+        (label ? '<text x="' + lab.x.toFixed(1) + '" y="' + (lab.y + 30).toFixed(1) + '" text-anchor="middle" class="na">' + label + '</text>' : "")
     };
   }
   // Head in profile, facing right. expr: calm, strain or nope.
@@ -2313,13 +2322,19 @@ body.reeling { overflow: hidden; }
     return o;
   }
   function sideArm(sh, elb, hand, far) {
-    var c = fit.col, shortS = fit.shirt.sleeves === "short";
+    var c = (fit.sleeve && fit.sleeve.col) || fit.col, shortS = fit.shirt.sleeves === "short";
     var o = limb(sh, elb, 11, c) + limb(elb, hand, 9, shortS ? "var(--skin)" : c) +
       '<circle cx="' + hand.x.toFixed(1) + '" cy="' + hand.y.toFixed(1) + '" r="5.5" fill="var(--skin)"/>';
     if (far) o += limb(sh, elb, 11, "rgba(0,0,0,.22)") + limb(elb, hand, 9, "rgba(0,0,0,.22)");
     return o;
   }
-  function torso(hip, sh) { return limb(hip, sh, 30, fit.col) + limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 26, fit.pants.col); }
+  function torso(hip, sh) {
+    return limb(hip, sh, 30, fit.col) +
+      limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 30, fit.pants.col) +
+      '<circle cx="' + hip.x.toFixed(1) + '" cy="' + hip.y.toFixed(1) + '" r="15" fill="' + fit.pants.col + '"/>';
+  }
+  function joint(p, r, col) { return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + r + '" fill="' + col + '"/>'; }
+  function neck(sh, head) { return limb(sh, { x: (sh.x + head.x) / 2, y: (sh.y + head.y) / 2 + 4 }, 11, "var(--skin)"); }
 
   // ---------------------------------------------------------------------
   // The actions. Each has a hint for the keys, a setup(st) that lays out
@@ -2487,8 +2502,8 @@ body.reeling { overflow: hidden; }
         var c = { x: sh.x - 5 - 2 * d, y: sh.y - 6 };
         var bb = barbell(c, 375, "375");
         var far = { x: 12, y: -7 };
-        var hand = { x: c.x + .78 * 15, y: c.y + .62 * 15 };
-        var farHand = { x: c.x - .78 * 15 - far.x, y: c.y - .62 * 15 - far.y };
+        var hand = { x: c.x + .86 * 13, y: c.y + .5 * 13 };
+        var farHand = { x: c.x - .86 * 13 - far.x, y: c.y - .5 * 13 - far.y };
         var elb = { x: sh.x - 8, y: sh.y + 14 };
         figure.innerHTML =
           '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
@@ -2497,8 +2512,9 @@ body.reeling { overflow: hidden; }
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x - 6, y: elb.y + far.y }, { x: farHand.x + far.x, y: farHand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
+          neck(sh, head) +
           profile(head, 12 * d, "strain") +
-          sideArm(sh, elb, hand) +
+          sideArm(sh, elb, hand) + joint(sh, 9, fit.sleeve && fit.sleeve.col || fit.col) +
           bb.front;
       } },
 
@@ -2531,8 +2547,9 @@ body.reeling { overflow: hidden; }
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
+          neck(sh, { x: head.x, y: head.y + 6 }) +
           profile(head, -90, "strain") +
-          sideArm(sh, elb, hand) +
+          sideArm(sh, elb, hand) + joint(sh, 9, fit.sleeve && fit.sleeve.col || fit.col) +
           bb.front;
       } },
 
@@ -2553,7 +2570,7 @@ body.reeling { overflow: hidden; }
         var hip = pt(knee, -(28 * down), 50);
         var sh = pt(hip, (82 - 10 * pull) * down, 52);
         var head = pt(sh, (34 - 6 * pull) * down, 23);
-        var bar = { x: 86, y: 232 };
+        var bar = { x: 84, y: 244 };
         var hang = { x: sh.x + 2, y: sh.y + 58 };
         var grip = { x: bar.x + 1, y: bar.y - 6 + tremble * .3 };
         var hand = { x: mix(hang.x, grip.x, down), y: mix(hang.y, grip.y, down) };
@@ -2569,8 +2586,9 @@ body.reeling { overflow: hidden; }
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
+          neck(sh, head) +
           profile(head, 60 * down + shakeHead, expr) +
-          sideArm(sh, elb, hand) +
+          sideArm(sh, elb, hand) + joint(sh, 9, fit.sleeve && fit.sleeve.col || fit.col) +
           bb.front;
       } },
 
