@@ -77,7 +77,7 @@ Connect to Git**, pick `abhinav-site`, and leave the build settings empty
 
 Simplest if you want everything on GitHub. Same `git` commands as above, then
 in the repo: **Settings → Pages → Source: Deploy from a branch → `main` / root**.
-Live at `abhim2706.github.io/abhinav-site` within a minute.
+Live at `abhim2706.github.io` within a minute.
 
 ### Option C — Netlify drop
 
@@ -102,7 +102,7 @@ If the registrar is Cloudflare, leave the record on **DNS only** (grey cloud)
 until GitHub has issued the certificate. Then run, from this folder:
 
 ```bash
-gh api -X PUT repos/abhiM2706/abhinav-site/pages -f cname=abhinav.malv.dev
+gh api -X PUT repos/abhiM2706/abhiM2706.github.io/pages -f cname=abhinav.malv.dev
 ```
 
 GitHub writes a `CNAME` file into the repo, verifies the record, and issues a
@@ -110,10 +110,10 @@ Let's Encrypt certificate within about an hour. Once `https://abhinav.malv.dev`
 loads, enforce HTTPS:
 
 ```bash
-gh api -X PUT repos/abhiM2706/abhinav-site/pages -F https_enforced=true
+gh api -X PUT repos/abhiM2706/abhiM2706.github.io/pages -F https_enforced=true
 ```
 
-The old `abhim2706.github.io/abhinav-site/` address keeps working and
+The old `abhim2706.github.io/` address keeps working and
 redirects to the new domain.
 
 ## Step 3 — Point the domain at the host
