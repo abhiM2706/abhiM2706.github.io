@@ -2501,7 +2501,7 @@ body.reeling { overflow: hidden; }
         st.hit = st.now;
         st.perfect = Math.abs(this.pos(st.now) - .5) < .075;
       },
-      auto: function (sec, st) { if (st.hit < 0 && sec > .6 && Math.abs(this.pos(sec) - .5) < .03) this.key({ key: " " }, st); },
+      auto: function (sec, st) { if (st.hit < 0 && sec > 1.15) { st.hit = sec; st.perfect = true; } },
       tick: function (sec, st) {
         // the toss: hand up, ball released and floating at its peak until the
         // swing; the marker sweeps while you wait
@@ -2613,7 +2613,7 @@ body.reeling { overflow: hidden; }
       act.tick(sec, st);
       var m = st.mood || act.mood;
       if (moodName !== m) setMood(m);
-      khint.textContent = act.hint + (st.extra ? "  ·  " + st.extra : "");
+      khint.textContent = touch ? (st.extra || "") : act.hint + (st.extra ? "  ·  " + st.extra : "");
       if (act.idle && !touch && sec - st.lastKey > act.idle) st.finish();
       if (st.done) finishAct(st.done.line, st.done.mood);
     }, null, true);
