@@ -115,6 +115,31 @@ body {
 }
 #quip.on { opacity: 1; transform: none; }
 
+/* ---------- the full look, shown while the head is hovered ---------- */
+#look {
+  position: fixed; z-index: 49;
+  top: calc(128px + env(safe-area-inset-top, 0px));
+  left: max(18px, env(safe-area-inset-left, 0px));
+  width: 244px;
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  pointer-events: none;
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity .22s ease, transform .22s ease;
+  box-shadow: 0 16px 36px -20px rgba(0,0,0,.4);
+}
+#look.on { opacity: 1; transform: none; }
+#look svg { width: 86px; height: 215px; flex: none; display: block; overflow: visible; }
+#look dl { margin: 0; font-family: var(--mono); font-size: 10.5px; line-height: 1.35; min-width: 0; }
+#look dt { color: var(--accent); letter-spacing: .08em; text-transform: uppercase; font-size: 9px; margin-top: 7px; }
+#look dt:first-child { margin-top: 0; }
+#look dd { margin: 1px 0 0; color: var(--ink); }
+#look .tip { color: var(--muted); margin-top: 10px; font-size: 10px; }
+@media (max-width: 860px) { #look { display: none; } }
+
 @media (max-width: 860px) {
   #face svg { width: 72px; height: 72px; }
   #quip { display: none; }
@@ -241,6 +266,20 @@ h2 {
 }
 .repo::after { content: "&rarr;"; transition: transform .22s ease; }
 .card:hover .repo::after { transform: translateX(3px); }
+
+/* ---------- hobbies ---------- */
+.hobbies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 560px) { .hobbies { grid-template-columns: 1fr; } }
+.hobby {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 18px 16px; min-width: 0;
+  transition: transform .22s cubic-bezier(.2,.8,.3,1), border-color .22s ease;
+}
+.hobby:hover { transform: translateY(-3px); border-color: var(--warm); }
+.hobby svg { width: 44px; height: 44px; flex: none; }
+.hobby h3 { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0 4px; letter-spacing: -.01em; }
+.hobby p { margin: 0; font-size: .9rem; color: var(--muted); }
 
 /* ---------- contact ---------- */
 .links { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -572,8 +611,17 @@ body.reeling { overflow: hidden; }
       <path id="mouth" d="" fill="var(--hair)" stroke="var(--hair)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
       <g id="acc"></g>
     </g>
+    <!-- a pointing arm, raised from the right shoulder toward whatever the
+         cursor is on. Filled in by rollFit() so the sleeve matches the fit. -->
+    <g id="arm" opacity="0" pointer-events="none"></g>
   </svg>
   <div id="quip"></div>
+</div>
+<div id="look" aria-hidden="true">
+  <!-- the figure borrows the live head and bust with <use>, so it blinks,
+       looks around and wears the same pieces; the rest is drawn by renderLook() -->
+  <svg viewBox="0 0 120 290" xmlns="http://www.w3.org/2000/svg"><g id="figure"></g></svg>
+  <dl id="lookList"></dl>
 </div>
 
 <nav id="views" aria-label="View">
@@ -874,7 +922,7 @@ body.reeling { overflow: hidden; }
   <section>
     <h2>Work</h2>
 
-    <div class="job">
+    <div class="job" data-mood="curious" data-say="what I'm doing right now|30,000 slides, one microscope|launches in November">
       <div class="when">Sep 2026 &mdash;<br>present</div>
       <div class="job-main">
         <p class="role">Machine Learning Intern</p>
@@ -888,7 +936,7 @@ body.reeling { overflow: hidden; }
       </div>
     </div>
 
-    <div class="job">
+    <div class="job" data-mood="proud" data-say="PromptNite lives here|27% fewer tokens|an Atlanta summer">
       <div class="when">Jun 2026 &mdash;<br>Aug 2026</div>
       <div class="job-main">
         <p class="role">Software Engineer Intern</p>
@@ -901,7 +949,7 @@ body.reeling { overflow: hidden; }
       </div>
     </div>
 
-    <div class="job">
+    <div class="job" data-mood="think" data-say="the research one|fault tolerance is hard|still going">
       <div class="when">Sep 2024 &mdash;<br>present</div>
       <div class="job-main">
         <p class="role">Undergraduate Student Researcher</p>
@@ -914,7 +962,7 @@ body.reeling { overflow: hidden; }
       </div>
     </div>
 
-    <div class="job">
+    <div class="job" data-mood="delight" data-say="50k people use this|three engineers, one copilot|45% to 80% coverage">
       <div class="when">May 2025 &mdash;<br>Apr 2026</div>
       <div class="job-main">
         <p class="role">Software Engineer Intern</p>
@@ -927,7 +975,7 @@ body.reeling { overflow: hidden; }
       </div>
     </div>
 
-    <div class="job">
+    <div class="job" data-mood="wink" data-say="my first real product|20 Berkeley users, by hand|resale is a theme with me">
       <div class="when">Nov 2024 &mdash;<br>Mar 2026</div>
       <div class="job-main">
         <p class="role">Founder &amp; Developer</p>
@@ -945,33 +993,87 @@ body.reeling { overflow: hidden; }
     <h2>Projects</h2>
     <div class="projects">
 
-      <a class="card" data-mood="curious" href="https://github.com/abhiM2706/culprit" target="_blank" rel="noopener">
+      <a class="card" data-mood="curious" data-say="eight questions, usually fewer|entropy does the hard part|validated on 1,470 HR records" href="https://github.com/abhiM2706/culprit" target="_blank" rel="noopener">
         <div class="card-top"><h3>culpr.it</h3><span class="yr">Jun &mdash; Sep 2026</span></div>
         <p>An adaptive, elimination-style diagnostic engine that narrows workplace and engineering root causes across <b>14 taxonomy categories</b>. Entropy-based next-question selection and normalized belief-weight updates converge in <b>&le; 8 questions</b>. Taxonomy grounded in JD-R, Herzberg, and the Maslach Burnout Inventory, then validated on the IBM HR Attrition dataset (1,470 records) &mdash; overtime and workload came out the strongest predictor. Repo-aware mode pulls local git signals to set diagnostic priors.</p>
         <div class="tags"><span class="tag">Python</span><span class="tag">scikit-learn</span><span class="tag">information gain</span><span class="tag">Bayesian updates</span></div>
         <span class="repo">abhiM2706/culprit</span>
       </a>
 
-      <a class="card" data-mood="delight" href="https://github.com/abhiM2706/vibeforge" target="_blank" rel="noopener">
+      <a class="card" data-mood="delight" data-say="every card actually runs|TikTok for side projects|the reels tab here is a nod to it" href="https://github.com/abhiM2706/vibeforge" target="_blank" rel="noopener">
         <div class="card-top"><h3>VibeForge</h3><span class="yr">Jan &mdash; Apr 2026</span></div>
         <p>A TikTok-style social platform for sharing interactive web projects, where every card is a <b>live sandboxed iframe</b> rather than a screenshot. React 18 / Vite frontend with a vertical scroll-snap feed (CSP-hardened); Node/Express + SQLite backend with JWT auth. The upload pipeline runs Claude Sonnet 4.5 over your source to auto-generate an animated showcase reel, with a 12s timeout and graceful fallback, pre-computed reels for zero-latency loads, and a secrets scanner on every upload.</p>
         <div class="tags"><span class="tag">TypeScript</span><span class="tag">React</span><span class="tag">AWS Bedrock</span><span class="tag">sandboxing</span></div>
         <span class="repo">abhiM2706/vibeforge</span>
       </a>
 
-      <a class="card" data-mood="proud" href="https://github.com/abhiM2706/roadmap" target="_blank" rel="noopener">
+      <a class="card" data-mood="proud" data-say="setup you actually finish|XP for installing things|the recovery pass is the clever bit" href="https://github.com/abhiM2706/roadmap" target="_blank" rel="noopener">
         <div class="card-top"><h3>Roadmap</h3><span class="yr">2026</span></div>
         <p>A VS Code / Cursor extension that turns multi-step dev environment setup into something you&rsquo;d actually finish. Pick a curated roadmap or generate one with Claude via Bedrock, then watch it run step by step in your integrated terminal &mdash; earning <b>XP, badges, and streaks</b> on the way. When a step fails, an agentic recovery pass diagnoses and fixes it.</p>
         <div class="tags"><span class="tag">TypeScript</span><span class="tag">VS Code API</span><span class="tag">Bedrock</span><span class="tag">esbuild</span></div>
         <span class="repo">abhiM2706/roadmap</span>
       </a>
 
-      <a class="card" data-mood="think" href="https://github.com/abhiM2706/AlfWorldBot" target="_blank" rel="noopener">
+      <a class="card" data-mood="think" data-say="35% to 70%, mostly prompting|the eval harness was the real work|twenty strategies, six task types" href="https://github.com/abhiM2706/AlfWorldBot" target="_blank" rel="noopener">
         <div class="card-top"><h3>AlfWorld Game Bot</h3><span class="yr">May &mdash; Jul 2024</span></div>
         <p>An agentic LLM system solving text-based puzzle environments through tool-calling, low-level action planning, and reasoning prompts. The eval harness benchmarked <b>20+ prompt strategies across 6 task types</b>, reaching a <b>70% task success rate</b> against a 35% naive baseline on a 1,500-token average response budget.</p>
         <div class="tags"><span class="tag">Python</span><span class="tag">GPT-4</span><span class="tag">eval harness</span><span class="tag">agents</span></div>
         <span class="repo">abhiM2706/AlfWorldBot</span>
       </a>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Off the clock</h2>
+    <div class="hobbies">
+
+      <div class="hobby" data-mood="delight" data-say="the oldest hobby|yes, I still practise|ask me to play something">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M8 38 L36 10" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M24 5 v9" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M19 14 q-7 2 -6 9 q1 5 6 6 q-3 5 2 9 h6 q5 -4 2 -9 q5 -1 6 -6 q1 -7 -6 -9 z" fill="var(--warm)"/>
+          <path d="M20 22 q-1 3 1 5 M28 22 q1 3 -1 5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <path d="M24 14 v22" stroke="var(--ink)" stroke-width="1" opacity=".55"/>
+        </svg>
+        <div><h3>Violin</h3><p>Played since before I could code. Still the best way to reset after a long debugging session.</p></div>
+      </div>
+
+      <div class="hobby" data-mood="yay" data-say="I take requests|the transitions are the fun part|house, mostly">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="3" y="12" width="38" height="22" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+          <circle cx="13" cy="23" r="7" fill="var(--accent)"/><circle cx="13" cy="23" r="2" fill="var(--surface)"/>
+          <circle cx="31" cy="23" r="7" fill="var(--accent)"/><circle cx="31" cy="23" r="2" fill="var(--surface)"/>
+          <path d="M22 17 v12 M20 25 h4" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M6 40 q4 -5 8 0 t8 0 t8 0 t8 0" fill="none" stroke="var(--warm)" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p></div>
+      </div>
+
+      <div class="hobby" data-mood="think" data-say="graph problems are the best problems|moo|where the DP habit comes from">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M11 14 q-6 -7 -1 -10 M33 14 q6 -7 1 -10" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <ellipse cx="22" cy="22" rx="13" ry="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>
+          <ellipse cx="7" cy="19" rx="4" ry="2.5" fill="var(--skin)"/><ellipse cx="37" cy="19" rx="4" ry="2.5" fill="var(--skin)"/>
+          <path d="M11 22 q3 -8 9 -5 q-4 4 -9 5 z M30 14 q6 2 4 8 q-5 -2 -4 -8 z" fill="var(--ink)"/>
+          <ellipse cx="22" cy="29" rx="7.5" ry="4.5" fill="var(--skin)"/>
+          <circle cx="19" cy="29" r="1.1" fill="var(--ink)"/><circle cx="25" cy="29" r="1.1" fill="var(--ink)"/>
+          <circle cx="17" cy="20" r="1.4" fill="var(--ink)"/><circle cx="27" cy="20" r="1.4" fill="var(--ink)"/>
+          <text x="22" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)">&lt;/&gt;</text>
+        </svg>
+        <div><h3>USACO</h3><p>Competitive programming. Graphs and dynamic programming are where I'm happiest; the cow is Bessie.</p></div>
+      </div>
+
+      <div class="hobby" data-mood="aim" data-say="singles, usually|the wall never misses|the serve is a work in progress">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <ellipse cx="17" cy="16" rx="10" ry="12" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M11 10 h12 M9 16 h16 M11 22 h12 M14 6 v20 M20 6 v20" stroke="var(--ink)" stroke-width=".8" opacity=".5"/>
+          <path d="M24 26 l12 13" stroke="var(--ink)" stroke-width="3.2" stroke-linecap="round"/>
+          <circle cx="35" cy="11" r="4.5" fill="var(--warm)"/>
+          <path d="M31.5 9 q3.5 2 7 0 M31.5 13 q3.5 -2 7 0" fill="none" stroke="var(--surface)" stroke-width="1"/>
+        </svg>
+        <div><h3>Tennis</h3><p>Singles when I can find a partner, the wall when I can't. Working on the serve.</p></div>
+      </div>
 
     </div>
   </section>
@@ -1011,19 +1113,20 @@ body.reeling { overflow: hidden; }
 
   // Expression presets. Every field is a target the rig eases toward, so any
   // two expressions blend without needing explicit transitions between them.
+  // `quips` is a pool; one line is drawn at random each time the mood lands.
   var MOODS = {
-    idle:    { lid:1,    browY:0,    browTilt:0,   curve:.30, open:0,   width:1,   skew:0,  blush:0,   tilt:1,  quip:"" },
-    curious: { lid:1.14, browY:-4.5, browTilt:-11, curve:.22, open:.18, width:.9,  skew:0,  blush:0,   tilt:7,  quip:"ooh, that one" },
-    think:   { lid:.72,  browY:-1.5, browTilt:13,  curve:-.1, open:0,   width:.72, skew:.5, blush:0,   tilt:-5, quip:"hm, let me think" },
-    delight: { lid:.62,  browY:-5.5, browTilt:-14, curve:1,   open:.52, width:1.18,skew:0,  blush:.5,  tilt:3,  quip:"this one was fun" },
-    proud:   { lid:.9,   browY:-3.5, browTilt:-8,  curve:.72, open:.1,  width:1.02,skew:.35,blush:.25, tilt:-4, quip:"pretty happy with it" },
-    aim:     { lid:.78,  browY:-2.5, browTilt:9,   curve:.05, open:0,   width:.66, skew:.7, blush:0,   tilt:2,  quip:"go on, click it" },
-    brace:   { lid:.14,  browY:3.5,  browTilt:17,  curve:-.3, open:.3,  width:.62, skew:0,  blush:.15, tilt:0,  quip:"" },
-    yay:     { lid:.42,  browY:-6,   browTilt:-16, curve:1.25,open:.7,  width:1.26,skew:0,  blush:.7,  tilt:0,  quip:"nice" },
-    startle: { lid:1.42, browY:-6,   browTilt:-7,  curve:-.1, open:.62, width:.8,  skew:0,  blush:.1,  tilt:0,  quip:"whoa" },
-    wink:    { lid:1,    browY:-3.5, browTilt:-9,  curve:.85, open:.2,  width:1.08,skew:.6, blush:.4,  tilt:5,  quip:"drop me a line", winkR:true },
-    bored:   { lid:.52,  browY:2.5,  browTilt:6,   curve:-.28,open:0,   width:.86, skew:.4, blush:0,   tilt:-7, quip:"still here..." },
-    away:    { lid:.86,  browY:-2.5, browTilt:-4,  curve:-.05,open:.1,  width:.8,  skew:0,  blush:0,   tilt:0,  quip:"where'd you go?" }
+    idle:    { lid:1,    browY:0,    browTilt:0,   curve:.30, open:0,   width:1,   skew:0,  blush:0,   tilt:1,  quips:[] },
+    curious: { lid:1.14, browY:-4.5, browTilt:-11, curve:.22, open:.18, width:.9,  skew:0,  blush:0,   tilt:7,  quips:["ooh, that one", "wait, look at this one", "this one has a story", "go on, open it"] },
+    think:   { lid:.72,  browY:-1.5, browTilt:13,  curve:-.1, open:0,   width:.72, skew:.5, blush:0,   tilt:-5, quips:["hm, let me think", "this took a few tries", "the tricky one", "ask me about this later"] },
+    delight: { lid:.62,  browY:-5.5, browTilt:-14, curve:1,   open:.52, width:1.18,skew:0,  blush:.5,  tilt:3,  quips:["this one was fun", "oh I love this one", "weekend well spent", "my favourite, honestly"] },
+    proud:   { lid:.9,   browY:-3.5, browTilt:-8,  curve:.72, open:.1,  width:1.02,skew:.35,blush:.25, tilt:-4, quips:["pretty happy with it", "took a while, worth it", "this one shipped", "not bad, right?"] },
+    aim:     { lid:.78,  browY:-2.5, browTilt:9,   curve:.05, open:0,   width:.66, skew:.7, blush:0,   tilt:2,  quips:["go on, click it", "that's a link", "it won't bite", "yes, that one"] },
+    brace:   { lid:.14,  browY:3.5,  browTilt:17,  curve:-.3, open:.3,  width:.62, skew:0,  blush:.15, tilt:0,  quips:[] },
+    yay:     { lid:.42,  browY:-6,   browTilt:-16, curve:1.25,open:.7,  width:1.26,skew:0,  blush:.7,  tilt:0,  quips:["nice", "yes!", "there we go", "let's go"] },
+    startle: { lid:1.42, browY:-6,   browTilt:-7,  curve:-.1, open:.62, width:.8,  skew:0,  blush:.1,  tilt:0,  quips:["whoa", "easy!", "slow down", "where's the fire?"] },
+    wink:    { lid:1,    browY:-3.5, browTilt:-9,  curve:.85, open:.2,  width:1.08,skew:.6, blush:.4,  tilt:5,  quips:["drop me a line", "say hi", "inbox is open", "I actually reply"], winkR:true },
+    bored:   { lid:.52,  browY:2.5,  browTilt:6,   curve:-.28,open:0,   width:.86, skew:.4, blush:0,   tilt:-7, quips:["still here...", "take your time", "scroll down, there's more", "hello?"] },
+    away:    { lid:.86,  browY:-2.5, browTilt:-4,  curve:-.05,open:.1,  width:.8,  skew:0,  blush:0,   tilt:0,  quips:["where'd you go?", "come back", "I'll wait", "bye for now"] }
   };
 
 
@@ -1343,112 +1446,245 @@ body.reeling { overflow: hidden; }
     { name: "90s Nike center swoosh pullover windbreaker", kind: "jacket", draw: tpl("quarter zip", { main: "#1F3357", alt: "#152542", trim: "#F2F2F2" }, ["swoosh", "#F2F2F2"]) }
   ];
 
-  var SHORTS = [
-    "Nike Y2K baggy basketball shorts", "Umbro athletic shorts", "Y2K blue capri sweat shorts",
-    "plaid skater cargo shorts", "black baggy fleece sweat shorts", "camo fleece sweat shorts",
-    "Eric Emanuel shorts", "Eric Emanuel x UNC mesh shorts"
-  ];
+  // ---------------------------------------------------------------------
+  // The closet, one list per slot. rollFit() takes one of each: a shirt, a
+  // pair of pants, shoes, something for the head (or nothing) and glasses.
+  // Shirts are the Depop tops above (3 in 4) or the drawn wardrobe in a
+  // random colourway; the rest carry a colour so the full-body figure in
+  // the lookbook can wear them.
+  // ---------------------------------------------------------------------
   var PANTS = [
-    "Lithic baggy sweats", "navy baggy raw denim", "JNCO PJ Mark wide-leg jeans", "Nike brown baggy track pants",
-    "00s Nike grey sweatpants", "90s Nike striped windbreaker pants", "leopard-waist raw denim", "blue-wash baggy jeans",
-    "black fleece sweats", "Y2K Nike black fleece sweatpants", "Russell grey baggy sweatpants",
-    "Nike Michigan-colour track sweatpants", "Nike navy & white track pants", "Adidas baggy sweatpants"
+    { name: "Nike Y2K baggy basketball shorts", kind: "shorts", col: "#1F3357", trim: "#F2F2F2" },
+    { name: "Umbro athletic shorts", kind: "shorts", col: "#141416", trim: "#F2F2F2" },
+    { name: "Y2K blue capri sweat shorts", kind: "shorts", col: "#4C6288", capri: true },
+    { name: "plaid skater cargo shorts", kind: "shorts", col: "#6B5B45", plaid: "#3A3028" },
+    { name: "black baggy fleece sweat shorts", kind: "shorts", col: "#202024" },
+    { name: "camo fleece sweat shorts", kind: "shorts", col: "#5F6B3C", camo: "#3E4A28" },
+    { name: "Eric Emanuel shorts", kind: "shorts", col: "#C8384A", trim: "#F2F2F2" },
+    { name: "Eric Emanuel x UNC mesh shorts", kind: "shorts", col: "#7BAFD4", trim: "#F2F2F2" },
+    { name: "Lithic baggy sweats", kind: "sweats", col: "#8A8E96" },
+    { name: "navy baggy raw denim", kind: "jeans", col: "#1C2A4A" },
+    { name: "JNCO PJ Mark wide-leg jeans", kind: "jeans", col: "#3B5A8C", wide: true },
+    { name: "Nike brown baggy track pants", kind: "track", col: "#5A3B2A", trim: "#EADFC8" },
+    { name: "00s Nike grey sweatpants", kind: "sweats", col: "#9A9DA3" },
+    { name: "90s Nike striped windbreaker pants", kind: "track", col: "#1F3357", trim: "#C8384A" },
+    { name: "leopard-waist raw denim", kind: "jeans", col: "#232C44", waist: "#C9915F" },
+    { name: "blue-wash baggy jeans", kind: "jeans", col: "#6E8FBF", wide: true },
+    { name: "black fleece sweats", kind: "sweats", col: "#202024" },
+    { name: "Y2K Nike black fleece sweatpants", kind: "sweats", col: "#1A1A1E" },
+    { name: "Russell grey baggy sweatpants", kind: "sweats", col: "#A2A5AB" },
+    { name: "Nike Michigan-colour track sweatpants", kind: "track", col: "#00274C", trim: "#FFCB05" },
+    { name: "Nike navy & white track pants", kind: "track", col: "#1F3357", trim: "#F2F2F2" },
+    { name: "Adidas baggy sweatpants", kind: "sweats", col: "#141416", trim: "#F2F2F2", three: true }
   ];
   var SHOES = [
-    "NB 9060 white/cream", "pink ASICS", "suede NB 2002R", "Nike Air Max 95 white/grey", "Nike Air Max 97 white",
-    "Adidas Wales Bonner", "Timberland suede boots", "Timberland blue-panel suede boots", "Timberland boat shoes"
+    { name: "NB 9060 white/cream", col: "#EFE9DC", sole: "#D5CCB8" },
+    { name: "pink ASICS", col: "#E8A0B4", sole: "#F2EDE3" },
+    { name: "suede NB 2002R", col: "#8C7B6B", sole: "#EFE9DC" },
+    { name: "Nike Air Max 95 white/grey", col: "#E6E6E6", sole: "#9A9DA3" },
+    { name: "Nike Air Max 97 white", col: "#F2F2F2", sole: "#D9D9D9" },
+    { name: "Adidas Wales Bonner", col: "#5A3B2A", sole: "#EADFC8" },
+    { name: "Timberland suede boots", col: "#C9915F", sole: "#3A2F2A", boot: true },
+    { name: "Timberland blue-panel suede boots", col: "#8C7B6B", sole: "#1F3357", boot: true },
+    { name: "Timberland boat shoes", col: "#6B4A2E", sole: "#EFE9DC" }
   ];
-  var SHADES = [
-    { name: "Ray-Bans", col: "#1A1A1E", w: 2.4 },
-    { name: "Y2K tortoiseshell shades", col: "#7A4A24", w: 2.4 },
-    { name: "Bru Flossie shades", col: "#1A1A1E", w: 2.4, lens: "#6C3FA8" }
+  // Caps are the one slot not from the purchase history: swap in the real ones.
+  var CAPS = [
+    { name: "Cal fitted, navy", col: "#003262", trim: "#FDB515" },
+    { name: "Yankees fitted", col: "#1F3357", trim: "#F2F2F2" },
+    { name: "Nike dad cap, black", col: "#141416", trim: "#F2F2F2" },
+    { name: "Carhartt cap, brown", col: "#5A3B2A", trim: "#EADFC8" },
+    { name: "Polo RL cap, cream", col: "#EFE9DC", trim: "#1F3357" },
+    { name: "trucker cap, forest", col: "#1F4D3A", trim: "#F2EDE3" }
   ];
-
-  function closetOutfit() {
-    var top = pick(TOPS);
-    var warm = top.kind === "hood" || top.kind === "jacket" || top.kind === "sweat";
-    var bottom = pick(Math.random() < (warm ? 0.75 : 0.4) ? PANTS : SHORTS);
-    return { top: top, bottom: bottom, shoes: pick(SHOES), warm: warm };
-  }
-
-  var FRAMES = [
-    { name: "wire frames",     col: "#5B5B6B", w: 1.8 },
-    { name: "black frames",    col: "#22222C", w: 2.4 },
+  var BEANIES = [
+    { name: "Dum Dums cream soda beanie", col: "#EADFC8", band: "#8B5A3C", badge: "#F2C230" },
+    { name: "black Carhartt beanie", col: "#1A1A1E", band: "#111114", badge: "#C06C4A" },
+    { name: "navy fisherman beanie", col: "#1F3357", band: "#152542" },
+    { name: "oat ribbed beanie", col: "#DDD4C4", band: "#C3B7A3" },
+    { name: "forest beanie", col: "#2F5248", band: "#244038" },
+    { name: "cherry beanie", col: "#C8384A", band: "#A32A3A" }
+  ];
+  var GLASSES = [
+    { name: "Ray-Bans", col: "#1A1A1E", w: 2.4, lens: "#1A1A1E", tint: .72 },
+    { name: "Y2K tortoiseshell shades", col: "#7A4A24", w: 2.4, lens: "#1A1A1E", tint: .72 },
+    { name: "Bru Flossie shades", col: "#1A1A1E", w: 2.4, lens: "#6C3FA8", tint: .55 },
+    { name: "wire frames", col: "#5B5B6B", w: 1.8 },
+    { name: "black frames", col: "#22222C", w: 2.4 },
     { name: "tortoise frames", col: "#7A4A24", w: 2.6 }
   ];
+  // Garments with short sleeves, for the figure. Everything else is long.
+  var SHORT_SLEEVE = /^(boxy tee|polo|breton stripe|camp collar|puffer vest)$/;
 
   function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 
+  // --- pieces drawn on the bust ---
+  function drawGlasses(g) {
+    var lens = g.lens ? '<g fill="' + g.lens + '" opacity="' + g.tint + '"><rect x="31" y="51" width="26" height="20" rx="7"/><rect x="63" y="51" width="26" height="20" rx="7"/></g>' : '';
+    return lens + '<g fill="none" stroke="' + g.col + '" stroke-width="' + g.w + '" opacity=".93">' +
+      '<rect x="31" y="51" width="26" height="20" rx="7"/><rect x="63" y="51" width="26" height="20" rx="7"/>' +
+      '<path d="M57 59 h6"/><path d="M31 57 l-7 2"/><path d="M89 57 l7 2"/></g>';
+  }
+  function drawBeanie(b) {
+    return '<path d="M23 39 q1 -31 37 -31 t37 31 Z" fill="' + b.col + '"/>' +
+      '<rect x="22" y="28" width="76" height="11" rx="5" fill="' + b.band + '"/>' +
+      (b.badge ? '<rect x="48" y="30" width="24" height="7" rx="2" fill="' + b.badge + '" opacity=".9"/>' : '');
+  }
+  // Crown sits where a beanie would; the brim swings out past the right ear
+  // and stays above y=41, clear of the brows at rest.
+  function drawCap(c) {
+    return '<path d="M24 38 q0 -29 36 -29 t36 29 Z" fill="' + c.col + '"/>' +
+      '<path d="M60 34 H96 Q114 35 116 39.5 Q113 41.5 96 40.5 H60 Z" fill="' + c.col + '"/>' +
+      '<path d="M60 34 H96 Q114 35 116 39.5 Q113 41.5 96 40.5 H60 Z" fill="#000" opacity=".18"/>' +
+      '<path d="M24 38 q0 -29 36 -29 t36 29" fill="none" stroke="#000" stroke-width="1" opacity=".12"/>' +
+      '<circle cx="60" cy="9.5" r="2" fill="' + c.trim + '"/>' +
+      '<path d="M53 24 h14" stroke="' + c.trim + '" stroke-width="3" stroke-linecap="round"/>';
+  }
+  function drawPhones(h) {
+    return '<path d="M24 54 q0 -40 36 -40 t36 40" fill="none" stroke="' + h.band + '" stroke-width="5" stroke-linecap="round"/>' +
+      '<rect x="15" y="52" width="14" height="21" rx="6.5" fill="' + h.col + '"/>' +
+      '<rect x="91" y="52" width="14" height="21" rx="6.5" fill="' + h.col + '"/>';
+  }
+  function drawScarf(w) {
+    return '<path d="M44 101 q16 12 32 0 q3 8 -1 13 q-15 8 -30 0 q-4 -5 -1 -13 Z" fill="' + w.main + '"/>' +
+      '<path d="M66 113 q7 4 6 10 l-8 -1 q1 -5 -2 -8 Z" fill="' + w.alt + '"/>';
+  }
+  var CHAIN = '<path d="M51 99 q9 10 18 0" fill="none" stroke="#D8B45E" stroke-width="1.7"/><circle cx="60" cy="106.5" r="1.9" fill="#D8B45E"/>';
+  var HOOP  = '<circle cx="98" cy="68" r="2.4" fill="#D8B45E"/>';
+
+  // The shirt's main colour is the fill of its first path (the shoulders).
+  function colourOf(html) {
+    var m = /fill="(#[0-9a-fA-F]{3,6})"/.exec(html);
+    return m ? m[1] : "#4A4E57";
+  }
+
+  var fit = null;          // the current look, one piece per slot
   var fitLabel = "";
+  var HEAD_LINES = ["fit check", "today's fit", "tap for another", "mostly from the closet", "one of a few hundred"];
 
   function rollFit() {
-    var acc = pick(WAYS);
-    var parts, hooded = false;
-    var onFace = "", onBody = "";
-
-    // Most rolls come from the real closet; the rest from the drawn wardrobe.
-    var fromCloset = Math.random() < 0.75;
-    if (fromCloset) {
-      var o = closetOutfit();
-      document.getElementById("outfit").innerHTML = o.top.draw();
-      parts = [o.top.name, o.bottom, o.shoes];
+    var way = pick(WAYS);
+    var shirt, over = "";
+    if (Math.random() < 0.75) {
+      var t = pick(TOPS);
+      shirt = { name: t.name, kind: t.kind, html: t.draw(), sleeves: t.kind === "tee" ? "short" : "long" };
     } else {
-      var fit = pick(FITS), way = pick(WAYS);
-      document.getElementById("outfit").innerHTML = fit.draw(way);
-      parts = [fit.name + " in " + way.name];
-      // A raised hood frames the face, so it goes on before anything else and
-      // rules out anything else worn on the head.
-      hooded = !!fit.over;
-      if (hooded) onFace += fit.over(way);
+      var f = pick(FITS);
+      shirt = { name: f.name + " in " + way.name, kind: f.over ? "hood" : "drawn", html: f.draw(way),
+                sleeves: SHORT_SLEEVE.test(f.name) ? "short" : "long" };
+      if (f.over) over = f.over(way);
     }
+    var warm = /hood|jacket|sweat/.test(shirt.kind);
+    var wantShorts = Math.random() < (warm ? 0.25 : 0.6);
+    var pants = pick(PANTS.filter(function (p) { return (p.kind === "shorts") === wantShorts; }));
 
-    if (!hooded && fromCloset && Math.random() < 0.18) {
-      onFace += '<path d="M23 39 q1 -31 37 -31 t37 31 Z" fill="#EADFC8"/>' +
-                '<rect x="22" y="28" width="76" height="11" rx="5" fill="#8B5A3C"/>' +
-                '<rect x="48" y="30" width="24" height="7" rx="2" fill="#F2C230" opacity=".9"/>';
-      parts.push("Dum Dums cream soda beanie");
-    } else if (!hooded && !fromCloset && Math.random() < 0.17) {
-      onFace += '<path d="M23 39 q1 -31 37 -31 t37 31 Z" fill="' + acc.main + '"/>' +
-                '<rect x="22" y="28" width="76" height="11" rx="5" fill="' + acc.alt + '"/>';
-      parts.push(acc.name + " beanie");
-    } else if (!hooded && Math.random() < 0.14) {
-      onFace += '<path d="M24 54 q0 -40 36 -40 t36 40" fill="none" stroke="' + acc.alt +
-                '" stroke-width="5" stroke-linecap="round"/>' +
-                '<rect x="15" y="52" width="14" height="21" rx="6.5" fill="' + acc.main + '"/>' +
-                '<rect x="91" y="52" width="14" height="21" rx="6.5" fill="' + acc.main + '"/>';
-      parts.push("headphones");
-    }
+    // one thing on the head at most; a raised hood takes the slot
+    var hat = null, r = Math.random();
+    if (over)        hat = { name: "hood up", kind: "hood", html: over };
+    else if (r < .18) hat = Object.assign({ kind: "cap" }, pick(CAPS));
+    else if (r < .36) hat = Object.assign({ kind: "beanie" }, pick(BEANIES));
+    else if (r < .48) hat = { name: "headphones", kind: "phones", col: way.main, band: way.alt };
 
-    if (Math.random() < 0.4) {
-      var f = fromCloset ? pick(SHADES) : pick(FRAMES);
-      var lens = f.lens ? '<g fill="' + f.lens + '" opacity=".55"><rect x="31" y="51" width="26" height="20" rx="7"/><rect x="63" y="51" width="26" height="20" rx="7"/></g>'
-                        : (fromCloset ? '<g fill="#1A1A1E" opacity=".72"><rect x="31" y="51" width="26" height="20" rx="7"/><rect x="63" y="51" width="26" height="20" rx="7"/></g>' : '');
-      onFace += lens +
-        '<g fill="none" stroke="' + f.col + '" stroke-width="' + f.w + '" opacity=".93">' +
-        '<rect x="31" y="51" width="26" height="20" rx="7"/>' +
-        '<rect x="63" y="51" width="26" height="20" rx="7"/>' +
-        '<path d="M57 59 h6"/><path d="M31 57 l-7 2"/><path d="M89 57 l7 2"/></g>';
-      parts.push(f.name);
-    }
-    if (!hooded && Math.random() < 0.28) {
-      onFace += '<circle cx="98" cy="68" r="2.4" fill="#D8B45E"/>';
-      parts.push("gold hoop");
-    }
+    var extras = [];
+    if (!over && Math.random() < .28) extras.push("gold hoop");
+    if (Math.random() < .16) extras.push(way.name + " scarf");
+    else if (Math.random() < .3) extras.push("chain");
 
-    if (Math.random() < 0.16) {
-      onBody += '<path d="M44 101 q16 12 32 0 q3 8 -1 13 q-15 8 -30 0 q-4 -5 -1 -13 Z" fill="' + acc.main + '"/>' +
-                '<path d="M66 113 q7 4 6 10 l-8 -1 q1 -5 -2 -8 Z" fill="' + acc.alt + '"/>';
-      parts.push(acc.name + " scarf");
-    } else if (Math.random() < 0.3) {
-      onBody += '<path d="M51 99 q9 10 18 0" fill="none" stroke="#D8B45E" stroke-width="1.7"/>' +
-                '<circle cx="60" cy="106.5" r="1.9" fill="#D8B45E"/>';
-      parts.push("chain");
-    }
+    fit = { shirt: shirt, pants: pants, shoes: pick(SHOES), hat: hat,
+            glasses: Math.random() < .4 ? pick(GLASSES) : null,
+            extras: extras, way: way, col: colourOf(shirt.html) };
+    dress();
+    return fitLabel;
+  }
 
+  // Put the current fit on the bust, the arm and the figure.
+  function dress() {
+    var onFace = "", onBody = "";
+    document.getElementById("outfit").innerHTML = fit.shirt.html;
+    if (fit.hat) {
+      if (fit.hat.kind === "hood")        onFace += fit.hat.html;
+      else if (fit.hat.kind === "cap")    onFace += drawCap(fit.hat);
+      else if (fit.hat.kind === "beanie") onFace += drawBeanie(fit.hat);
+      else                                onFace += drawPhones(fit.hat);
+    }
+    if (fit.glasses) onFace += drawGlasses(fit.glasses);
+    if (fit.extras.indexOf("gold hoop") >= 0) onFace += HOOP;
+    if (fit.extras.some(function (e) { return /scarf$/.test(e); })) onBody += drawScarf(fit.way);
+    else if (fit.extras.indexOf("chain") >= 0) onBody += CHAIN;
     document.getElementById("acc").innerHTML = onFace;
     document.getElementById("accBody").innerHTML = onBody;
-    fitLabel = parts.join(", ");
-    return fitLabel;
+
+    var parts = [fit.shirt.name, fit.pants.name, fit.shoes.name];
+    if (fit.hat) parts.push(fit.hat.name);
+    if (fit.glasses) parts.push(fit.glasses.name);
+    fitLabel = parts.concat(fit.extras).join(", ");
+
+    drawArm(fit.col);
+    renderLook();
+  }
+
+  // --- the pointing arm: sleeve in the shirt colour, hand, one finger out ---
+  var armEl = document.getElementById("arm");
+  function drawArm(col) {
+    armEl.innerHTML =
+      '<rect x="-5" y="-5.5" width="28" height="11" rx="5.5" fill="' + col + '"/>' +
+      '<rect x="-5" y="-5.5" width="28" height="11" rx="5.5" fill="#000" opacity=".12"/>' +
+      '<circle cx="26" cy="0" r="6.2" fill="var(--skin)"/>' +
+      '<rect x="29" y="-2.4" width="14" height="4.8" rx="2.4" fill="var(--skin)"/>' +
+      '<rect x="24.5" y="-7.5" width="4.4" height="6" rx="2.2" fill="var(--skin)" transform="rotate(-20 26 -4)"/>';
+  }
+
+  // --- the full-body figure for the lookbook ---
+  var figure = document.getElementById("figure");
+  var lookList = document.getElementById("lookList");
+  function renderLook() {
+    var c = fit.col, p = fit.pants, sh = fit.shoes, o = "";
+    var shortSleeve = fit.shirt.sleeves === "short";
+    var dark = '<rect x="26" y="118" width="68" height="62" fill="#000" opacity=".06"/>';
+
+    // arms, behind the torso
+    o += '<rect x="13" y="110" width="15" height="' + (shortSleeve ? 30 : 68) + '" rx="7.5" fill="' + c + '"/>' +
+         '<rect x="92" y="110" width="15" height="' + (shortSleeve ? 30 : 68) + '" rx="7.5" fill="' + c + '"/>';
+    if (shortSleeve) o += '<rect x="15.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>' +
+                          '<rect x="94.5" y="136" width="10" height="44" rx="5" fill="var(--skin)"/>';
+    o += '<circle cx="20.5" cy="183" r="6" fill="var(--skin)"/><circle cx="99.5" cy="183" r="6" fill="var(--skin)"/>';
+    // torso
+    o += '<path d="M26 118 H94 L96 180 H24 Z" fill="' + c + '"/>' + dark;
+    // legs: shorts stop at the knee, pants run to the shoe; both cut baggy
+    var hem = p.kind === "shorts" ? (p.capri ? 236 : 222) : 262;
+    var flare = p.wide ? 4 : 0;
+    o += '<path d="M24 178 H96 L' + (97 + flare) + ' ' + hem + ' H63 L60 214 L57 ' + hem + ' H' + (23 - flare) + ' Z" fill="' + p.col + '"/>';
+    if (p.kind === "shorts") {
+      o += '<rect x="29" y="' + (hem - 2) + '" width="24" height="' + (262 - hem + 2) + '" rx="6" fill="var(--skin)"/>' +
+           '<rect x="67" y="' + (hem - 2) + '" width="24" height="' + (262 - hem + 2) + '" rx="6" fill="var(--skin)"/>';
+    }
+    if (p.trim && p.kind === "track") {
+      o += '<path d="M27 182 L25 ' + hem + ' M93 182 L95 ' + hem + '" stroke="' + p.trim + '" stroke-width="2.4"/>';
+    } else if (p.trim && p.kind === "shorts") {
+      o += '<path d="M27 182 L25 ' + hem + ' M93 182 L95 ' + hem + '" stroke="' + p.trim + '" stroke-width="2" opacity=".9"/>';
+    }
+    if (p.three) o += '<path d="M28 184 L26 262 M32 184 L30 262 M36 184 L34 262 M92 184 L94 262 M88 184 L90 262 M84 184 L86 262" stroke="' + p.trim + '" stroke-width="1.4" opacity=".9"/>';
+    if (p.camo)  o += '<g fill="' + p.camo + '" opacity=".85"><ellipse cx="38" cy="195" rx="7" ry="4"/><ellipse cx="78" cy="205" rx="8" ry="4.5"/><ellipse cx="50" cy="212" rx="5" ry="3"/><ellipse cx="86" cy="190" rx="5" ry="3"/></g>';
+    if (p.plaid) o += '<g stroke="' + p.plaid + '" stroke-width="1.6" opacity=".5"><path d="M24 192 H96 M24 206 H96 M36 180 V220 M52 180 V220 M68 180 V220 M84 180 V220"/></g>';
+    if (p.waist) o += '<rect x="24" y="178" width="72" height="5" fill="' + p.waist + '"/><g fill="#3A2F2A"><circle cx="30" cy="180.5" r="1.1"/><circle cx="40" cy="180.5" r="1.1"/><circle cx="50" cy="180.5" r="1.1"/><circle cx="60" cy="180.5" r="1.1"/><circle cx="70" cy="180.5" r="1.1"/><circle cx="80" cy="180.5" r="1.1"/><circle cx="90" cy="180.5" r="1.1"/></g>';
+    o += '<path d="M60 214 V180" stroke="#000" stroke-width="1.2" opacity=".18"/>';
+    // shoes
+    var top = sh.boot ? 248 : 258;
+    o += '<rect x="17" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
+         '<rect x="63" y="' + top + '" width="40" height="' + (276 - top) + '" rx="8" fill="' + sh.col + '"/>' +
+         '<rect x="17" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>' +
+         '<rect x="63" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>';
+    // the live bust and head, borrowed from the top-left rig
+    o += '<use href="#body"/><use href="#head"/>';
+    figure.innerHTML = o;
+
+    var rows = [["top", fit.shirt.name], ["bottom", fit.pants.name], ["feet", fit.shoes.name]];
+    if (fit.hat) rows.push(["head", fit.hat.name]);
+    if (fit.glasses) rows.push(["eyes", fit.glasses.name]);
+    if (fit.extras.length) rows.push(["extras", fit.extras.join(", ")]);
+    lookList.innerHTML = rows.map(function (r) { return "<dt>" + r[0] + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("") +
+      '<div class="tip">tap the head for another</div>';
   }
 
   var cur = Object.assign({}, MOODS.idle);
@@ -1464,14 +1700,23 @@ body.reeling { overflow: hidden; }
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  var lastLine = "";
+  function pickLine(list) {
+    if (!list || !list.length) return "";
+    if (list.length === 1) return list[0];
+    var l; do { l = pick(list); } while (l === lastLine);
+    lastLine = l;
+    return l;
+  }
+
   function setMood(name, say) {
     if (name === moodName && say === undefined) return;
     if (!MOODS[name]) return;
     moodName = name;
     var m = MOODS[name];
-    for (var k in m) { if (k !== "quip" && k !== "winkR") tgt[k] = m[k]; }
+    for (var k in m) { if (k !== "quips" && k !== "winkR") tgt[k] = m[k]; }
     tgt.winkR = !!m.winkR;
-    var line = say !== undefined ? say : m.quip;
+    var line = say !== undefined ? say : pickLine(m.quips);
     if (line) { quipEl.textContent = line; quipEl.classList.add("on"); }
     else { quipEl.classList.remove("on"); }
   }
@@ -1582,6 +1827,23 @@ body.reeling { overflow: hidden; }
     head.setAttribute("transform",
       "translate(" + hx.toFixed(2) + " " + hy.toFixed(2) + ") rotate(" + rot.toFixed(2) + " 60 70)");
 
+    // the arm comes up from the right shoulder and points at whatever the
+    // cursor is on; it tucks away (scale 0) when there is nothing to point at
+    var want = 0, ang = armA;
+    if (pointHost) {
+      var pr = pointHost.getBoundingClientRect();
+      if (pr.width && pr.height) {
+        var pt = toLocal(pr.left + pr.width * 0.3, pr.top + pr.height * 0.5);
+        ang = Math.atan2(pt.y - 110, pt.x - 90) * 180 / Math.PI;
+        ang = Math.max(-60, Math.min(88, ang));
+        want = 1;
+      }
+    }
+    armA = lerp(armA, ang, .14);
+    armS = lerp(armS, want, want ? .14 : .22);
+    armEl.setAttribute("transform", "translate(90 110) rotate(" + armA.toFixed(2) + ") scale(" + armS.toFixed(3) + ")");
+    armEl.setAttribute("opacity", Math.min(1, armS * 1.6).toFixed(3));
+
     requestAnimationFrame(frame);
   }
 
@@ -1605,13 +1867,26 @@ body.reeling { overflow: hidden; }
   var lastMove = Date.now();
   var hoverTimer = null;
   var overTarget = null;
-  var lastPos = null, speedMood = false, wasOnHead = false;
+  var lastPos = null, speedMood = false, wasOnHead = false, overHost = null;
+  var look = document.getElementById("look");
 
+  function hostFor(el) { return el && el.closest ? el.closest("[data-mood]") : null; }
   function moodFor(el) {
-    var host = el && el.closest ? el.closest("[data-mood]") : null;
+    var host = hostFor(el);
     if (host) return host.getAttribute("data-mood");
     if (el && el.closest && el.closest("a,button")) return "aim";
     return null;
+  }
+  // an element's own lines, if it has any (data-say="one|two|three")
+  function sayFor(host) {
+    var t = host && host.getAttribute("data-say");
+    return t ? pickLine(t.split("|")) : undefined;
+  }
+
+  // what the arm points at: a project, a job, a hobby or the reel on screen
+  var pointHost = null, armA = 20, armS = 0;
+  function pointAt(host) {
+    pointHost = host && host.matches(".card,.job,.hobby,.reel") ? host : null;
   }
 
   document.addEventListener("pointermove", function (e) {
@@ -1629,18 +1904,23 @@ body.reeling { overflow: hidden; }
     lastPos = { x: e.clientX, y: e.clientY };
 
     var onHead = svg.contains(e.target);
+    var h = onHead ? null : hostFor(e.target);
     var m = onHead ? "proud" : moodFor(e.target);
-    if (m !== overTarget || onHead !== wasOnHead) {
+    if (m !== overTarget || h !== overHost || onHead !== wasOnHead) {
       overTarget = m;
+      overHost = h;
       wasOnHead = onHead;
       clearTimeout(hoverTimer);
+      look.classList.toggle("on", onHead);
       if (onHead) {
-        setMood("proud", fitLabel + " \u2014 tap for another");
+        pointAt(null);
+        setMood("proud", pickLine(HEAD_LINES));
       } else if (m) {
         // small dwell, so brushing past a link doesn't set off the whole face
-        hoverTimer = setTimeout(function () { setMood(m); }, 110);
-      } else if (!speedMood) {
-        setMood("idle");
+        hoverTimer = setTimeout(function () { setMood(m, sayFor(h)); pointAt(h); }, 110);
+      } else {
+        pointAt(null);
+        if (!speedMood) setMood("idle");
       }
     }
   }, { passive: true });
@@ -1651,7 +1931,7 @@ body.reeling { overflow: hidden; }
     setTimeout(function () { setMood(overTarget || "idle"); }, 900);
   });
 
-  document.addEventListener("pointerleave", function () { setMood("away"); });
+  document.addEventListener("pointerleave", function () { setMood("away"); pointAt(null); look.classList.remove("on"); });
   window.addEventListener("blur", function () { setMood("away"); });
 
   setInterval(function () {
@@ -1691,12 +1971,11 @@ body.reeling { overflow: hidden; }
   });
 
   svg.addEventListener("click", function () {
-    var label = rollFit();
+    rollFit();
     moodName = "";               // force the quip to refresh even if already proud
-    setMood("delight", label);
-    setTimeout(function () {
-      if (wasOnHead) setMood("proud", fitLabel + " \u2014 tap for another");
-    }, 1400);
+    setMood("delight", pickLine(["new fit", "how about this", "ok, this one", "closet's deep", "one more"]));
+    look.classList.add("on");    // touch users get the lookbook for a moment
+    setTimeout(function () { if (!wasOnHead) look.classList.remove("on"); }, 2600);
   });
 
 
@@ -1722,7 +2001,7 @@ body.reeling { overflow: hidden; }
     });
     try { history.replaceState(null, "", on ? "#reels" : location.pathname + location.search); } catch (e) {}
     if (on) { reels.scrollTop = 0; setMood(reelEls[0].getAttribute("data-mood")); }
-    else setMood("idle");
+    else { setMood("idle"); pointAt(null); }
   }
   views.addEventListener("click", function (e) {
     var b = e.target.closest(".vbtn");
@@ -1739,7 +2018,8 @@ body.reeling { overflow: hidden; }
       if (on) {
         current = target = reelEls.indexOf(en.target);
         pips.forEach(function (p, i) { p.classList.toggle("on", i === current); });
-        setMood(en.target.getAttribute("data-mood") || "curious");
+        setMood(en.target.getAttribute("data-mood") || "curious", sayFor(en.target));
+        pointAt(en.target);
         if (current > 0) hint.classList.add("gone");
       }
     });

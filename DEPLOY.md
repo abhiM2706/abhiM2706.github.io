@@ -195,14 +195,21 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   a bigger raise walks them up into the hair, where they disappear. If you want
   more range, raise the hairline in the hair `<path>` first.
 
-- **The wardrobe.** `FITS` holds 19 garments and `WAYS` 20 colourways, so there
-  are 380 base combinations before accessories: glasses (wire, black or
-  tortoise), a gold hoop, a chain, a beanie, headphones or a scarf. One fit is
-  rolled on every page load, and clicking the head pulls another. Each garment
-  is a function returning an SVG string built from three colors: `main`, `alt`
-  (shading and collars) and `trim` (contrast). Accessories pick their own
-  colourway so they contrast with the garment. "hood up" is the one garment
-  with an `over` part drawn in front of the face; it also suppresses headwear.
+- **The wardrobe.** One list per slot in the script: `TOPS` (the Depop tops,
+  drawn), `FITS` x `WAYS` (drawn garments in 20 colourways, used for 1 roll in
+  4), `PANTS` (shorts included, with a `kind`), `SHOES`, `CAPS`, `BEANIES`
+  and `GLASSES`. `rollFit()` takes one of each - shirt, pants, shoes, at most
+  one thing on the head (cap, beanie, headphones or a raised hood), glasses
+  two times in five - and `dress()` puts it on the bust, the arm and the
+  lookbook. Warm tops lean toward pants, tees toward shorts. `CAPS` is the one
+  list not from the purchase history: swap the placeholders for the real
+  ones. New purchase: add a row to the right list, with a `col` so the
+  figure can wear it.
+
+  Hovering the head opens the **lookbook**: a full-body figure in the same fit
+  (the head and bust are the live ones, borrowed with `<use>`, so it blinks
+  and looks around too) and the itemised list. It is hover-only, so it is
+  hidden under 860px; on a phone, tapping the head shows it for a moment.
 
   All garments are drawn over `SH`, the shared shoulder path, which has a
   deliberately flat top around `y=102` spanning `x` 40 to 80 - that flat is
@@ -212,17 +219,15 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   `y=118` is 26-94. The brows are hard-clamped to `y >= 40`, so headwear may
   come down to `y=39` and never collides with them.
 
-- **The closet.** `TOPS` is every top from your Depop purchase history (54,
-  out of 90 non-refunded orders), each drawn on one of the shared templates in
-  its own colours with a chest mark where the piece has one; seven are drawn
-  by hand to match the listing photo. Colours were checked against the
-  listing photos; the one entry still marked `guess: true` (Grand Canyon long
-  sleeve) is the only guess left.
-  `SHORTS`, `PANTS`, `SHOES` and `SHADES` are the rest of the history; the bust
-  can't show them, so `closetOutfit()` names them in the label (warm tops lean
-  toward pants, tees toward shorts). Three quarters of rolls come from the
-  closet; set that `0.75` in `rollFit()` to `1` for closet-only. New purchase:
-  add a row to the right list.
+- **Dialogue.** Each mood in `MOODS` has a `quips` pool and one line is drawn
+  at random (never the same one twice in a row). Anything with `data-mood`
+  can also carry its own lines: `data-say="one|two|three"`. The jobs,
+  project cards, hobbies and reels all do. The **arm** points at whichever
+  `.card`, `.job`, `.hobby` or `.reel` the cursor is on (or the reel on
+  screen); its sleeve takes the shirt colour.
+
+- **Hobbies.** The "Off the clock" section: four `.hobby` cards with an
+  inline icon each. The copy is a first draft - fix the specifics.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section
