@@ -98,12 +98,6 @@ body {
   gap: 10px;
 }
 #face svg { display: block; width: 104px; height: 104px; overflow: visible; pointer-events: auto; cursor: pointer; }
-/* Shorts fits stand full-length in the margin instead of the head crop
-   (wide screens only: anywhere narrower the legs would run into the text) */
-body.full #face svg { height: 251px; }
-body.full #look { left: calc(max(18px, env(safe-area-inset-left, 0px)) + 118px); width: 176px; }
-body.full #look:not(.act) svg { display: none; }
-body.full #look.act { width: 252px; }
 #quip {
   font-family: var(--mono);
   font-size: 11px;
@@ -123,7 +117,7 @@ body.full #look.act { width: 252px; }
 
 /* ---------- the full look, shown while the head is hovered ---------- */
 #look {
-  position: fixed; z-index: 49;
+  position: fixed; z-index: 51;
   top: calc(128px + env(safe-area-inset-top, 0px));
   left: max(18px, env(safe-area-inset-left, 0px));
   width: 244px;
@@ -138,6 +132,20 @@ body.full #look.act { width: 252px; }
   box-shadow: 0 16px 36px -20px rgba(0,0,0,.4);
 }
 #look.on { opacity: 1; transform: none; }
+/* On a wide screen the avatar stands in the middle of the left column,
+   and the lookbook / the activities play right there over him */
+@media (min-width: 1180px) {
+  #face { top: 50%; left: 0; translate: 0 -50%; width: 280px; padding: 0; flex-direction: column; align-items: center; gap: 12px; }
+  #face svg { width: 124px; height: 124px; }
+  #quip { margin-top: 0; max-width: 210px; text-align: center; }
+  #look { top: 50%; left: 18px; translate: 0 -50%; }
+}
+/* an activity plays in the open where he stands: no card, no fit list */
+#look.act { background: none; border-color: transparent; box-shadow: none; padding: 0 0 26px; justify-content: center; }
+#look.act dl { display: none; }
+#look.act svg { width: 206px; height: 300px; }
+#look.act .khint { text-align: center; }
+body.acting #face { opacity: 0; transition: opacity .2s ease; }
 #look svg { width: 86px; height: 215px; flex: none; display: block; overflow: visible; }
 #look dl { margin: 0; font-family: var(--mono); font-size: 10.5px; line-height: 1.35; min-width: 0; }
 #look dt { color: var(--accent); letter-spacing: .08em; text-transform: uppercase; font-size: 9px; margin-top: 7px; }
@@ -283,8 +291,7 @@ h2 {
   transition: transform .22s cubic-bezier(.2,.8,.3,1), border-color .22s ease;
 }
 .hobby:hover { transform: translateY(-3px); border-color: var(--warm); }
-.hobby:hover .play { animation: nudge 1.1s ease-in-out infinite; }
-@keyframes nudge { 0%, 100% { transform: none } 50% { transform: translateX(4px) } }
+.hobby.playing { border-color: var(--accent); }
 .hero-sm { padding-block: 140px 36px; }
 .h-sm { font-size: clamp(2rem, 6vw, 3rem); }
 #hobbies .lede { margin-bottom: 0; }
@@ -313,7 +320,6 @@ h2 {
 .liftbox .note { margin: 0; font-size: 11.5px; }
 
 /* a hobby being done: the figure gets a wider stage for props and the ball */
-#look.act svg { width: 132px; }
 #look.act { padding-bottom: 30px; }
 #look .khint {
   position: absolute; left: 12px; right: 12px; bottom: 9px;
@@ -325,17 +331,6 @@ h2 {
   #look.act.on { display: flex; top: calc(84px + env(safe-area-inset-top, 0px)); width: 236px; }
 }
 
-/* the button on each hobby that makes him do it */
-.play {
-  margin-top: 11px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
-  display: inline-flex; align-items: center; gap: 7px;
-  border: 1px solid var(--accent); color: var(--accent); background: none;
-  border-radius: 7px; padding: 6px 11px 6px 9px; cursor: pointer;
-  transition: background .18s ease, color .18s ease;
-}
-.play::before { content: ""; width: 0; height: 0; border-left: 6px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
-.play:hover, .play:focus-visible { background: var(--accent); color: var(--bg); }
 .play[disabled] { opacity: .55; cursor: default; }
 .na { font-family: var(--mono); font-size: 10px; fill: var(--muted); }
 
@@ -624,7 +619,6 @@ body.reeling { overflow: hidden; }
   <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <!-- Body stays put while the head tilts. The outfit and any jewellery are
          filled in by rollFit() at load, so the fit differs every visit. -->
-    <g id="full"></g>
     <g id="body">
       <path d="M50 90 h20 v17 h-20 z" fill="var(--skin-dk)"/>
       <g id="outfit"></g>
@@ -1113,11 +1107,11 @@ body.reeling { overflow: hidden; }
   <header class="hero hero-sm">
     <p class="eyebrow">Off the clock</p>
     <h1 class="h-sm">The things that made me, me.</h1>
-    <p class="lede">Hover a card and he&rsquo;ll tell you what to do. The button makes him do it, and once he&rsquo;s going the keyboard gets you involved &mdash; the hint under him says how.</p>
+    <p class="lede">Hover a card and he does it. The keyboard gets you involved &mdash; the hint under him says how &mdash; and he keeps going until you pick another.</p>
   </header>
     <div class="hobbies">
 
-      <div class="hobby" data-mood="delight" data-say="press the button, I'll play|go on, press it|first violin, by the way">
+      <div class="hobby" data-act="violin" data-mood="delight" data-say="space is a bow stroke|keep me going with space|first violin, by the way">
         <svg viewBox="0 0 44 44" aria-hidden="true">
           <path d="M8 38 L36 10" stroke="var(--muted)" stroke-width="1.6" stroke-linecap="round"/>
           <path d="M24 5 v9" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/>
@@ -1125,11 +1119,10 @@ body.reeling { overflow: hidden; }
           <path d="M20 22 q-1 3 1 5 M28 22 q1 3 -1 5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
           <path d="M24 14 v22" stroke="var(--ink)" stroke-width="1" opacity=".55"/>
         </svg>
-        <div><h3>Violin</h3><p>California Youth Symphony since 4th grade, first violin. Section leader of the Monta Vista chamber orchestra when it was invited to the Midwest Clinic &mdash; the big one. Also played senior homes, which taught me more than the concert halls did.</p>
-          <button class="play" type="button" data-act="violin" data-mood="delight" data-say="a phrase, then|tuning first|watch the bow arm">Play a phrase</button></div>
+        <div><h3>Violin</h3><p>California Youth Symphony since 4th grade, first violin. Section leader of the Monta Vista chamber orchestra when it was invited to the Midwest Clinic &mdash; the big one. Also played senior homes, which taught me more than the concert halls did.</p></div>
       </div>
 
-      <div class="hobby" data-mood="yay" data-say="press it, I'll drop one|the button, go|arrows scratch, by the way">
+      <div class="hobby" data-act="dj" data-mood="yay" data-say="arrows scratch the record|space drops it|one more tune">
         <svg viewBox="0 0 44 44" aria-hidden="true">
           <rect x="3" y="12" width="38" height="22" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
           <circle cx="13" cy="23" r="7" fill="var(--accent)"/><circle cx="13" cy="23" r="2" fill="var(--surface)"/>
@@ -1137,11 +1130,10 @@ body.reeling { overflow: hidden; }
           <path d="M22 17 v12 M20 25 h4" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
           <path d="M6 40 q4 -5 8 0 t8 0 t8 0 t8 0" fill="none" stroke="var(--warm)" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
-        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p>
-          <button class="play" type="button" data-act="dj" data-mood="yay" data-say="hands up|one more tune|this transition though">Drop the beat</button></div>
+        <div><h3>DJing</h3><p>Mixing sets for friends and the occasional party. The transitions are the part I obsess over.</p></div>
       </div>
 
-      <div class="hobby" data-mood="think" data-say="press it and type|go on, give me a problem|gold division, not bragging">
+      <div class="hobby" data-act="code" data-mood="think" data-say="type something, I'll follow|enter runs it|gold division, not bragging">
         <svg viewBox="0 0 44 44" aria-hidden="true">
           <path d="M11 14 q-6 -7 -1 -10 M33 14 q6 -7 1 -10" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" fill="none"/>
           <ellipse cx="22" cy="22" rx="13" ry="11" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.6"/>
@@ -1152,11 +1144,10 @@ body.reeling { overflow: hidden; }
           <circle cx="17" cy="20" r="1.4" fill="var(--ink)"/><circle cx="27" cy="20" r="1.4" fill="var(--ink)"/>
           <text x="22" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="var(--accent)">&lt;/&gt;</text>
         </svg>
-        <div><h3>USACO</h3><p>Gold division &mdash; roughly the top 1,000 competitors worldwide. Started in 7th grade with brute force, timed out in Silver, and learned to read the input size before anything else. Taught the lower divisions in my school&rsquo;s CS club. The cow is Bessie.</p>
-          <button class="play" type="button" data-act="code" data-mood="think" data-say="watch me solve one|it's a DP, obviously|first try, probably">Solve one</button></div>
+        <div><h3>USACO</h3><p>Gold division &mdash; roughly the top 1,000 competitors worldwide. Started in 7th grade with brute force, timed out in Silver, and learned to read the input size before anything else. Taught the lower divisions in my school&rsquo;s CS club. The cow is Bessie.</p></div>
       </div>
 
-      <div class="hobby" data-mood="aim" data-say="press it, then watch the meter|space on the green|go on, serve one">
+      <div class="hobby" data-act="serve" data-mood="aim" data-say="watch the meter|space on the green is an ace|miss it and see what happens">
         <svg viewBox="0 0 44 44" aria-hidden="true">
           <ellipse cx="17" cy="16" rx="10" ry="12" fill="none" stroke="var(--ink)" stroke-width="2"/>
           <path d="M11 10 h12 M9 16 h16 M11 22 h12 M14 6 v20 M20 6 v20" stroke="var(--ink)" stroke-width=".8" opacity=".5"/>
@@ -1164,11 +1155,10 @@ body.reeling { overflow: hidden; }
           <circle cx="35" cy="11" r="4.5" fill="var(--warm)"/>
           <path d="M31.5 9 q3.5 2 7 0 M31.5 13 q3.5 -2 7 0" fill="none" stroke="var(--surface)" stroke-width="1"/>
         </svg>
-        <div><h3>Tennis</h3><p>JV captain in 10th grade, varsity vice-captain in 11th at Monta Vista; the team made the CCS playoffs. Ran practices without ranking players, on purpose. The serve is still a work in progress &mdash; see for yourself.</p>
-          <button class="play" type="button" data-act="serve" data-mood="aim" data-say="toss, reach, snap|let's see this serve|ace, hopefully">Hit a serve</button></div>
+        <div><h3>Tennis</h3><p>JV captain in 10th grade, varsity vice-captain in 11th at Monta Vista; the team made the CCS playoffs. Ran practices without ranking players, on purpose. The serve is still a work in progress &mdash; see for yourself.</p></div>
       </div>
 
-      <div class="hobby gym" data-mood="proud" data-say="pick a lift, press the button|hover a tab for a preview|space does the reps">
+      <div class="hobby gym" data-act="gym" data-mood="proud" data-say="space pushes a rep|pick a lift below|spot me">
         <svg viewBox="0 0 44 44" aria-hidden="true">
           <path d="M12 22 h20" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
           <rect x="6" y="13" width="6" height="18" rx="2" fill="var(--accent)"/><rect x="32" y="13" width="6" height="18" rx="2" fill="var(--accent)"/>
@@ -1176,14 +1166,13 @@ body.reeling { overflow: hidden; }
         </svg>
         <div>
           <h3>Gym</h3>
-          <p>Most days. Current numbers below &mdash; hover a lift for a preview, press the button and push the reps yourself.</p>
+          <p>Most days. Current numbers below &mdash; pick a lift and push the reps with space.</p>
           <div class="lifts" role="tablist" aria-label="Lifts">
             <button class="lift on" type="button" role="tab" data-lift="bench" data-mood="strain" data-say="two forty five...|spotter?|it's going up. slowly.|lock it out, lock it out">Bench</button>
             <button class="lift" type="button" role="tab" data-lift="squat" data-mood="strain" data-say="three seventy five|depth? yes.|leg day is every day|ass to grass">Squat</button>
             <button class="lift" type="button" role="tab" data-lift="dead" data-mood="think" data-say="my back and I have a deal|deadlift: N/A|next year, maybe|the bar is fine where it is">Deadlift</button>
           </div>
           <div class="liftbox" id="liftbox"></div>
-          <button class="play" type="button" data-act="reps" data-mood="strain" data-say="three reps|spot me|light weight">Do 3 reps</button>
         </div>
       </div>
 
@@ -1424,6 +1413,7 @@ body.reeling { overflow: hidden; }
     chest:  function (col) { return '<rect x="66" y="108" width="7" height="5" rx="1" fill="none" stroke="' + col + '" stroke-width="1.2"/>'; },
     flag:   function (col) { return '<rect x="55" y="108" width="10" height="6" fill="#FFFFFF"/><rect x="55" y="108" width="10" height="2" fill="' + col + '"/><rect x="55" y="112" width="10" height="2" fill="' + col + '"/>'; },
     patch:  function (col) { return '<circle cx="60" cy="111" r="4" fill="' + col + '"/>'; },
+    diamond:function (col) { return '<path d="M60 107 l5 4 l-5 4 l-5 -4 Z" fill="none" stroke="' + col + '" stroke-width="1.5"/><path d="M60 109.2 l2.2 1.8 l-2.2 1.8 l-2.2 -1.8 Z" fill="' + col + '"/>'; },
     // the brands, as small as they can go and still read
     txt:    function (col, t) { return '<text x="60" y="113.4" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="5.4" fill="' + col + '">' + t + '</text>'; },
     pony:   function (col) { return '<path d="M55.5 115 l1.6 -4.2 l2.4 .4 l.6 -2.8 l2 .4 l-.4 2.4 l2.6 1.6 l-1 2.2 Z" fill="' + col + '"/><path d="M60.4 108.6 l1.2 -2.6" stroke="' + col + '" stroke-width="1" stroke-linecap="round"/>'; },
@@ -1439,11 +1429,13 @@ body.reeling { overflow: hidden; }
   };
 
   function tpl(name, c, mark) {
-    return function () {
+    var f = function () {
       var out = byName[name].draw(c);
       if (mark) out += MARK[mark[0]](mark[1], mark[2]);
       return out;
     };
+    f.tpl = name; f.c = c; f.mark = mark;   // so the full-length version can be drawn from the same parts
+    return f;
   }
 
   var TOPS = [
@@ -1557,39 +1549,39 @@ body.reeling { overflow: hidden; }
   // the lookbook can wear them.
   // ---------------------------------------------------------------------
   var PANTS = [
-    { name: "Nike Y2K baggy basketball shorts", kind: "shorts", col: "#1F3357", trim: "#F2F2F2" },
-    { name: "Umbro athletic shorts", kind: "shorts", col: "#141416", trim: "#F2F2F2" },
-    { name: "Y2K blue capri sweat shorts", kind: "shorts", col: "#4C6288", capri: true },
-    { name: "plaid skater cargo shorts", kind: "shorts", col: "#6B5B45", plaid: "#3A3028" },
-    { name: "black baggy fleece sweat shorts", kind: "shorts", col: "#202024" },
-    { name: "camo fleece sweat shorts", kind: "shorts", col: "#5F6B3C", camo: "#3E4A28" },
-    { name: "Eric Emanuel shorts", kind: "shorts", col: "#C8384A", trim: "#F2F2F2" },
-    { name: "Eric Emanuel x UNC mesh shorts", kind: "shorts", col: "#7BAFD4", trim: "#F2F2F2" },
-    { name: "Lithic baggy sweats", kind: "sweats", col: "#8A8E96" },
-    { name: "navy baggy raw denim", kind: "jeans", col: "#1C2A4A" },
-    { name: "JNCO PJ Mark wide-leg jeans", kind: "jeans", col: "#3B5A8C", wide: true },
-    { name: "Nike brown baggy track pants", kind: "track", col: "#5A3B2A", trim: "#EADFC8" },
-    { name: "00s Nike grey sweatpants", kind: "sweats", col: "#9A9DA3" },
-    { name: "90s Nike striped windbreaker pants", kind: "track", col: "#1F3357", trim: "#C8384A" },
-    { name: "leopard-waist raw denim", kind: "jeans", col: "#232C44", waist: "#C9915F" },
-    { name: "blue-wash baggy jeans", kind: "jeans", col: "#6E8FBF", wide: true },
-    { name: "black fleece sweats", kind: "sweats", col: "#202024" },
-    { name: "Y2K Nike black fleece sweatpants", kind: "sweats", col: "#1A1A1E" },
-    { name: "Russell grey baggy sweatpants", kind: "sweats", col: "#A2A5AB" },
-    { name: "Nike Michigan-colour track sweatpants", kind: "track", col: "#00274C", trim: "#FFCB05" },
-    { name: "Nike navy & white track pants", kind: "track", col: "#1F3357", trim: "#F2F2F2" },
-    { name: "Adidas baggy sweatpants", kind: "sweats", col: "#141416", trim: "#F2F2F2", three: true }
+    { name: "Nike Y2K baggy basketball shorts", kind: "shorts", col: "#1F3357", trim: "#F2F2F2", mark: ["swoosh", "#F2F2F2"] },
+    { name: "Umbro athletic shorts", kind: "shorts", col: "#141416", trim: "#F2F2F2", mark: ["diamond", "#F2F2F2"] },
+    { name: "Y2K blue capri sweat shorts", kind: "shorts", col: "#4C6288", capri: true, cord: "#E9E4D7" },
+    { name: "plaid skater cargo shorts", kind: "shorts", col: "#6B5B45", plaid: "#3A3028", cargo: true },
+    { name: "black baggy fleece sweat shorts", kind: "shorts", col: "#202024", cord: "#8C8CA6" },
+    { name: "camo fleece sweat shorts", kind: "shorts", col: "#5F6B3C", camo: "#3E4A28", cord: "#D8D2B8" },
+    { name: "Eric Emanuel shorts", kind: "shorts", col: "#C8384A", trim: "#F2F2F2", mark: ["txt", "#F2F2F2", "EE"], mesh: true },
+    { name: "Eric Emanuel x UNC mesh shorts", kind: "shorts", col: "#7BAFD4", trim: "#F2F2F2", mark: ["txt", "#F2F2F2", "EE"], mesh: true },
+    { name: "Lithic baggy sweats", kind: "sweats", col: "#8A8E96", cord: "#EFE9DC", mark: ["txt", "#EFE9DC", "L"] },
+    { name: "navy baggy raw denim", kind: "jeans", col: "#1C2A4A", denim: "#C9A050" },
+    { name: "JNCO PJ Mark wide-leg jeans", kind: "jeans", col: "#3B5A8C", wide: true, denim: "#D9C27A", mark: ["txt", "#D9C27A", "JNCO"] },
+    { name: "Nike brown baggy track pants", kind: "track", col: "#5A3B2A", trim: "#EADFC8", mark: ["swoosh", "#EADFC8"] },
+    { name: "00s Nike grey sweatpants", kind: "sweats", col: "#9A9DA3", cord: "#EFE9DC", mark: ["swoosh", "#1A1A1E"] },
+    { name: "90s Nike striped windbreaker pants", kind: "track", col: "#1F3357", trim: "#C8384A", mark: ["swoosh", "#F2F2F2"] },
+    { name: "leopard-waist raw denim", kind: "jeans", col: "#232C44", waist: "#C9915F", denim: "#C9A050" },
+    { name: "blue-wash baggy jeans", kind: "jeans", col: "#6E8FBF", wide: true, denim: "#EFE9DC" },
+    { name: "black fleece sweats", kind: "sweats", col: "#202024", cord: "#8C8CA6" },
+    { name: "Y2K Nike black fleece sweatpants", kind: "sweats", col: "#1A1A1E", cord: "#8C8CA6", mark: ["swoosh", "#F2F2F2"] },
+    { name: "Russell grey baggy sweatpants", kind: "sweats", col: "#A2A5AB", cord: "#EFE9DC", mark: ["txt", "#1F3357", "R"] },
+    { name: "Nike Michigan-colour track sweatpants", kind: "track", col: "#00274C", trim: "#FFCB05", mark: ["txt", "#FFCB05", "M"] },
+    { name: "Nike navy & white track pants", kind: "track", col: "#1F3357", trim: "#F2F2F2", mark: ["swoosh", "#F2F2F2"] },
+    { name: "Adidas baggy sweatpants", kind: "sweats", col: "#141416", trim: "#F2F2F2", three: true, cord: "#F2F2F2" }
   ];
   var SHOES = [
-    { name: "NB 9060 white/cream", col: "#EFE9DC", sole: "#D5CCB8" },
-    { name: "pink ASICS", col: "#E8A0B4", sole: "#F2EDE3" },
-    { name: "suede NB 2002R", col: "#8C7B6B", sole: "#EFE9DC" },
-    { name: "Nike Air Max 95 white/grey", col: "#E6E6E6", sole: "#9A9DA3" },
-    { name: "Nike Air Max 97 white", col: "#F2F2F2", sole: "#D9D9D9" },
-    { name: "Adidas Wales Bonner", col: "#5A3B2A", sole: "#EADFC8" },
-    { name: "Timberland suede boots", col: "#C9915F", sole: "#3A2F2A", boot: true },
-    { name: "Timberland blue-panel suede boots", col: "#8C7B6B", sole: "#1F3357", boot: true },
-    { name: "Timberland boat shoes", col: "#6B4A2E", sole: "#EFE9DC" }
+    { name: "NB 9060 white/cream", col: "#EFE9DC", sole: "#D5CCB8", kind: "nb", n: "#B8AE9C" },
+    { name: "pink ASICS", col: "#E8A0B4", sole: "#F2EDE3", kind: "asics", n: "#F2EDE3" },
+    { name: "suede NB 2002R", col: "#8C7B6B", sole: "#EFE9DC", kind: "nb", n: "#EFE9DC" },
+    { name: "Nike Air Max 95 white/grey", col: "#E6E6E6", sole: "#9A9DA3", kind: "am95", n: "#9A9DA3" },
+    { name: "Nike Air Max 97 white", col: "#F2F2F2", sole: "#D9D9D9", kind: "am97", n: "#C9C9C9" },
+    { name: "Adidas Wales Bonner", col: "#5A3B2A", sole: "#EADFC8", kind: "wb", n: "#EADFC8" },
+    { name: "Timberland suede boots", col: "#C9915F", sole: "#3A2F2A", boot: true, kind: "boot", n: "#EADFC8" },
+    { name: "Timberland blue-panel suede boots", col: "#8C7B6B", sole: "#1F3357", boot: true, kind: "boot", n: "#EADFC8" },
+    { name: "Timberland boat shoes", col: "#6B4A2E", sole: "#EFE9DC", kind: "boat", n: "#EADFC8" }
   ];
   // Caps are the one slot not from the purchase history: swap in the real ones.
   var CAPS = [
@@ -1671,11 +1663,13 @@ body.reeling { overflow: hidden; }
     var shirt, over = "";
     if (Math.random() < 0.75) {
       var t = pick(TOPS);
-      shirt = { name: t.name, kind: t.kind, html: t.draw(), sleeves: t.kind === "tee" ? "short" : "long" };
+      shirt = { name: t.name, kind: t.kind, html: t.draw(), sleeves: t.kind === "tee" ? "short" : "long", full: fullFor(t.name, t.draw) };
+      // a long-sleeve tee gets a cuff so the sleeve ends somewhere
+      if (shirt.sleeves === "long" && t.draw.tpl === "boxy tee" && !shirt.full.sleeve.cuff) shirt.full.sleeve.cuff = t.draw.c.alt;
     } else {
       var f = pick(FITS);
       shirt = { name: f.name + " in " + way.name, kind: f.over ? "hood" : "drawn", html: f.draw(way),
-                sleeves: SHORT_SLEEVE.test(f.name) ? "short" : "long" };
+                sleeves: SHORT_SLEEVE.test(f.name) ? "short" : "long", full: fullFor(f.name, f.draw, way) };
       if (f.over) over = f.over(way);
     }
     var warm = /hood|jacket|sweat/.test(shirt.kind);
@@ -1696,7 +1690,7 @@ body.reeling { overflow: hidden; }
 
     fit = { shirt: shirt, pants: pants, shoes: pick(SHOES), hat: hat,
             glasses: Math.random() < .4 ? pick(GLASSES) : null,
-            extras: extras, way: way, col: colourOf(shirt.html) };
+            extras: extras, way: way, col: colourOf(shirt.html), sleeve: shirt.full.sleeve, garment: shirt.full.torso };
     dress();
     return fitLabel;
   }
@@ -1730,20 +1724,24 @@ body.reeling { overflow: hidden; }
   // --- the pointing arm: sleeve in the shirt colour, hand, one finger out ---
   var armEl = document.getElementById("arm");
   function drawArm(col) {
+    // the same arm the figure has: round shoulder, upper arm, forearm,
+    // hand, in the sleeve the garment says; only this one points
+    var sl = fit.sleeve || {}, c = sl.col || col, shortS = fit.shirt.sleeves === "short", skin = "var(--skin)";
     armEl.innerHTML =
-      '<rect x="-5" y="-5.5" width="28" height="11" rx="5.5" fill="' + col + '"/>' +
-      '<rect x="-5" y="-5.5" width="28" height="11" rx="5.5" fill="#000" opacity=".12"/>' +
-      '<circle cx="26" cy="0" r="6.2" fill="var(--skin)"/>' +
-      '<rect x="29" y="-2.4" width="14" height="4.8" rx="2.4" fill="var(--skin)"/>' +
-      '<rect x="24.5" y="-7.5" width="4.4" height="6" rx="2.2" fill="var(--skin)" transform="rotate(-20 26 -4)"/>';
+      '<circle cx="2" cy="0" r="8" fill="' + c + '"/>' +
+      '<rect x="-4" y="-7.5" width="42" height="15" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
+      (shortS ? '<rect x="-4" y="-7.5" width="28" height="15" rx="7.5" fill="' + c + '"/>' : "") +
+      (shortS && sl.cuff ? '<rect x="22" y="-7.5" width="6" height="15" rx="2" fill="' + sl.cuff + '"/>' : "") +
+      '<rect x="34" y="-5.5" width="40" height="11" rx="5.5" fill="' + (shortS ? skin : c) + '"/>' +
+      (!shortS && sl.cuff ? '<rect x="64" y="-5.5" width="8" height="11" rx="2" fill="' + sl.cuff + '"/>' : "") +
+      '<circle cx="74" cy="0" r="6.2" fill="' + skin + '"/>' +
+      '<rect x="77" y="-2.3" width="13" height="4.6" rx="2.3" fill="' + skin + '"/>' +
+      '<circle cx="72" cy="-6" r="2.6" fill="' + skin + '"/>';
   }
 
   // --- the full-body figure for the lookbook ---
   var figure = document.getElementById("figure");
   var lookList = document.getElementById("lookList");
-  var fullEl = document.getElementById("full");
-  var wide = window.matchMedia("(min-width: 1180px)");
-  wide.addEventListener("change", function () { if (fit) renderLook(); });
   // ---------------------------------------------------------------------
   // The figure. Built from parts so the hobbies can move them: arms in two
   // segments that bend at the elbow (a hand goes where setArm() puts it),
@@ -1753,6 +1751,88 @@ body.reeling { overflow: hidden; }
   // ---------------------------------------------------------------------
   var SHOULDER = { L: { x: 20.5, y: 114 }, R: { x: 99.5, y: 114 } };
   var L1 = 36, L2 = 33;       // upper arm, forearm to the centre of the hand
+
+  // ---------------------------------------------------------------------
+  // The same garments drawn in full, for the figure: what happens on the
+  // torso from the shoulders to the hem, and what happens on the sleeves.
+  // Each returns { torso, sleeve }; the arm drawing reads `sleeve`
+  // ({ col, cuff, stripe, stripe3, bands, band, extra }).
+  // ---------------------------------------------------------------------
+  var TORSO = "M26 118 C24 140 24 160 25 176 Q26 182 32 182 H88 Q94 182 95 176 C96 160 96 140 94 118 Z";
+  function ribs(y, h) { var d = ""; for (var x = 29; x <= 91; x += 4) d += "M" + x + " " + y + " v" + h + " "; return '<path d="' + d + '" stroke="#000" stroke-width="1" opacity=".18"/>'; }
+  function hemBand(col) { return '<rect x="24" y="173" width="72" height="10" rx="2" fill="' + col + '"/>' + ribs(175, 6); }
+  function buttons(col, ys, x) { return '<g fill="' + col + '">' + ys.map(function (y) { return '<circle cx="' + (x || 60) + '" cy="' + y + '" r="1.5"/>'; }).join("") + '</g>'; }
+  function zip(col, y2, pull) {
+    var d = ""; for (var y = 121; y < y2 - 1; y += 3) d += "M58.6 " + y + " h2.8 ";
+    return '<path d="M60 118 V' + y2 + '" stroke="' + col + '" stroke-width="2.4"/><path d="' + d + '" stroke="#000" stroke-width=".9" opacity=".3"/>' +
+      (pull ? '<rect x="58" y="' + (y2 - 1) + '" width="4" height="4.5" rx="1" fill="' + col + '"/>' : "");
+  }
+  function pocket(x, y, w, h, col) { return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="1.5" fill="none" stroke="' + col + '" stroke-width="1.3" opacity=".85"/>'; }
+  function flap(x, y, w, col) { return '<path d="M' + x + ' ' + y + ' h' + w + ' l-' + (w / 2) + ' 5 Z" fill="' + col + '"/>'; }
+  function bigMark(mark, x, y, sc) { return mark ? '<g transform="translate(' + x + ' ' + y + ') scale(' + sc + ') translate(-60 -111.5)">' + MARK[mark[0]](mark[1], mark[2]) + '</g>' : ""; }
+  function kangaroo(col) { return '<path d="M33 156 q0 -3 3 -3 h48 q3 0 3 3 v20 H33 Z" fill="' + col + '"/><path d="M39 156 l-3 11 M81 156 l3 11" stroke="#000" stroke-width="1" opacity=".22"/>'; }
+  function strings(col) { return '<path d="M55 118 q-1 14 -2 30 M65 118 q1 12 2 26" fill="none" stroke="' + col + '" stroke-width="2" stroke-linecap="round"/><circle cx="53" cy="149" r="1.6" fill="' + col + '"/><circle cx="67" cy="145" r="1.6" fill="' + col + '"/>'; }
+  function welts(col) { return '<path d="M30 155 l14 12 M90 155 l-14 12" stroke="' + col + '" stroke-width="2.6" stroke-linecap="round"/>'; }
+  function hemStitch(col) { return '<path d="M26 177 H94" stroke="' + col + '" stroke-width="1.2" opacity=".5"/>'; }
+
+  var FULL = {
+    "boxy tee":      function (c, m) { return { torso: hemStitch(c.alt) + bigMark(m, 60, 140, 2.1), sleeve: {} }; },
+    "hoodie":        function (c, m) { return { torso: strings(c.trim) + kangaroo(c.alt) + hemBand(c.alt) + bigMark(m, 60, 134, 1.6), sleeve: { cuff: c.alt } }; },
+    "crewneck":      function (c, m) { return { torso: hemBand(c.alt) + bigMark(m, 60, 140, 2.1), sleeve: { cuff: c.alt } }; },
+    "cardigan":      function (c) { return { torso: '<path d="M60 118 V178" stroke="' + c.alt + '" stroke-width="3"/>' + buttons(c.trim, [128, 141, 154, 167]) + pocket(31, 158, 20, 17, c.alt) + pocket(69, 158, 20, 17, c.alt) + hemBand(c.alt), sleeve: { cuff: c.alt } }; },
+    "leather jacket": function (c) { return { torso: '<path d="M44 118 L60 146 L52 118 Z M76 118 L60 146 L68 118 Z" fill="' + c.alt + '"/>' + '<path d="M51 118 L57 178" stroke="' + c.trim + '" stroke-width="2"/>' + '<path d="M68 142 h14 M34 160 h12" stroke="' + c.trim + '" stroke-width="1.8" stroke-linecap="round"/>' + '<rect x="24" y="170" width="72" height="8" fill="' + c.alt + '"/><rect x="56" y="169" width="8" height="10" rx="1" fill="none" stroke="' + c.trim + '" stroke-width="1.5"/>', sleeve: { cuff: c.alt, stripe: c.trim, stripeAlpha: .7 } }; },
+    "suit and tie":  function (c) { return { torso: '<path d="M50 118 L60 150 L70 118 Z" fill="#F2F0EA"/>' + '<path d="M44 118 L60 150 L54 118 Z M76 118 L60 150 L66 118 Z" fill="' + c.alt + '"/>' + '<path d="M58 118 L56 124 L60 164 L64 124 L62 118 Z" fill="' + c.trim + '"/>' + buttons(c.alt, [153, 163]) + '<path d="M78 128 h10 v4 h-10 Z" fill="' + c.trim + '"/>' + '<path d="M26 176 L60 170 L94 176" fill="none" stroke="' + c.alt + '" stroke-width="1.2" opacity=".5"/>', sleeve: { cuff: "#F2F0EA" } }; },
+    "oxford shirt":  function (c) { return { torso: '<path d="M60 118 V181" stroke="' + c.alt + '" stroke-width="1.2" opacity=".6"/><path d="M57 118 V181 M63 118 V181" stroke="' + c.alt + '" stroke-width=".8" opacity=".35"/>' + buttons(c.trim, [128, 140, 152, 164, 176]) + pocket(34, 130, 16, 15, c.alt), sleeve: { cuff: c.alt, cuffAlpha: .4 } }; },
+    "flannel":       function (c) {
+      var g = "", t = "";
+      for (var x = 31; x <= 91; x += 10) { g += "M" + x + " 118 V182 "; t += "M" + (x + 5) + " 118 V182 "; }
+      for (var y = 123; y <= 178; y += 10) { g += "M24 " + y + " H96 "; t += "M24 " + (y + 5) + " H96 "; }
+      return { torso: '<path d="' + g + '" stroke="' + c.alt + '" stroke-width="2.4" opacity=".6"/><path d="' + t + '" stroke="' + c.trim + '" stroke-width=".8" opacity=".5"/>' + '<path d="M60 118 V181" stroke="' + c.alt + '" stroke-width="2.4"/>' + buttons(c.trim, [128, 141, 154, 167]) + pocket(34, 128, 16, 14, c.alt), sleeve: { bands: c.alt, bandsAlpha: .6, cuff: c.alt } };
+    },
+    "polo":          function (c, m) { return { torso: '<path d="M60 118 V134" stroke="' + c.alt + '" stroke-width="2.4"/>' + buttons(c.alt, [124, 131]) + bigMark(m, 46, 134, 1.2) + '<path d="M27 170 v8 M93 170 v8" stroke="' + c.alt + '" stroke-width="1.4" opacity=".7"/>' + hemStitch(c.alt), sleeve: { cuff: c.alt } }; },
+    "turtleneck":    function (c) { return { torso: hemBand(c.alt), sleeve: { cuff: c.alt } }; },
+    "fair isle knit": function (c) {
+      var d = "", dots = "";
+      for (var x = 32; x <= 88; x += 8) { d += "M" + x + " 139 l4 -5 l4 5 l-4 5 Z "; dots += '<circle cx="' + (x + 4) + '" cy="130" r="1.2"/><circle cx="' + x + '" cy="148" r="1.2"/>'; }
+      return { torso: '<rect x="24" y="126" width="72" height="26" fill="' + c.trim + '"/><path d="' + d + '" fill="' + c.alt + '"/><g fill="' + c.alt + '">' + dots + '</g>' + hemBand(c.alt), sleeve: { cuff: c.alt, band: { y: 124, h: 10, col: c.trim } } };
+    },
+    "varsity jacket": function (c, m) { return { torso: '<rect x="24" y="172" width="72" height="11" rx="2" fill="' + c.alt + '"/><path d="M24 175 H96 M24 180 H96" stroke="' + c.trim + '" stroke-width="1.6"/>' + '<path d="M60 118 V172" stroke="' + c.alt + '" stroke-width="2"/>' + buttons(c.trim, [126, 137, 148, 159]) + welts(c.alt) + (m ? bigMark(m, 45, 136, 1.5) : '<rect x="37" y="128" width="16" height="17" rx="2" fill="' + c.trim + '"/>'), sleeve: { col: c.trim, cuff: c.alt, cuffStripe: c.trim } }; },
+    "track jacket":  function (c) { return { torso: zip(c.trim, 174, true) + '<path d="M29 118 V176 M91 118 V176" stroke="' + c.trim + '" stroke-width="3"/>' + hemBand(c.alt), sleeve: { stripe: c.trim, cuff: c.alt } }; },
+    "coach jacket":  function (c, m) { return { torso: '<path d="M60 118 V174" stroke="' + c.alt + '" stroke-width="2.4"/>' + buttons(c.trim, [124, 134, 144, 154, 164]) + welts(c.alt) + hemBand(c.alt) + bigMark(m, 46, 134, 1.3), sleeve: { cuff: c.alt } }; },
+    "breton stripe": function (c) { var d = ""; for (var y = 122; y <= 178; y += 8) d += "M24 " + y + " H96 "; return { torso: '<path d="' + d + '" stroke="' + c.main + '" stroke-width="4"/>', sleeve: { bands: c.main } }; },
+    "denim jacket":  function (c) { return { torso: '<path d="M60 118 V170" stroke="' + c.alt + '" stroke-width="2.2"/>' + buttons(c.trim, [126, 136, 146, 156, 166]) + '<path d="M40 118 V170 M80 118 V170" stroke="' + c.alt + '" stroke-width="1.2" opacity=".6"/>' + pocket(31, 128, 18, 14, c.trim) + pocket(71, 128, 18, 14, c.trim) + flap(31, 128, 18, c.alt) + flap(71, 128, 18, c.alt) + '<rect x="24" y="170" width="72" height="10" rx="1.5" fill="' + c.alt + '"/>' + buttons(c.trim, [175], 34) + buttons(c.trim, [175], 86), sleeve: { cuff: c.alt, stripe: c.trim, stripeAlpha: .4 } }; },
+    "puffer vest":   function (c) { var d = ""; for (var y = 128; y <= 178; y += 10) d += "M24 " + y + " H96 "; return { torso: '<path d="' + d + '" stroke="' + c.alt + '" stroke-width="1.8" opacity=".85"/>' + zip(c.trim, 180, false) + welts(c.alt), sleeve: { col: c.alt } }; },
+    "quarter zip":   function (c, m) { return { torso: zip(c.trim, 148, true) + hemBand(c.alt) + bigMark(m, 46, 138, 1.3), sleeve: { cuff: c.alt } }; },
+    "zip hoodie":    function (c, m) { return { torso: '<path d="M33 156 q0 -3 3 -3 h21 v23 H33 Z M63 153 h21 q3 0 3 3 v20 H63 Z" fill="' + c.alt + '"/>' + zip(c.trim, 180, false) + strings(c.trim) + hemBand(c.alt) + bigMark(m, 46, 136, 1.2), sleeve: { cuff: c.alt } }; },
+    "v-neck sweater": function (c, m) { return { torso: hemBand(c.alt) + bigMark(m, 60, 142, 1.8), sleeve: { cuff: c.alt } }; },
+    "camp collar":   function (c) { return { torso: pocket(33, 128, 16, 15, c.alt) + '<path d="M60 118 V181" stroke="' + c.alt + '" stroke-width="1.4" opacity=".6"/>' + buttons(c.trim, [130, 144, 158, 172]) + hemStitch(c.alt), sleeve: {} }; }
+  };
+  FULL["hood up"] = FULL.hoodie;
+
+  // The tops drawn by hand to match their photos, in full.
+  var FULL_TOP = {
+    "Mets Starter tee": function () { return { torso: '<path d="M36 147 q24 -18 48 0" fill="none" stroke="#F26A21" stroke-width="6.5" stroke-linecap="round"/><text x="60" y="148" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="800" font-size="12.5" fill="#FFFFFF" stroke="#F26A21" stroke-width=".5">Mets</text><rect x="46" y="152" width="28" height="3.4" rx="1.2" fill="#FFFFFF"/>' + hemStitch("#1D3A8C"), sleeve: { cuff: "#F26A21" } }; },
+    "Adidas Spain 24/25 home": function () {
+      var d = ""; for (var x = 32; x <= 88; x += 6) d += "M" + x + " 118 V182 ";
+      return { torso: '<path d="' + d + '" stroke="#F2C230" stroke-width="1.2" opacity=".9"/>' +
+        '<path d="M40 129 l6 -3 l6 3 v7 q0 5 -6 7 q-6 -2 -6 -7 Z" fill="#C8102E" stroke="#F2C230" stroke-width="1"/><path d="M43 134 h6 M46 131 v8" stroke="#F2C230" stroke-width="1"/>' +
+        '<path d="M73 138 l2.5 -5 l1.5 2.5 M76.5 138 l2.5 -5 l1.5 2.5 M80 138 l2.5 -5 l1.5 2.5" fill="none" stroke="#F2C230" stroke-width="1.5"/>' +
+        '<text x="78" y="143" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="3.2" fill="#F2C230">adidas</text>',
+        sleeve: { col: "#1F2A5C", stripe3: "#F2C230" } };
+    },
+    "Spain red & yellow tee": function () { return { torso: '<path d="M26 118 C24 140 24 160 25 176 Q26 182 32 182 H36 V118 Z M94 118 C96 140 96 160 95 176 Q94 182 88 182 H84 V118 Z" fill="#F2C230"/><path d="M36 118 V182 M84 118 V182" stroke="#1E4DB7" stroke-width="1.4"/><rect x="46" y="134" width="28" height="5" rx="1.5" fill="#F2C230"/>', sleeve: { cuff: "#F2C230", stripe: "#1E4DB7" } }; },
+    "Southpole brown ringer": function () { return { torso: '<circle cx="60" cy="140" r="10" fill="#EADFC8"/><text x="60" y="144.6" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="800" font-size="13" fill="#5C3A21">S</text>' + hemStitch("#EADFC8"), sleeve: { cuff: "#EADFC8" } }; },
+    "Zara red gingham button-up": function () {
+      var d = ""; for (var x = 30; x <= 92; x += 6) d += "M" + x + " 118 V182 "; for (var y = 121; y <= 181; y += 6) d += "M24 " + y + " H96 ";
+      return { torso: '<path d="' + d + '" stroke="#C8102E" stroke-width="2.2" opacity=".45"/>' + '<rect x="57" y="118" width="6" height="64" fill="#F4EEE6" opacity=".9"/>' + buttons("#C8102E", [126, 138, 150, 162, 174]) + pocket(34, 130, 15, 14, "#C8102E"), sleeve: { bands: "#C8102E", bandsAlpha: .45, stripe: "#C8102E", stripeAlpha: .45, cuff: "#F4EEE6" } };
+    },
+    "Grateful Dead tie-dye tee": function () { return { torso: '<g opacity=".85"><circle cx="60" cy="142" r="36" fill="#F2C230"/><circle cx="60" cy="142" r="28" fill="#F26A21"/><circle cx="60" cy="142" r="20" fill="#C8102E"/><circle cx="60" cy="142" r="12" fill="#3A62C8"/><circle cx="60" cy="142" r="5" fill="#FFFFFF"/></g>', sleeve: { band: { y: 118, h: 20, col: "#F26A21", alpha: .55 } } }; },
+    "Carhartt camo shirt": function () { return { torso: '<g fill="#3E4A28" opacity=".85"><ellipse cx="36" cy="140" rx="7" ry="4"/><ellipse cx="80" cy="150" rx="8" ry="4.5"/><ellipse cx="50" cy="166" rx="6" ry="3.5"/><ellipse cx="86" cy="170" rx="6" ry="3.5"/><ellipse cx="66" cy="156" rx="5" ry="3"/></g><g fill="#8A7A4E" opacity=".7"><ellipse cx="30" cy="160" rx="5" ry="2.5"/><ellipse cx="72" cy="176" rx="6" ry="3"/><ellipse cx="46" cy="150" rx="4" ry="2.5"/></g>' + '<path d="M60 118 V181" stroke="#3E4A28" stroke-width="2"/>' + buttons("#D8D2B8", [128, 141, 154, 167]) + pocket(31, 128, 18, 15, "#3E4A28") + pocket(71, 128, 18, 15, "#3E4A28") + flap(31, 128, 18, "#3E4A28") + flap(71, 128, 18, "#3E4A28") + bigMark(["csq", "#D8D2B8"], 40, 138, .9), sleeve: { cuff: "#3E4A28", extra: '<ellipse cx="0" cy="124" rx="5" ry="3" fill="#3E4A28" opacity=".85"/><ellipse cx="0" cy="140" rx="4" ry="2.5" fill="#8A7A4E" opacity=".7"/>' } }; }
+  };
+  function fullFor(name, draw, c) {
+    var f = draw.tpl && FULL[draw.tpl] ? FULL[draw.tpl](draw.c, draw.mark) : FULL_TOP[name] ? FULL_TOP[name]() : FULL[name] ? FULL[name](c) : null;
+    return f || { torso: "", sleeve: {} };
+  }
 
   // A bare leg below the hem: thigh into calf into ankle, with the quad
   // and calf lines drawn in. x is the left edge of the pants leg above it.
@@ -1771,17 +1851,30 @@ body.reeling { overflow: hidden; }
   }
 
   // An arm in two pieces that bend at the elbow, drawn as soft capsules
-  // with a round shoulder so it flows out of the torso.
+  // with a round shoulder so it flows out of the torso, wearing whatever
+  // the garment says about its sleeves.
   function armSVG(side, ids) {
-    var s0 = SHOULDER[side], c = fit.col, shortS = fit.shirt.sleeves === "short";
-    var x = s0.x - 7.5;
-    var up = '<circle cx="' + s0.x + '" cy="' + (s0.y + 4) + '" r="8" fill="' + c + '"/>' +
-             '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
-             (shortS ? '<rect x="' + x + '" y="110" width="15" height="28" rx="7.5" fill="' + c + '"/>' : "");
-    var fore = '<rect x="' + (s0.x - 5.5) + '" y="146" width="11" height="40" rx="5.5" fill="' + (shortS ? "var(--skin)" : c) + '"/>' +
-               '<circle cx="' + s0.x + '" cy="183" r="6.2" fill="var(--skin)"/>';
-    return '<g' + (ids ? ' id="fArm' + side + '"' : "") + '>' + up +
-           '<g' + (ids ? ' id="fFore' + side + '"' : "") + '>' + fore + '</g></g>';
+    var s0 = SHOULDER[side], sl = fit.sleeve || {}, c = sl.col || fit.col, shortS = fit.shirt.sleeves === "short";
+    var x = s0.x - 7.5, skin = "var(--skin)", outer = side === "L" ? s0.x - 4.5 : s0.x + 4.5;
+    var o = '<circle cx="' + s0.x + '" cy="' + (s0.y + 4) + '" r="8" fill="' + c + '"/>' +
+            '<rect x="' + x + '" y="110" width="15" height="42" rx="7.5" fill="' + (shortS ? skin : c) + '"/>' +
+            (shortS ? '<rect x="' + x + '" y="110" width="15" height="28" rx="7.5" fill="' + c + '"/>' : "");
+    var end = shortS ? 136 : 150, d, y;
+    if (sl.stripe) o += '<path d="M' + outer + ' 114 V' + end + '" stroke="' + sl.stripe + '" stroke-width="2.4" stroke-linecap="round" opacity="' + (sl.stripeAlpha || 1) + '"/>';
+    if (sl.stripe3) o += '<path d="M' + (s0.x - 3) + ' 112 V' + end + ' M' + s0.x + ' 112 V' + end + ' M' + (s0.x + 3) + ' 112 V' + end + '" stroke="' + sl.stripe3 + '" stroke-width="1.3"/>';
+    if (sl.bands) { d = ""; for (y = 116; y < end; y += 8) d += "M" + (x + 1) + " " + y + " h13 "; o += '<path d="' + d + '" stroke="' + sl.bands + '" stroke-width="3.4" opacity="' + (sl.bandsAlpha || 1) + '"/>'; }
+    if (sl.band) o += '<rect x="' + x + '" y="' + sl.band.y + '" width="15" height="' + sl.band.h + '" fill="' + sl.band.col + '" opacity="' + (sl.band.alpha || 1) + '"/>';
+    if (sl.extra) o += '<g transform="translate(' + s0.x + ' 0)">' + sl.extra + '</g>';
+    if (shortS && sl.cuff) o += '<rect x="' + x + '" y="132" width="15" height="6" rx="2" fill="' + sl.cuff + '" opacity="' + (sl.cuffAlpha || 1) + '"/>';
+    var fore = '<rect x="' + (s0.x - 5.5) + '" y="146" width="11" height="40" rx="5.5" fill="' + (shortS ? skin : c) + '"/>';
+    if (!shortS) {
+      if (sl.stripe) fore += '<path d="M' + (side === "L" ? s0.x - 3.5 : s0.x + 3.5) + ' 148 V176" stroke="' + sl.stripe + '" stroke-width="2.2" stroke-linecap="round" opacity="' + (sl.stripeAlpha || 1) + '"/>';
+      if (sl.bands) { d = ""; for (y = 150; y < 176; y += 8) d += "M" + (s0.x - 4.5) + " " + y + " h9 "; fore += '<path d="' + d + '" stroke="' + sl.bands + '" stroke-width="3" opacity="' + (sl.bandsAlpha || 1) + '"/>'; }
+      if (sl.cuff) fore += '<rect x="' + (s0.x - 5.5) + '" y="174" width="11" height="8" rx="2" fill="' + sl.cuff + '" opacity="' + (sl.cuffAlpha || 1) + '"/>' +
+                           (sl.cuffStripe ? '<path d="M' + (s0.x - 5.5) + ' 178 h11" stroke="' + sl.cuffStripe + '" stroke-width="1.6"/>' : "");
+    }
+    fore += '<circle cx="' + s0.x + '" cy="183" r="6.2" fill="' + skin + '"/>';
+    return '<g' + (ids ? ' id="fArm' + side + '"' : "") + '>' + o + '<g' + (ids ? ' id="fFore' + side + '"' : "") + '>' + fore + '</g></g>';
   }
 
   function figureSVG(ids) {
@@ -1799,6 +1892,13 @@ body.reeling { overflow: hidden; }
          ' Q' + (99 + flare * .5) + ' ' + mid + ' 96 178 Z" fill="' + p.col + '"/>' +
          '<path d="M28 178 Q60 174 92 178 Q60 184 28 178 Z" fill="#000" opacity=".12"/>';
     if (p.kind === "shorts") o += leg(29, hem - 2, 262 - hem + 2) + leg(67, hem - 2, 262 - hem + 2);
+    if (p.denim) o += '<path d="M24 184 q9 0 14 12 M96 184 q-9 0 -14 12 M60 184 v16 M58 200 h4" fill="none" stroke="' + p.denim + '" stroke-width="1.1" opacity=".75"/>' +
+                      '<path d="M' + (24 - flare * .3) + ' 190 Q' + (22 - flare * .5) + ' ' + mid + ' ' + (24 - flare) + ' ' + (hem - 8) + ' M' + (96 + flare * .3) + ' 190 Q' + (98 + flare * .5) + ' ' + mid + ' ' + (96 + flare) + ' ' + (hem - 8) + '" fill="none" stroke="' + p.denim + '" stroke-width="1" opacity=".5"/>';
+    if (p.cord)  o += '<path d="M56 184 q-1 6 -2 12 M64 184 q1 6 2 12" fill="none" stroke="' + p.cord + '" stroke-width="1.6" stroke-linecap="round"/>';
+    if (p.cargo) o += '<g fill="none" stroke="' + (p.plaid || "#000") + '" stroke-width="1.3" opacity=".7"><rect x="28" y="198" width="20" height="15" rx="1.5"/><rect x="72" y="198" width="20" height="15" rx="1.5"/></g>' +
+                      '<path d="M28 198 h20 l-10 5 Z M72 198 h20 l-10 5 Z" fill="' + (p.plaid || "#000") + '" opacity=".6"/>';
+    if (p.mesh)  { var md = ""; for (var my = 186; my < hem; my += 4) md += "M26 " + my + " H94 "; o += '<path d="' + md + '" stroke="#fff" stroke-width=".8" stroke-dasharray="1.2 2.4" opacity=".28"/>'; }
+    if (p.mark)  o += bigMark(p.mark, p.kind === "shorts" ? 41 : 40, p.kind === "shorts" ? hem - 10 : hem - 16, 1.15);
     if (p.trim && p.kind === "track") {
       o += '<path d="M27 182 L25 ' + hem + ' M93 182 L95 ' + hem + '" stroke="' + p.trim + '" stroke-width="2.4"/>';
     } else if (p.trim && p.kind === "shorts") {
@@ -1808,19 +1908,31 @@ body.reeling { overflow: hidden; }
     if (p.camo)  o += '<g fill="' + p.camo + '" opacity=".85"><ellipse cx="38" cy="195" rx="7" ry="4"/><ellipse cx="78" cy="205" rx="8" ry="4.5"/><ellipse cx="50" cy="212" rx="5" ry="3"/><ellipse cx="86" cy="190" rx="5" ry="3"/></g>';
     if (p.plaid) o += '<g stroke="' + p.plaid + '" stroke-width="1.6" opacity=".5"><path d="M24 192 H96 M24 206 H96 M36 180 V220 M52 180 V220 M68 180 V220 M84 180 V220"/></g>';
     if (p.waist) o += '<rect x="24" y="178" width="72" height="5" fill="' + p.waist + '"/><g fill="#3A2F2A"><circle cx="30" cy="180.5" r="1.1"/><circle cx="40" cy="180.5" r="1.1"/><circle cx="50" cy="180.5" r="1.1"/><circle cx="60" cy="180.5" r="1.1"/><circle cx="70" cy="180.5" r="1.1"/><circle cx="80" cy="180.5" r="1.1"/><circle cx="90" cy="180.5" r="1.1"/></g>';
-    // shoes: a rounded toe box on a sole
-    var top = sh.boot ? 248 : 258;
+    // shoes: a rounded toe box on a sole, and the detail that says which pair
+    var top = sh.boot ? 248 : 258, n = sh.n || sh.sole;
     var shoe = function (x) {
-      return '<path d="M' + x + ' ' + (top + 6) + ' Q' + x + ' ' + top + ' ' + (x + 7) + ' ' + top + ' H' + (x + 28) +
+      var d = '<path d="M' + x + ' ' + (top + 6) + ' Q' + x + ' ' + top + ' ' + (x + 7) + ' ' + top + ' H' + (x + 28) +
              ' Q' + (x + 40) + ' ' + top + ' ' + (x + 40) + ' ' + (top + 10) + ' V269 Q' + (x + 40) + ' 276 ' + (x + 34) + ' 276 H' + (x + 6) +
-             ' Q' + x + ' 276 ' + x + ' 270 Z" fill="' + sh.col + '"/>' +
-             '<path d="M' + x + ' 269 H' + (x + 40) + ' V271 Q' + (x + 40) + ' 277 ' + (x + 34) + ' 277 H' + (x + 6) + ' Q' + x + ' 277 ' + x + ' 271 Z" fill="' + sh.sole + '"/>';
+             ' Q' + x + ' 276 ' + x + ' 270 Z" fill="' + sh.col + '"/>';
+      switch (sh.kind) {
+        case "nb":    d += '<path d="M' + (x + 10) + ' 267 v-7 l9 7 v-7" fill="none" stroke="' + n + '" stroke-width="2.2" stroke-linejoin="round"/>'; break;
+        case "asics": d += '<path d="M' + (x + 8) + ' 262 q8 -3 18 4 M' + (x + 10) + ' 266 q8 -3 18 4" fill="none" stroke="' + n + '" stroke-width="1.8" stroke-linecap="round"/>'; break;
+        case "am95":  d += '<path d="M' + (x + 3) + ' 268 q10 -5 20 0 t17 0 M' + (x + 3) + ' 264 q10 -5 20 0 t17 0" fill="none" stroke="' + n + '" stroke-width="1.4"/><ellipse cx="' + (x + 8) + '" cy="272" rx="5" ry="2" fill="#fff" opacity=".5"/>'; break;
+        case "am97":  d += '<path d="M' + (x + 2) + ' 262 q12 -4 24 0 t14 0 M' + (x + 2) + ' 265.5 q12 -4 24 0 t14 0 M' + (x + 2) + ' 269 q12 -4 24 0 t14 0" fill="none" stroke="' + n + '" stroke-width="1.1"/>'; break;
+        case "wb":    d += '<path d="M' + (x + 12) + ' 259 l-4 10 M' + (x + 17) + ' 259 l-4 10 M' + (x + 22) + ' 259 l-4 10" stroke="' + n + '" stroke-width="2"/><circle cx="' + (x + 30) + '" cy="263" r="1.2" fill="' + n + '"/><circle cx="' + (x + 34) + '" cy="266" r="1.2" fill="' + n + '"/>'; break;
+        case "boot":  d += '<rect x="' + (x + 8) + '" y="' + (top + 1) + '" width="18" height="4" rx="2" fill="#3A2F2A" opacity=".6"/><path d="M' + (x + 12) + ' ' + (top + 7) + ' l10 2 l-10 3 l10 2 l-10 3 l10 2" fill="none" stroke="' + n + '" stroke-width="1.3"/><path d="M' + (x + 4) + ' 262 q6 -4 12 0 q6 4 12 0" fill="none" stroke="#3A2F2A" stroke-width="1" opacity=".5"/>'; break;
+        case "boat":  d += '<path d="M' + (x + 6) + ' 262 H' + (x + 30) + '" stroke="' + n + '" stroke-width="1.4" stroke-linecap="round"/><path d="M' + (x + 24) + ' 262 q6 -3 11 3" fill="none" stroke="' + n + '" stroke-width="1" stroke-dasharray="1.5 1.5"/>'; break;
+      }
+      d += '<path d="M' + x + ' 269 H' + (x + 40) + ' V271 Q' + (x + 40) + ' 277 ' + (x + 34) + ' 277 H' + (x + 6) + ' Q' + x + ' 277 ' + x + ' 271 Z" fill="' + sh.sole + '"/>';
+      return d;
     };
     o += shoe(17) + shoe(63);
 
-    // torso: shoulders flow down from the bust, a soft waist, rounded hips
-    var torso = '<path d="M26 118 C24 140 24 160 25 176 Q26 182 32 182 H88 Q94 182 95 176 C96 160 96 140 94 118 Z" fill="' + c + '"/>' +
-                '<path d="M26 118 C24 140 24 160 25 176 Q26 182 32 182 H88 Q94 182 95 176 C96 160 96 140 94 118 Z" fill="#000" opacity=".06"/>';
+    // torso: shoulders flow down from the bust, a soft waist, rounded hips;
+    // the garment's full-length details are clipped to it
+    var torso = '<path d="' + TORSO + '" fill="' + c + '"/>' +
+                '<clipPath id="fClip"><path d="' + TORSO + '"/></clipPath><g clip-path="url(#fClip)">' + (fit.garment || "") + '</g>' +
+                '<path d="' + TORSO + '" fill="#000" opacity=".05"/>';
     var arms = armSVG("L", ids) + armSVG("R", ids);
     // the live bust and head, borrowed from the top-left rig
     var head = '<g' + I("fHead") + '>' + (ids ? '<use href="#head"/>' : "") + '</g>';
@@ -1833,16 +1945,6 @@ body.reeling { overflow: hidden; }
   // `action` is one of ACTS (a lift or a hobby); without one the figure just
   // stands there in the fit.
   function renderLook(action) {
-    var p = fit.pants;
-
-    // Shorts: the whole figure stands in the margin, legs and all. The
-    // lower body goes behind the real bust, which already sits on top.
-    var full = p.kind === "shorts" && wide.matches;
-    document.body.classList.toggle("full", full);
-    vbH = full ? 290 : 120;
-    svg.setAttribute("viewBox", "0 0 120 " + vbH);
-    fullEl.innerHTML = full ? figureSVG(false) : "";
-
     var act = action && ACTS[action];
     figure.innerHTML = act && act.side ? "" : figureSVG(true);
     figure.parentNode.setAttribute("viewBox", act && act.side ? "-6 72 184 222" : action ? "-44 -52 208 344" : "0 0 120 290");
@@ -2001,7 +2103,7 @@ body.reeling { overflow: hidden; }
     // the arm comes up from the right shoulder and points at whatever the
     // cursor is on; it tucks away (scale 0) when there is nothing to point at
     var want = 0, ang = armA;
-    if (pointHost) {
+    if (pointHost && !acting) {
       var pr = pointHost.getBoundingClientRect();
       if (pr.width && pr.height) {
         var pt = toLocal(pr.left + pr.width * 0.3, pr.top + pr.height * 0.5);
@@ -2012,7 +2114,7 @@ body.reeling { overflow: hidden; }
     }
     armA = lerp(armA, ang, .14);
     armS = lerp(armS, want, want ? .14 : .22);
-    armEl.setAttribute("transform", "translate(90 110) rotate(" + armA.toFixed(2) + ") scale(" + armS.toFixed(3) + ")");
+    armEl.setAttribute("transform", "translate(88 112) rotate(" + armA.toFixed(2) + ") scale(" + armS.toFixed(3) + ")");
     armEl.setAttribute("opacity", Math.min(1, armS * 1.6).toFixed(3));
 
     requestAnimationFrame(frame);
@@ -2138,14 +2240,40 @@ body.reeling { overflow: hidden; }
     return '<path d="M' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) + ' L' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) +
       '" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" fill="none"/>';
   }
-  function plates(c, label) {   // a loaded bar seen end-on, coming toward you
-    var o = '<circle cx="' + (c.x - 11).toFixed(1) + '" cy="' + (c.y - 9).toFixed(1) + '" r="17" fill="#2E2E38"/>' +
-      '<path d="M' + (c.x - 11).toFixed(1) + ' ' + (c.y - 9).toFixed(1) + ' L' + (c.x + 7).toFixed(1) + ' ' + (c.y + 6).toFixed(1) + '" stroke="#55555F" stroke-width="5" stroke-linecap="round"/>' +
-      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="21" fill="#23232B"/>' +
-      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="13" fill="none" stroke="#3A3A46" stroke-width="2"/>' +
-      '<circle cx="' + (c.x + 7).toFixed(1) + '" cy="' + (c.y + 6).toFixed(1) + '" r="3.5" fill="#55555F"/>';
-    if (label) o += '<text x="' + (c.x + 7).toFixed(1) + '" y="' + (c.y + 36).toFixed(1) + '" text-anchor="middle" class="na">' + label + '</text>';
-    return o;
+  // A loaded bar through c, seen at a three-quarter angle: the near end
+  // comes down and to the right toward you, so the plates stack along it
+  // and you can count them. Loaded like a real bar: 45 lb bar, then per
+  // side 45s, a 25, 10s, 5s, 2.5s until the number is right.
+  var PLATE = { 45: { r: 22, t: 5.2, col: "#23232B" }, 25: { r: 17, t: 4.4, col: "#2A2A34" }, 10: { r: 13, t: 3.6, col: "#30303C" }, 5: { r: 11, t: 3, col: "#363643" }, 2.5: { r: 9, t: 2.4, col: "#3C3C4A" } };
+  function platesFor(total) {
+    var per = (total - 45) / 2, out = [];
+    [45, 25, 10, 5, 2.5].forEach(function (w) { while (per >= w - .01) { out.push(w); per -= w; } });
+    return out;
+  }
+  function barbell(c, total, label) {
+    var ux = .78, uy = .62, deg = 38.5, collar = 36, ps = platesFor(total);
+    function at(k) { return { x: c.x + ux * k, y: c.y + uy * k }; }
+    function plate(w, k, sc) {
+      var P = PLATE[w], p = at(k);
+      return '<ellipse cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" rx="' + (P.t * .95 * sc).toFixed(1) + '" ry="' + (P.r * sc).toFixed(1) +
+        '" transform="rotate(' + deg + ' ' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ')" fill="' + P.col + '" stroke="#55555F" stroke-width="1"/>';
+    }
+    // near side: innermost first so the outer plates sit on top
+    var near = "", k = collar, i;
+    for (i = 0; i < ps.length; i++) { k += PLATE[ps[i]].t / 2; near += plate(ps[i], k, 1); k += PLATE[ps[i]].t / 2; }
+    var nearEnd = k + 7;
+    // far side: outermost first, a little smaller for the distance
+    var far = "", kf = collar, ks = [];
+    for (i = 0; i < ps.length; i++) { kf += PLATE[ps[i]].t * .8 / 2; ks.push(kf); kf += PLATE[ps[i]].t * .8 / 2; }
+    for (i = ps.length - 1; i >= 0; i--) far += plate(ps[i], -ks[i], .8);
+    var farEnd = at(-(kf + 6)), ne = at(nearEnd), lab = at(nearEnd - 2);
+    var shaft = function (a, b) { return '<path d="M' + a.x.toFixed(1) + ' ' + a.y.toFixed(1) + ' L' + b.x.toFixed(1) + ' ' + b.y.toFixed(1) + '" stroke="#55555F" stroke-width="5" stroke-linecap="round"/>'; };
+    return {
+      back: shaft(farEnd, c) + far,
+      front: shaft(c, ne) + near +
+        '<circle cx="' + ne.x.toFixed(1) + '" cy="' + ne.y.toFixed(1) + '" r="3" fill="#6A6A76"/>' +
+        (label ? '<text x="' + lab.x.toFixed(1) + '" y="' + (lab.y + 32).toFixed(1) + '" text-anchor="middle" class="na">' + label + '</text>' : "")
+    };
   }
   // Head in profile, facing right. expr: calm, strain or nope.
   function profile(c, rot, expr) {
@@ -2204,7 +2332,7 @@ body.reeling { overflow: hidden; }
     if (far) o += limb(sh, elb, 11, "rgba(0,0,0,.22)") + limb(elb, hand, 9, "rgba(0,0,0,.22)");
     return o;
   }
-  function torso(hip, sh) { return limb(hip, sh, 26, fit.col) + limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 26, fit.pants.col); }
+  function torso(hip, sh) { return limb(hip, sh, 30, fit.col) + limb({ x: hip.x, y: hip.y }, { x: hip.x + (sh.x - hip.x) * .15, y: hip.y + (sh.y - hip.y) * .15 }, 26, fit.pants.col); }
 
   // ---------------------------------------------------------------------
   // The actions. Each has a hint for the keys, a setup(st) that lays out
@@ -2224,7 +2352,7 @@ body.reeling { overflow: hidden; }
     return 0;
   }
   function liftKey(e, st) { if (e.key === " " && st.repAt < 0 && st.rep < 3) st.repAt = st.now; }
-  function liftAuto(sec, st) { if (st.repAt < 0 && sec - st.lastKey > .5) { st.lastKey = sec; liftKey({ key: " " }, st); } }
+  function liftAuto(sec, st) { if (st.repAt < 0 && sec - (st.lastAuto || 0) > .5) { st.lastAuto = sec; liftKey({ key: " " }, st); } }
 
   var ACTS = {
     // ---- squat: bar on the back, hips back, knees forward, depth ----
@@ -2240,17 +2368,18 @@ body.reeling { overflow: hidden; }
         var sh = pt(hip, 42 * d, 52);
         var head = pt(sh, 26 * d, 23);
         var elb = { x: sh.x - 11, y: sh.y + 12 }, hand = { x: sh.x + 9, y: sh.y - 3 };
-        var bar = { x: sh.x + 1, y: sh.y - 3 };
-        var far = { x: 6, y: -4 };
+        var bb = barbell({ x: sh.x + 1, y: sh.y - 3 }, 375, "375");
+        var far = { x: 12, y: -7 };
         figure.innerHTML =
           '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
+          bb.back +
           sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
           profile(head, 12 * d, "strain") +
           sideArm(sh, elb, hand) +
-          plates(bar, "375");
+          bb.front;
       } },
 
     // ---- bench: on his back, the bar pressed up toward you ----
@@ -2270,19 +2399,21 @@ body.reeling { overflow: hidden; }
         var hand = { x: 64 + shake, y: 186 - 42 * d };
         var elb = { x: 48 - 10 * (1 - d), y: 182 - 16 * d };
         var head = { x: 36, y: 186 };
-        var far = { x: 6, y: -5 };
+        var far = { x: 12, y: -8 };
+        var bb = barbell({ x: hand.x, y: hand.y - 2 }, 245, "245");
         figure.innerHTML =
           '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
           '<rect x="14" y="110" width="8" height="98" rx="2" fill="#55555F"/><path d="M22 150 h10 v6 h-10" fill="none" stroke="#55555F" stroke-width="3"/>' +
           '<rect x="22" y="206" width="124" height="11" rx="4" fill="#3A3A46"/>' +
           '<rect x="34" y="217" width="8" height="64" fill="#2A2A36"/><rect x="118" y="217" width="8" height="64" fill="#2A2A36"/>' +
+          bb.back +
           sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
           profile(head, -90, "strain") +
           sideArm(sh, elb, hand) +
-          plates({ x: hand.x, y: hand.y - 2 }, "245");
+          bb.front;
       } },
 
     // ---- deadlift: hinge down, grip, pull, nothing happens, stand up, nope ----
@@ -2302,23 +2433,25 @@ body.reeling { overflow: hidden; }
         var hip = pt(knee, -(28 * down), 50);
         var sh = pt(hip, (82 - 10 * pull) * down, 52);
         var head = pt(sh, (34 - 6 * pull) * down, 23);
-        var bar = { x: 88, y: 246 };
+        var bar = { x: 86, y: 232 };
         var hang = { x: sh.x + 2, y: sh.y + 58 };
-        var grip = { x: bar.x + 1, y: bar.y - 22 + tremble * .3 };
+        var grip = { x: bar.x + 1, y: bar.y - 6 + tremble * .3 };
         var hand = { x: mix(hang.x, grip.x, down), y: mix(hang.y, grip.y, down) };
         var elb = { x: (sh.x + hand.x) / 2 - 4 * (1 - down), y: (sh.y + hand.y) / 2 };
         var expr = pull > .2 ? "strain" : t > .62 ? "nope" : "calm";
         var shakeHead = Math.sin(seg(t, .8, 1) * Math.PI * 3) * 10 * bump(seg(t, .8, 1));
-        var far = { x: 6, y: -4 };
+        var far = { x: 12, y: -7 };
+        var bb = barbell({ x: bar.x + tremble, y: bar.y }, 135, t > .62 ? "nope." : "");
         figure.innerHTML =
           '<path d="M-6 282 H180" stroke="var(--line)" stroke-width="1.5"/>' +
+          bb.back +
           sideLeg({ x: hip.x + far.x, y: hip.y + far.y }, { x: knee.x + far.x, y: knee.y + far.y }, { x: ankle.x + far.x, y: ankle.y + far.y }, true) +
           sideArm({ x: sh.x + far.x, y: sh.y + far.y }, { x: elb.x + far.x, y: elb.y + far.y }, { x: hand.x + far.x, y: hand.y + far.y }, true) +
           torso(hip, sh) +
           sideLeg(hip, knee, ankle) +
           profile(head, 60 * down + shakeHead, expr) +
           sideArm(sh, elb, hand) +
-          plates({ x: bar.x + tremble, y: bar.y }, t > .62 ? "nope." : "");
+          bb.front;
       } },
 
     // ---- violin: every press of space is a bow stroke ----
@@ -2346,7 +2479,7 @@ body.reeling { overflow: hidden; }
         st.notes.push({ at: st.now, x: 98 + Math.random() * 18, g: Math.random() < .5 ? "&#9834;" : "&#9835;" });
         if (st.notes.length > 6) st.notes.shift();
       },
-      auto: function (sec, st) { if (sec - st.lastKey > .6) { st.lastKey = sec; if (st.n >= 8) st.finish("that'll do."); else this.key({ key: " " }, st); } },
+      auto: function (sec, st) { if (sec - (st.lastAuto || 0) > .6) { st.lastAuto = sec; if (st.n >= 8) st.finish("that'll do."); else this.key({ key: " " }, st); } },
       tick: function (sec, st) {
         var u = Math.min(1, (sec - st.at) / .55);
         st.k = mix(st.from, st.to, ease(u));
@@ -2389,7 +2522,7 @@ body.reeling { overflow: hidden; }
         else if (e.key === " ") st.drop = st.now;
       },
       auto: function (sec, st) {
-        if (sec - st.lastKey > .5) { st.lastKey = sec; st.n = (st.n || 0) + 1; this.key({ key: st.n % 2 ? "ArrowLeft" : "ArrowRight" }, st); if (st.n === 6) this.key({ key: " " }, st); if (st.n >= 12) st.finish("one more tune, then."); }
+        if (sec - (st.lastAuto || 0) > .5) { st.lastAuto = sec; st.n = (st.n || 0) + 1; this.key({ key: st.n % 2 ? "ArrowLeft" : "ArrowRight" }, st); if (st.n === 6) this.key({ key: " " }, st); if (st.n >= 12) st.finish("one more tune, then."); }
       },
       tick: function (sec, st) {
         var dt = Math.min(.05, sec - st.prev); st.prev = sec;
@@ -2454,7 +2587,7 @@ body.reeling { overflow: hidden; }
         if (st.w[st.line] >= W[st.line] && st.line < 3) st.line++;
         st.extra = st.typed + " chars";
       },
-      auto: function (sec, st) { if (sec - st.lastKey > .07) { st.lastKey = sec; this.key({ key: st.typed < 32 ? "x" : "Enter" }, st); } },
+      auto: function (sec, st) { var n = 0; while (sec - (st.lastAuto || 0) > .07 && n++ < 8) { st.lastAuto = (st.lastAuto || sec) + .07; this.key({ key: st.typed < 32 ? "x" : "Enter" }, st); } },
       tick: function (sec, st) {
         var tapping = sec - st.tap < .13;
         var tapL = tapping && !st.side ? 2.2 : 0, tapR = tapping && st.side ? 2.2 : 0;
@@ -2501,7 +2634,7 @@ body.reeling { overflow: hidden; }
         st.hit = st.now;
         st.perfect = Math.abs(this.pos(st.now) - .5) < .075;
       },
-      auto: function (sec, st) { if (st.hit < 0 && sec > 1.15) { st.hit = sec; st.perfect = true; } },
+      auto: function (sec, st) { if (st.hit < 0 && sec > 2.45) { st.hit = sec; st.perfect = true; } },
       tick: function (sec, st) {
         // the toss: hand up, ball released and floating at its peak until the
         // swing; the marker sweeps while you wait
@@ -2579,6 +2712,7 @@ body.reeling { overflow: hidden; }
     if (k === liftOn) return;
     liftOn = k;
     if (acting) return;
+    document.body.classList.toggle("acting", !!k);
     if (k) {
       st = newState(true);
       renderLook(k);
@@ -2592,48 +2726,57 @@ body.reeling { overflow: hidden; }
     }
   }
 
-  // Press a hobby's button: the action runs until it finishes itself, the
-  // keys go quiet, or escape.
+  // Hover a hobby and he does it, where he stands, until you pick another
+  // one (or the head, or escape). The keys drive it; when they are quiet
+  // for a moment it drives itself, and it starts over when it finishes.
+  var hoverName = null;
+  function hoverAct(name) {
+    if (name === hoverName) return;
+    hoverName = name;
+    [].forEach.call(document.querySelectorAll(".hobby"), function (c) { c.classList.toggle("playing", c.getAttribute("data-act") === name); });
+    if (name) playAct(name); else finishAct(undefined, undefined, true);
+  }
   function playAct(name) {
-    if (name === "reps") name = liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift");
-    var act = ACTS[name];
+    var act = ACTS[name === "gym" ? liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift") : name];
     if (!act) return;
-    if (acting === name) { finishAct(); return; }
     stopAnim();
+    liftOn = null;
     acting = name;
     st = newState(false);
-    renderLook(name);
+    renderLook(name === "gym" ? liftTabs.filter(function (b) { return b.classList.contains("on"); })[0].getAttribute("data-lift") : name);
     look.classList.add("on");
+    document.body.classList.add("acting");
+    pointAt(null);
     setMood(act.mood);
     var t0 = performance.now();
     runAnim(1e9, function () {
       var sec = (performance.now() - t0) / 1000;
       st.now = sec;
-      if (touch && act.auto) act.auto(sec, st);
+      if (act.auto && (touch || sec - st.lastKey > 1.6)) act.auto(sec, st);
       act.tick(sec, st);
       var m = st.mood || act.mood;
       if (moodName !== m) setMood(m);
       khint.textContent = touch ? (st.extra || "") : act.hint + (st.extra ? "  ·  " + st.extra : "");
-      if (act.idle && !touch && sec - st.lastKey > act.idle) st.finish();
       if (st.done) finishAct(st.done.line, st.done.mood);
     }, null, true);
   }
-  function finishAct(line, mood) {
+  // quiet: the pointer moved on, so no closing line and no encore
+  function finishAct(line, mood, quiet) {
     if (!acting) return;
     stopAnim();
     acting = null; st = null;
     lastMove = Date.now();
     khint.textContent = "";
-    setMood(mood || "yay", line);
+    if (quiet) { hoverName = null; [].forEach.call(document.querySelectorAll(".hobby.playing"), function (c) { c.classList.remove("playing"); }); }
+    else setMood(mood || "yay", line);
     setTimeout(function () {
       if (acting) return;
+      if (hoverName) { playAct(hoverName); return; }        // encore while the card is still the pick
+      document.body.classList.remove("acting");
       if (liftOn) { var k = liftOn; liftOn = null; playLift(k); }
       else { renderLook(); if (!wasOnHead) look.classList.remove("on"); }
-    }, 1200);
+    }, quiet ? 0 : 1300);
   }
-  [].forEach.call(document.querySelectorAll(".play"), function (b) {
-    b.addEventListener("click", function () { playAct(b.getAttribute("data-act")); b.blur(); });
-  });
 
   // what the arm points at: a project, a job, a hobby or the reel on screen
   var pointHost = null, armA = 20, armS = 0;
@@ -2663,14 +2806,18 @@ body.reeling { overflow: hidden; }
       overHost = h;
       wasOnHead = onHead;
       clearTimeout(hoverTimer);
-      playLift(h ? h.getAttribute("data-lift") : null);
-      look.classList.toggle("on", onHead || !!liftOn);
+      var actName = h ? h.getAttribute("data-act") : null;
+      var liftName = h ? h.getAttribute("data-lift") : null;
+      if (actName) hoverAct(actName);
+      else if (onHead || liftName) hoverAct(null);
+      playLift(liftName);
+      look.classList.toggle("on", onHead || !!liftOn || !!acting);
       if (onHead) {
         pointAt(null);
         if (!acting) setMood("proud", pickLine(HEAD_LINES));
       } else if (m) {
         // small dwell, so brushing past a link doesn't set off the whole face
-        hoverTimer = setTimeout(function () { if (!acting) setMood(m, sayFor(h)); pointAt(h); }, 110);
+        hoverTimer = setTimeout(function () { if (!acting) setMood(m, sayFor(h)); if (!acting) pointAt(h); }, 110);
       } else {
         pointAt(null);
         if (!speedMood && !acting) setMood("idle");
@@ -2725,8 +2872,10 @@ body.reeling { overflow: hidden; }
   });
 
   svg.addEventListener("click", function () {
-    if (acting) { stopAnim(); acting = null; }
+    var was = hoverName;
+    if (acting) finishAct(undefined, undefined, true);
     rollFit();
+    if (was) hoverAct(was);
     moodName = "";               // force the quip to refresh even if already proud
     setMood("delight", pickLine(["new fit", "how about this", "ok, this one", "closet's deep", "one more"]));
     look.classList.add("on");    // touch users get the lookbook for a moment
@@ -2749,6 +2898,7 @@ body.reeling { overflow: hidden; }
   var hob = document.getElementById("hobbies");
   function showView(v) {
     var on = v === "reels", onHob = v === "hobbies";
+    if (acting) finishAct(undefined, undefined, true);
     reels.hidden = !on;
     hob.hidden = !onHob;
     page.hidden = on || onHob;
@@ -2789,7 +2939,7 @@ body.reeling { overflow: hidden; }
   });
   document.addEventListener("keydown", function (e) {
     if (acting && st) {
-      if (e.key === "Escape") { finishAct(); return; }
+      if (e.key === "Escape") { finishAct(undefined, undefined, true); return; }
       st.lastKey = st.now;
       var a = ACTS[acting];
       if (a.key) a.key(e, st);

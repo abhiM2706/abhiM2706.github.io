@@ -206,15 +206,12 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   ones. New purchase: add a row to the right list, with a `col` so the
   figure can wear it.
 
-  A fit in shorts stands full-length in the margin instead of the head crop
-  (`body.full`; the lower body is drawn into `#full` behind the bust), on
-  screens 1180px and wider, where the margin has the room. Narrower, it is
-  the bust again.
-
-  Hovering the head opens the **lookbook**: a full-body figure in the same fit
-  (the head and bust are the live ones, borrowed with `<use>`, so it blinks
-  and looks around too) and the itemised list. It is hover-only, so it is
-  hidden under 860px; on a phone, tapping the head shows it for a moment.
+  Hovering the head opens the **lookbook**: the full-length figure in the same
+  fit (the head and bust are the live ones, borrowed with `<use>`, so it blinks
+  and looks around too) and the itemised list, over the spot where he stands.
+  It is hover-only, so it is hidden under 860px; on a phone, tapping the head
+  shows it for a moment. On a wide screen (1180px and up) he stands in the
+  middle of the left column.
 
   All garments are drawn over `SH`, the shared shoulder path, which has a
   deliberately flat top around `y=102` spanning `x` 40 to 80 - that flat is
@@ -232,26 +229,36 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   screen); its sleeve takes the shirt colour.
 
 - **Off the clock** is its own view (`#hobbies`, the middle button up top),
-  five `.hobby` cards with an icon, copy drawn from the college essays, and
-  a `.play` button that makes him do it. Hovering a card makes him point you
-  at the button (its `data-say` lines) and the button nudges. The gym card
-  holds the lift tracker: numbers and notes live in `LIFTS` in the script,
-  the tabs in the markup; hovering a tab loops that lift as a preview.
+  five `.hobby` cards with an icon and copy drawn from the college essays.
+  Hover a card and he does that hobby where he stands, in the left column,
+  and keeps doing it until you hover another card, the head, or press
+  escape. The gym card plays whichever lift tab is selected; hovering a tab
+  previews that lift.
 
 - **Doing the hobbies.** `ACTS` in the script holds one entry per action
   (`violin`, `dj`, `code`, `serve`, `squat`, `bench`, `dead`), each with a
   `hint` for the keys (shown under the figure), a `mood`, a `setup(st)` that
   lays out the scene, a `tick(sec, st)` called every frame with seconds since
-  the start, and a `key(e, st)` the keyboard reaches while it plays. `st` is
-  the action's scratch state; `st.finish(line, mood)` ends it, and escape or
-  `idle` seconds without a key ends it too. Space is a bow stroke / a rep,
-  arrows scratch and space drops the beat, typing writes the code and enter
-  runs it (24+ characters pass, fewer get a TLE), and the serve puts up a
-  meter: space on the green is an ace, anything else and the ball comes down
-  on his head. On a touch screen (no hover) each action's `auto()` presses
-  the keys itself. The figure (`figureSVG()`) is one rounded piece under the
-  live head, with two-segment arms placed by `setArm(side, x, y, bend)`.
-  Shorts show the legs with the quads and calves drawn in (`leg()`).
+  the start, a `key(e, st)` the keyboard reaches while it plays, and an
+  `auto(sec, st)` that presses the keys itself whenever yours have been quiet
+  for a couple of seconds (and always on a touch screen). Space is a bow
+  stroke / a rep, arrows scratch and space drops the beat, typing writes the
+  code and enter runs it (24+ characters pass, fewer get a TLE), and the
+  serve puts up a meter: space on the green is an ace, anything else and the
+  ball comes down on his head. The three lifts are drawn side-on at a
+  three-quarter angle with the bar loaded like a real one (`barbell()`:
+  45 lb bar, then per side 45s, a 25, 10s, 5s until it adds up, near plates
+  big and in front, far plates small and behind).
+
+- **The figure.** `figureSVG()` is one rounded body under the live head,
+  with two-segment arms placed by `setArm(side, x, y, bend)`. Every top has
+  a full-length version for it (`FULL` by template, `FULL_TOP` for the
+  hand-drawn ones): the torso from the shoulders to the hem, clipped to the
+  body, and a `sleeve` spec the arm drawing reads (colour, cuff, stripe,
+  bands, a camo blob). Pants carry their marks, pockets, drawstrings and
+  seams; shoes their N, tiger stripes, Air Max waves, laces. Shorts show the
+  legs with the quads and calves drawn in. The pointing arm on the bust is
+  built from the same pieces.
 
 - **The reels.** The `Reels` button (or opening the page at `#reels`) swaps the
   profile for a scroll-snap deck, one project per screen, in `<section
