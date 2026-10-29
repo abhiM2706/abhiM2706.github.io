@@ -98,6 +98,12 @@ body {
   gap: 10px;
 }
 #face svg { display: block; width: 104px; height: 104px; overflow: visible; pointer-events: auto; cursor: pointer; }
+/* Shorts fits stand full-length in the margin instead of the head crop
+   (wide screens only: anywhere narrower the legs would run into the text) */
+body.full #face svg { height: 251px; }
+body.full #look { left: calc(max(18px, env(safe-area-inset-left, 0px)) + 118px); width: 176px; }
+body.full #look:not(.gym) svg { display: none; }
+body.full #look.gym { width: 244px; }
 #quip {
   font-family: var(--mono);
   font-size: 11px;
@@ -607,6 +613,7 @@ body.reeling { overflow: hidden; }
   <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <!-- Body stays put while the head tilts. The outfit and any jewellery are
          filled in by rollFit() at load, so the fit differs every visit. -->
+    <g id="full"></g>
     <g id="body">
       <path d="M50 90 h20 v17 h-20 z" fill="var(--skin-dk)"/>
       <g id="outfit"></g>
@@ -1699,6 +1706,9 @@ body.reeling { overflow: hidden; }
   // --- the full-body figure for the lookbook ---
   var figure = document.getElementById("figure");
   var lookList = document.getElementById("lookList");
+  var fullEl = document.getElementById("full");
+  var wide = window.matchMedia("(min-width: 1180px)");
+  wide.addEventListener("change", function () { if (fit) renderLook(); });
   // A bare leg, with the quads and calf drawn in: shorts show the legs off.
   function leg(x, y, h) {
     return '<rect x="' + (x - 1) + '" y="' + y + '" width="26" height="' + h + '" rx="8" fill="var(--skin)"/>' +
@@ -1752,6 +1762,14 @@ body.reeling { overflow: hidden; }
          '<rect x="17" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>' +
          '<rect x="63" y="269" width="40" height="8" rx="4" fill="' + sh.sole + '"/>';
     lower = o;
+
+    // Shorts: the whole figure stands in the margin, legs and all. The
+    // lower body goes behind the real bust, which already sits on top.
+    var full = p.kind === "shorts" && wide.matches;
+    document.body.classList.toggle("full", full);
+    vbH = full ? 290 : 120;
+    svg.setAttribute("viewBox", "0 0 120 " + vbH);
+    fullEl.innerHTML = full ? lower + upper : "";
 
     // the live bust and head, borrowed from the top-left rig
     var head = '<use href="#head"/>';
@@ -1863,11 +1881,12 @@ body.reeling { overflow: hidden; }
   var blushRE  = document.getElementById("blushR");
 
 
+  var vbH = 120;   // the face svg grows to 290 when the figure stands full-length
   function toLocal(clientX, clientY) {
     var r = svg.getBoundingClientRect();
     return {
       x: ((clientX - r.left) / r.width) * 120,
-      y: ((clientY - r.top) / r.height) * 120
+      y: ((clientY - r.top) / r.height) * vbH
     };
   }
 

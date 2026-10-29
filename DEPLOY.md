@@ -206,6 +206,11 @@ Cloudflare Pages and GitHub Pages both redeploy on push.
   ones. New purchase: add a row to the right list, with a `col` so the
   figure can wear it.
 
+  A fit in shorts stands full-length in the margin instead of the head crop
+  (`body.full`; the lower body is drawn into `#full` behind the bust), on
+  screens 1180px and wider, where the margin has the room. Narrower, it is
+  the bust again.
+
   Hovering the head opens the **lookbook**: a full-body figure in the same fit
   (the head and bust are the live ones, borrowed with `<use>`, so it blinks
   and looks around too) and the itemised list. It is hover-only, so it is
